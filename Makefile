@@ -1,5 +1,5 @@
 CC 		= g++
-CFLAGS		= -Wall -g -pedantic
+CFLAGS		= -Wall -Wextra -g -pedantic -std=c++11
 CINCLUDE	= -I /home/morikie/boost_1_58_0
 CLIBPATH	= -Llib/
 CXX		= /usr/bin/gcc
@@ -17,7 +17,7 @@ $(TPATH)polar : $(TPATH)polar.o $(TPATH)fastaReader.o
 
 $(TPATH)uTests : $(TPATH)uTests.o $(TPATH)fastaReader.o
 	@echo "[Link] uTests"
-	$(CC) -o bin/uTests $^ $(CLIBPATH) $(CLIBSTEST) 
+	$(CC) -o bin/uTests $^ $(CLIBPATH) $(CLIBSTEST) $(CFLAGS) 
 
 $(TPATH)uTests.o : unit_testing/uTests.cpp
 	@echo "[Compile] uTests"
@@ -25,12 +25,12 @@ $(TPATH)uTests.o : unit_testing/uTests.cpp
 
 $(TPATH)polar.o : src/polar.cpp src/polar.hpp
 	@echo "[Compile] polar"
-	$(CC) -c src/polar.cpp -o $(TPATH)polar.o
+	$(CC) -c src/polar.cpp -o $(TPATH)polar.o $(CFLAGS)
 
 $(TPATH)fastaReader.o : src/fastaReader.cpp src/fastaReader.hpp
 	@echo "[Compile] FastaReader"
 	@echo "$<"
-	$(CC) $(CINCLUDE) -c $< -o $(TPATH)fastaReader.o $(CLIBPATH) $(CLIBS)
+	$(CC) $(CINCLUDE) -c $< -o $(TPATH)fastaReader.o $(CLIBPATH) $(CLIBS) $(CFLAGS)
 
 .PHONY : clean
 clean : 
