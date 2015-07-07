@@ -155,7 +155,6 @@ BOOST_AUTO_TEST_CASE( findConsensus ) {
 	
 	FastaReader::fastaVector::const_iterator itBegin = newReader.getBeginIterator();
 	FastaReader::fastaVector::const_iterator itEnd = newReader.getEndIterator();
-	std::cerr << "in findConsensus" << std::endl;	
 	while (itBegin != itEnd) {
 		std::cerr << itBegin->first << std::endl;
 		MutationFinder muFi(itBegin->second);
