@@ -1,5 +1,5 @@
 CC 		= g++
-CFLAGS		= -Wall -Wextra -g -pedantic -std=c++11
+CFLAGS		= -Wall -Wextra -pedantic -std=c++11 -O2
 CINCLUDE	= -I /home/morikie/boost_1_58_0 -I /home/morikie/seqan-library-2.0.0
 CLIBPATH	= -Llib/
 CXX		= /usr/bin/gcc

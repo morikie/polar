@@ -1,6 +1,7 @@
 //fastaReader.cpp
 
 #include <iomanip>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
@@ -17,52 +18,48 @@ using namespace std;
 
 namespace fs = boost::filesystem;
 namespace qi = boost::spirit::qi;
-
+namespace pt = boost::posix_time;
 
 template <typename Iterator, typename Skipper>
-struct FastaGrammar : qi::grammar<Iterator, FastaReader::fastaVector(), qi::locals<string, string>, Skipper> {
+struct FastaGrammar : qi::grammar<Iterator, FastaReader::fastaVector(), qi::locals<string>, Skipper> {
 	qi::rule<Iterator> infoLineStart;
-	qi::rule<Iterator> input_end;
-	qi::rule<Iterator> line_end;
+	qi::rule<Iterator> inputEnd;
+	qi::rule<Iterator> lineEnd;
 	qi::rule<Iterator, string(), Skipper> infoLine;
 	qi::rule<Iterator, string(), Skipper> seqLine;
-	qi::rule<Iterator, FastaReader::fastaVector(), qi::locals<string, string>, Skipper> fasta;
+	qi::rule<Iterator, FastaReader::fastaVector(), qi::locals<string>, Skipper> fasta;
 
 
 	FastaGrammar() : FastaGrammar::base_type(fasta, "fasta") {
 		using boost::spirit::standard::char_;
 		using boost::phoenix::bind;
-		using qi::eol;
 		using qi::eoi;
+		using qi::eol;
 		using qi::eps;
-		using qi::lit;
 		using qi::lexeme;
+		using qi::lit;
 		using qi::_1;
 		using qi::_val;
 		using namespace qi::labels;
 		
-		infoLineStart = lit('>');
-		line_end = +eol;
-		input_end = eoi;
+		infoLineStart = char_('>');
+		inputEnd = eoi;
 		
-		/* grammar elements */
-		
-		infoLine = lexeme[*(char_ - line_end)];
+		/* grammar elements */		
+		infoLine = lexeme[*(char_ - eol)];
 		seqLine = *(char_ - infoLineStart);
 
 		/* the grammar */
-		fasta = ( eps > -line_end >
-			*(
-				infoLineStart > infoLine[_a = _1] 
-				> seqLine[bind(&FastaGrammar::addValue, _val, _a, _1)])
-				> input_end
-		);
+		fasta = *(infoLineStart > infoLine[_a = _1] 
+			> seqLine[bind(&FastaGrammar::addValue, _val, _a, _1)]
+			)
+			> inputEnd
+		;
 		
 		/* define sub-grammar names for syntax error messages */
 		infoLineStart.name(">");
 		infoLine.name("sequence identifier");
 		seqLine.name("sequence");
-		line_end.name("end of line");
 		
 	}
 
@@ -111,12 +108,20 @@ void FastaReader::parse() {
 	typedef boost::spirit::istream_iterator iterator_type;
 	typedef boost::spirit::classic::position_iterator2<iterator_type> pos_iterator_type;
 	typedef FastaGrammar<pos_iterator_type, boost::spirit::ascii::space_type> fastaGr;
+	
+	
+	std::cerr << "Measuring: Read-in." << std::endl;
+	const pt::ptime startMeasurement = pt::microsec_clock::universal_time();
 
 	fs::ifstream fin(this->file);
 	if ( ! fin.is_open() ) {
 		throw (string("FastaReader: Access denied for: ") + this->file.string());
 	}
-	
+
+	const pt::ptime endMeasurement = pt::microsec_clock::universal_time();
+	pt::time_duration duration(endMeasurement - startMeasurement);
+	std::cerr << duration << std::endl;
+
 	fin.unsetf(ios::skipws);
 
 	/* input iterator as forward iterator, usable by spirit parser */
@@ -129,15 +134,14 @@ void FastaReader::parse() {
 
 	fastaGr fG;
 	try {
+		std::cerr << "Measuring: Parsing." << std::endl;
+		const pt::ptime startMeasurement2 = pt::microsec_clock::universal_time();
+		
 		qi::phrase_parse(pos_begin, pos_end, fG, boost::spirit::ascii::space, this->fV);
-	} catch (const qi::expectation_failure<pos_iterator_type> & e) {
-		const boost::spirit::classic::file_position_base<string> & pos = e.first.get_position();
-		stringstream oss;
-		oss << "Failed to parse FASTA file." << endl;
-		oss << pos.file << ":" << pos.line << ":" << pos.column << ":" << endl
-			<< e.first.get_currentline() << endl
-			<< setw(pos.column - 1) << "" << "^- expected '" << e.what_.tag << "' here";
-		throw oss.str();
+			
+		const pt::ptime endMeasurement2 = pt::microsec_clock::universal_time();
+		pt::time_duration duration2(endMeasurement2 - startMeasurement2);
+		std::cerr << duration2 <<  std::endl;
 	} catch (std::string str) {
 		cerr << "error message: " << str << endl;
 	}	

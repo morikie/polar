@@ -15,11 +15,9 @@ BOOST_AUTO_TEST_CASE( readIn ) {
 	FastaReader newReader(f);
 	
 	BOOST_CHECK_EQUAL(newReader.getFile().string(), "UTR3_sequences_test.txt");
-
+	
 	FastaReader::fastaVector::const_iterator itBegin = newReader.getBeginIterator();
 	FastaReader::fastaVector::const_iterator itEnd = newReader.getEndIterator();
-
-
 	BOOST_CHECK_EQUAL(itBegin->first, 
 "ENSG00000000003|ENST00000373020|;100630759;100628670|;10063\
 0797;100629986|tetraspanin 6 [Source:HGNC Symbol;Acc:HGNC:11\
