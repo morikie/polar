@@ -6,7 +6,7 @@
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
 #include "fastaReader.hpp"
-#include "mutationFinder.hpp"
+#include "utr3MutationFinder.hpp"
 #include "polar.hpp"
 
 

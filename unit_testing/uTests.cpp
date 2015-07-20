@@ -5,7 +5,7 @@
 #include <seqan/find.h>
 #include "../src/polar.hpp"
 #include "../src/fastaReader.hpp"
-#include "../src/mutationFinder.hpp"
+#include "../src/utr3MutationFinder.hpp"
 
 namespace fs = boost::filesystem;
 
