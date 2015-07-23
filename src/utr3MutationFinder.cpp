@@ -4,7 +4,7 @@
 #include "utr3MutationFinder.hpp"
 
 
-const std::set<std::string> MutationFinder::hexamers = boost::assign::list_of
+const std::set<std::string> Utr3MutationFinder::hexamers = boost::assign::list_of
 	("AATAAA")
 	("ATTAAA")
 	("TATAAA")
@@ -21,17 +21,17 @@ const std::set<std::string> MutationFinder::hexamers = boost::assign::list_of
 ;
 
 
-MutationFinder::MutationFinder(const std::string & seq) :
+Utr3MutationFinder::Utr3MutationFinder(const std::string & seq) :
 sequence(seq)
 {
 	this->findConsensus();
 }
 
 
-MutationFinder::~MutationFinder() {}
+Utr3MutationFinder::~Utr3MutationFinder() {}
 
 
-void MutationFinder::findConsensus() {
+void Utr3MutationFinder::findConsensus() {
 //	seqan::Finder<const std::string> finder(this->sequence);
 //	
 //	std::string p = "AATAAA";

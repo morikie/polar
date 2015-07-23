@@ -1,4 +1,8 @@
 //fastaRreader.hpp
+
+#ifndef __FASTAREADER_HPP__
+#define __FASTAREADER_HPP__
+
 #include <boost/filesystem/path.hpp>
 
 namespace fs = boost::filesystem;
@@ -26,3 +30,4 @@ private:
 	
 };
 
+#endif /* __FASTAREADER_HPP__ */

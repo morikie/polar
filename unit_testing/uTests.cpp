@@ -1,16 +1,20 @@
 #define BOOST_TEST_MAIN polar 
 
 #include <iostream>
+#include <unordered_map>
+#include <boost/spirit/home/support/multi_pass.hpp>
 #include <boost/test/unit_test.hpp>
 #include <seqan/find.h>
-#include "../src/polar.hpp"
 #include "../src/fastaReader.hpp"
+#include "../src/knownGeneParser.hpp"
+#include "../src/polar.hpp"
+#include "../src/readTranscripts.hpp"
 #include "../src/utr3MutationFinder.hpp"
 
 namespace fs = boost::filesystem;
+namespace spirit = boost::spirit;
 
-
-BOOST_AUTO_TEST_CASE( readIn ) {
+BOOST_AUTO_TEST_CASE( fastaReader ) {
 	fs::path f = "UTR3_sequences_test.txt";
 	FastaReader newReader(f);
 	
@@ -146,18 +150,100 @@ TGTATATTTTTTTTTGCATAAAGTA");
 	
 }
 
+BOOST_AUTO_TEST_CASE( knownGeneMrnaParser ) {
+	
+	fs::path file("knownGeneMrna.txt");
+	ReadTranscripts transcripts(file);
+	
+	BOOST_CHECK_EQUAL(transcripts.getData()["uc001aaa.3"], 
+"cttgccgtcagccttttctttgacctcttctttctgttcatgtgtatttgctgtctctta\
+gcccagacttcccgtgtcctttccaccgggcctttgagaggtcacagggtcttgatgctg\
+tggtcttcatctgcaggtgtctgacttccagcaactgctggcctgtgccagggtgcaagc\
+tgagcactggagtggagttttcctgtggagaggagccatgcctagagtgggatgggccat\
+tgttcatcttctggcccctgttgtctgcatgtaacttaataccacaaccaggcatagggg\
+aaagattggaggaaagatgagtgagagcatcaacttctctcacaacctaggccagtgtgt\
+ggtgatgccaggcatgcccttccccagcatcaggtctccagagctgcagaagacgacggc\
+cgacttggatcacactcttgtgagtgtccccagtgttgcagaggcagggccatcaggcac\
+caaagggattctgccagcatagtgctcctggaccagtgatacacccggcaccctgtcctg\
+gacacgctgttggcctggatctgagccctggtggaggtcaaagccacctttggttctgcc\
+attgctgctgtgtggaagttcactcctgccttttcctttccctagagcctccaccacccc\
+gagatcacatttctcactgccttttgtctgcccagtttcaccagaagtaggcctcttcct\
+gacaggcagctgcaccactgcctggcgctgtgcccttcctttgctctgcccgctggagac\
+ggtgtttgtcatgggcctggtctgcagggatcctgctacaaaggtgaaacccaggagagt\
+gtggagtccagagtgttgccaggacccaggcacaggcattagtgcccgttggagaaaaca\
+ggggaatcccgaagaaatggtgggtcctggccatccgtgagatcttcccagggcagctcc\
+cctctgtggaatccaatctgtcttccatcctgcgtggccgagggccaggcttctcactgg\
+gcctctgcaggaggctgccatttgtcctgcccaccttcttagaagcgagacggagcagac\
+ccatctgctactgccctttctataataactaaagttagctgccctggactattcaccccc\
+tagtctcaatttaagaagatccccatggccacagggcccctgcctgggggcttgtcacct\
+cccccaccttcttcctgagtcattcctgcagccttgctccctaacctgccccacagcctt\
+gcctggatttctatctccctggcttggtgccagttcctccaagtcgatggcacctccctc\
+cctctcaaccacttgagcaaactccaagacatcttctaccccaacaccagcaattgtgcc\
+aagggccattaggctctcagcatgactatttttagagaccccgtgtctgtcactgaaacc\
+ttttttgtgggagactattcctcccatctgcaacagctgcccctgctgactgcccttctc\
+tcctccctctcatcccagagaaacaggtcagctgggagcttctgcccccactgcctaggg\
+accaacaggggcaggaggcagtcactgaccccgagacgtttgcatcctgcacagctagag\
+atcctttattaaaagcacactgttggtttctg");
+
+
+	BOOST_CHECK_EQUAL(transcripts.getData()["uc021ogw.1"], 
+"gcgttggtggtttagtggtagaattctcgcctcccatgcgggagacccgggttcaattcc\
+cggccactgca");
+
+	BOOST_CHECK_EQUAL(transcripts.getData()["uc011ncc.1"],
+"cttgccgtcagccttttctttgacctcttctttctgttcatgtgtatttgctgtctctta\
+gcccagacttcccgtgtcctttccaccaggcctttgagaggtcacagggtcttgatgctgt\
+ggtcttgatctgcaggtgtctgacttccagcaactgctggcctgtgccagggtgcaagctg\
+agcactggagtggagttttcctgtggagaggagccatgcctagagtgggatgggccattgt\
+tcatcttctggcccctgttgtctgcatgtaacttaataccacaaccaggcataggggaaag\
+attggaggaaagatgagtgagagcatcaacttctctgacaacctaggccagtgtgtggtga\
+tgccaggcatgcccttccccagcatcaggtctccagagctgcagaagacgacggccgactt\
+ggatcacaatcttgtgagtgtccccagtgttgcagaggcagggccatcaggcaccaaaggg\
+attctgccagcatagtgctcctggattagtgatacacccggcaccctgtcctggacaagct\
+gttggcctggatctgagccctcgtggaggtcaaagccacctttggttctgccattgctgct\
+gtgtggaagttcactcctgccttttcctttccctagagcctccaccaccccgagatcacat\
+ttctcactgccttttgtctgcccagtttcaccagaagtaggcctcttcctgacaggcagct\
+gcaccactgcctggcgctgcgcccttcctttgctctgcccgctggagacggtgtttgtcat\
+gggcctgatctgcagggatcctgctacaaaggtgaaacccagaagagtgtggagtccagag\
+tgttgccaggacccaggcacaggcattagtgcccgttggagaaaacaggggaaccccgaag\
+aaatggtgggtcctggccatccgtgagatcttcccagggcagctcccctctgtggaatcca\
+atctgtcttccatcctgtgtggccgagggccaggcttctcactgggcctctgcaggaggct\
+gccatttgtcctgcccaccttcttagaagcgagacggagcagacccatctgctactgccct\
+ttctataataactaaagttagctgccctggactattcaccccctagtctcaatttaaaaag\
+atccccatggccacagggcccctgcctgggggcttgtcacctcccccaccttcttcctgag\
+tcacccctgcagccttgctccctaacctgccccacagccttgcctggatttctatctccct\
+ggcttggtgccagttcctccaagttgatggcacctccctccctctcaaccacttgagcaaa\
+ctccaagacatcttctaccccaacaccagcaattgtgccaagggccattgggctctcagca\
+tgactatttttagagaccccgtgtctgtcactgaaaccttttttgtgggagactattcctc\
+ccatctgcaacagctgcccctgctgactgcccttctctcccagagaaacaggtcagctggg\
+agcttctgcccccactgcctagggaccaacaggggcaggaggcagtcactgaccccgagac\
+gtttgcatcctgcacagctagaggtcctttattaaaagcacactgttggtttctgctc");
+
+}
+
+BOOST_AUTO_TEST_CASE( knownGeneParser ) {
+
+	fs::path file = "knownGene.txt";
+
+	KnownGeneParser newParser(file);
+	
+	TxProperties txP1{ "chr1",
+		'+',
+		11873,
+		14409,
+		11873,
+		11873,
+		std::vector<size_t> {11873, 12612, 13220},
+		std::vector<size_t> {12227,12721,14409}
+	};
+
+
+	BOOST_CHECK(newParser.getData()["uc001aaa.3"] == txP1); 
+	
+	std::cerr << "newParser.getData().size(): " << newParser.getData().size() << std::endl;
+}
+
 
 BOOST_AUTO_TEST_CASE( findConsensus ) {	
-	fs::path f = "UTR3_sequences_test.txt";
-	FastaReader newReader(f);
-	
-	FastaReader::fastaVector::const_iterator itBegin = newReader.getBeginIterator();
-	FastaReader::fastaVector::const_iterator itEnd = newReader.getEndIterator();
-	while (itBegin != itEnd) {
-		std::cerr << itBegin->first << std::endl;
-		MutationFinder muFi(itBegin->second);
-		itBegin++;
-	}
-
 
 }

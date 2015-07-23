@@ -8,7 +8,7 @@ LIBS		= -lboost_regex -lboost_filesystem -lboost_system
 LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system
 TPATH		= bin/
 
-OBJS		= $(TPATH)fastaReader.o $(TPATH)utr3MutationFinder.o $(TPATH)transcriptMutation.o $(TPATH)hgvsParser.o
+OBJS		= $(TPATH)fastaReader.o $(TPATH)utr3MutationFinder.o $(TPATH)transcriptMutation.o $(TPATH)hgvsParser.o $(TPATH)readTranscripts.o $(TPATH)knownGeneParser.o
 
 
 .PHONY : all
@@ -36,15 +36,24 @@ $(TPATH)fastaReader.o : src/fastaReader.hpp src/fastaReader.cpp
 
 $(TPATH)utr3MutationFinder.o : src/utr3MutationFinder.hpp src/utr3MutationFinder.cpp
 	@echo "[Compile] UTR3MutationFinder"
-	$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3MutationFinder.cpp -o $(TPATH)utr3MutationFinder.o
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3MutationFinder.cpp -o $(TPATH)utr3MutationFinder.o
 
 $(TPATH)transcriptMutation.o : src/transcriptMutation.hpp src/transcriptMutation.cpp src/hgvsParser.hpp
 	@echo "[Compile] TranscriptMutation"
-	$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/transcriptMutation.cpp -o $(TPATH)transcriptMutation.o
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/transcriptMutation.cpp -o $(TPATH)transcriptMutation.o
 
 $(TPATH)hgvsParser.o : src/hgvsParser.hpp src/hgvsParser.cpp
 	@echo "[Compile] HGVS Parser"
-	$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/hgvsParser.cpp -o $(TPATH)hgvsParser.o
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/hgvsParser.cpp -o $(TPATH)hgvsParser.o
+
+$(TPATH)readTranscripts.o : src/readTranscripts.hpp src/readTranscripts.cpp
+	@echo "[Compile] ReadTranscripts"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/readTranscripts.cpp -o $(TPATH)readTranscripts.o
+
+$(TPATH)knownGeneParser.o : src/knownGeneParser.hpp src/knownGeneParser.cpp
+	@echo "[Compile] ReadTranscripts"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/knownGeneParser.cpp -o $(TPATH)knownGeneParser.o
+
 
 .PHONY : clean
 clean :
