@@ -8,7 +8,13 @@ LIBS		= -lboost_regex -lboost_filesystem -lboost_system
 LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system
 TPATH		= bin/
 
-OBJS		= $(TPATH)fastaReader.o $(TPATH)utr3MutationFinder.o $(TPATH)transcriptMutation.o $(TPATH)hgvsParser.o $(TPATH)readTranscripts.o $(TPATH)knownGeneParser.o
+OBJS		= $(TPATH)fastaReader.o \
+	$(TPATH)utr3MutationFinder.o \
+	$(TPATH)transcriptMutation.o \
+	$(TPATH)hgvsParser.o \
+	$(TPATH)readTranscripts.o \
+	$(TPATH)knownGeneParser.o \
+	$(TPATH)jannovarVcfParser.o
 
 
 .PHONY : all
@@ -51,8 +57,12 @@ $(TPATH)readTranscripts.o : src/readTranscripts.hpp src/readTranscripts.cpp
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/readTranscripts.cpp -o $(TPATH)readTranscripts.o
 
 $(TPATH)knownGeneParser.o : src/knownGeneParser.hpp src/knownGeneParser.cpp
-	@echo "[Compile] ReadTranscripts"
+	@echo "[Compile] KnownGeneParser"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/knownGeneParser.cpp -o $(TPATH)knownGeneParser.o
+
+$(TPATH)knownGeneParser.o : src/jannovarVcfParser.hpp src/jannovarVcfParser.cpp
+	@echo "[Compile] JannovarVcfParser"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/jannovarVcfParser.cpp -o $(TPATH)jannovarVcfParser.o
 
 
 .PHONY : clean

@@ -6,6 +6,7 @@
 #include <boost/test/unit_test.hpp>
 #include <seqan/find.h>
 #include "../src/fastaReader.hpp"
+#include "../src/jannovarVcfParser.hpp"
 #include "../src/knownGeneParser.hpp"
 #include "../src/polar.hpp"
 #include "../src/readTranscripts.hpp"
@@ -228,19 +229,28 @@ BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 	KnownGeneParser newParser(file);
 	
 	TxProperties txP1{ "chr1",
-		'+',
+		"+",
 		11873,
 		14409,
 		11873,
 		11873,
-		std::vector<size_t> {11873, 12612, 13220},
-		std::vector<size_t> {12227,12721,14409}
+		std::vector<unsigned int> {11873, 12612, 13220},
+		std::vector<unsigned int> {12227,12721,14409}
 	};
 
 
 	BOOST_CHECK(newParser.getData()["uc001aaa.3"] == txP1); 
 	
 	std::cerr << "newParser.getData().size(): " << newParser.getData().size() << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
+	
+	fs::path file = "vcf-example.jv.vcf";
+
+	JannovarVcfParser newParser(file);
+
+	
 }
 
 
