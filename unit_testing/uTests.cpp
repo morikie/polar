@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <boost/spirit/home/support/multi_pass.hpp>
 #include <boost/test/unit_test.hpp>
-#include <seqan/find.h>
 #include "../src/fastaReader.hpp"
 #include "../src/jannovarVcfParser.hpp"
 #include "../src/knownGeneParser.hpp"
@@ -228,7 +227,8 @@ BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 
 	KnownGeneParser newParser(file);
 	
-	TxProperties txP1{ "chr1",
+	TxProperties txP1{ 
+		"chr1",
 		"+",
 		11873,
 		14409,
@@ -250,7 +250,35 @@ BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
 
 	JannovarVcfParser newParser(file);
 
+	vcfTranscripts vcfTx1 { 
+		"coding_transcript_intron_variant",
+		"uc002wel.4",
+		"c.365+2545A>G"
+	};
+	BOOST_CHECK(newParser.getData()[std::make_pair("20", 1110696u)][0] == vcfTx1);
+
 	
+	vcfTranscripts vcfTx2 { 
+		"intergenic_variant",
+		"uc002wcw.3",
+		""
+	};
+	BOOST_CHECK(newParser.getData()[std::make_pair("20", 14370u)][0] == vcfTx2);
+	
+	vcfTranscripts vcfTx3 { 
+		"3_prime_utr_variant",
+		"uc002wep.4",
+		"c.*2682A>G"
+	};
+	BOOST_CHECK(newParser.getData()[std::make_pair("20", 1148406u)][2] == vcfTx3);
+	
+	vcfTranscripts vcfTx4 { 
+		"",
+		"",
+		""
+	};
+	BOOST_CHECK(newParser.getData()[std::make_pair("20", 1230237u)][0] == vcfTx4);
+
 }
 
 

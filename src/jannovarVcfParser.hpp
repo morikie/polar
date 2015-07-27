@@ -1,57 +1,51 @@
-#ifndef __KNOWNGENEPARSER_HPP__
-#define __KNOWNGENEPARSER_HPP__
+#ifndef __JANNOVARVCFPARSER_HPP__
+#define __JANNOVARVCFPARSER_HPP__
 
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <boost/filesystem/path.hpp>
 
 
 namespace fs = boost::filesystem;
 
 
-struct TxProperties {
+struct vcfTranscripts {
 
-	friend bool operator== (const TxProperties & left, const TxProperties & right) {
-		if (left.chr != right.chr) return false;
-		if (left.strand != right.strand) return false;
-		if (left.txStart != right.txStart) return false;
-		if (left.txEnd != right.txEnd) return false;
-		if (left.cdsStart != right.cdsStart) return false;
-		if (left.cdsEnd != right.cdsEnd) return false;
-		if (left.exonStarts != right.exonStarts) return false;
-		if (left.exonEnds != right.exonEnds) return false;
+	friend bool operator== (const vcfTranscripts & left, const vcfTranscripts & right) {
+		if (left.jvVariantType != right.jvVariantType) return false;
+		if (left.txName != right.txName) return false;
+		if (left.hgvsString != right.hgvsString) return false;
 		return true;
 	}
 
-	std::string chr;
-	std::string strand;
-	unsigned int txStart;
-	unsigned int txEnd;
-	unsigned int cdsStart;
-	unsigned int cdsEnd;
-	std::vector<unsigned int> exonStarts;
-	std::vector<unsigned int> exonEnds;
+	std::string jvVariantType;
+	std::string txName;
+	std::string hgvsString;
 };
 
 
-class KnownGeneParser {
+class JannovarVcfParser {
 public:
-	typedef std::unordered_map<std::string, TxProperties> txPropMap;
+	typedef std::string chromosome;
+	typedef unsigned int position;
+	typedef std::pair<chromosome, position> Key;
+	typedef std::vector<vcfTranscripts> Value;
+	typedef std::map<Key, Value> vcfTranscriptsMap;
 
 private:
 	fs::path file;
-	txPropMap data;
+	vcfTranscriptsMap data;
 	
 public:
-	KnownGeneParser(const fs::path & f);
-	~KnownGeneParser();
+	JannovarVcfParser(const fs::path & f);
+	~JannovarVcfParser();
 
-	txPropMap & getData();
+	vcfTranscriptsMap & getData();
 
 private:
 	void parse();
 
 };
 
-#endif /* __KNOWNGENEPARSER_HPP__ */
+#endif /* __JANNOVARVCFPARSER_HPP__ */
 

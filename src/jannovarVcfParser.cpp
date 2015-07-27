@@ -7,7 +7,7 @@
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/home/support/multi_pass.hpp>
-#include "knownGeneParser.hpp"
+#include "jannovarVcfParser.hpp"
 
 
 namespace qi = boost::spirit::qi;
@@ -15,69 +15,86 @@ namespace spirit = boost::spirit;
 
 
 BOOST_FUSION_ADAPT_STRUCT (
-        TxProperties,
-        (std::string, chr)
-        (std::string, strand)
-        (unsigned int, txStart)
-        (unsigned int, txEnd)
-        (unsigned int, cdsStart)
-        (unsigned int, cdsEnd)
-        (std::vector<unsigned int>, exonStarts)
-        (std::vector<unsigned int>, exonEnds)
+        vcfTranscripts,
+        (std::string, jvVariantType)
+        (std::string, txName)
+        (std::string, hgvsString)
 )
 
 
 template <typename Iterator>
-struct knownGeneGrammar : 
-	qi::grammar<Iterator, std::unordered_map<std::string, TxProperties>() > {
+struct jannovarVcfGrammar : 
+	qi::grammar<Iterator, JannovarVcfParser::vcfTranscriptsMap()> {
 
 	/* Grammar */
-	knownGeneGrammar() : knownGeneGrammar::base_type(query) {
-		query   %= pair >> *(qi::lit('\n') >> pair);
-		pair    %= seqName >> txProps;
-		seqName %= *~qi::char_('\t') >> '\t';
+	jannovarVcfGrammar() : jannovarVcfGrammar::base_type(query) {
+		query   %= *headerLines >>
+				pair >> *(qi::lit('\n') >> pair);
+		
+		headerLines = qi::omit[('#' >> *~qi::char_('\n') >> '\n')];
+		pair    %= keyPair >> omittedCol
+				>> omittedCol
+				>> omittedCol
+				>> omittedCol
+				>> omittedCol
+				>> jannovarStringValueVector;
+		keyPair %= chromValue >> intValue;
+		jannovarStringValueVector %= (*(jannovarStringValue - qi::char_(";")) >> ';' >> qi::omit[*~qi::char_('\n')]) | noAnnotation; 
+		jannovarStringValue %=	qi::omit[stringValue] >> '|'	
+					>> stringValue >> '|' 
+					>> qi::omit[stringValue] >> '|'
+					>> qi::omit[stringValue] >> '|' 
+					>> qi::omit[stringValue] >> '|' 
+					>> qi::omit[stringValue] >> '|'
+					>> stringValue >> '|'
+					>> qi::omit[stringValue] >> '|'
+					>> qi::omit[stringValue] >> '|'
+					>> stringValue >> '|'
+					>> qi::omit[stringValue] >> '|'
+					>> qi::omit[stringValue] >> '|'
+					>> qi::omit[stringValue] >> '|'
+					>> qi::omit[stringValue] >> '|'
+					>> qi::omit[stringValue] >> '|'
+					;
+		noAnnotation = qi::attr("") >> qi::attr("") >> qi::attr("") >> qi::omit[*~qi::char_('\n')];
+		omittedCol = qi::omit[*~qi::char_('\t')] >> '\t';
+		stringValue %= *~qi::char_("|\t");
 		intValue %= qi::uint_ >> '\t';
-		intVector %= *(qi::uint_ >> ',') >> '\t';
-		txProps	%= seqName
-				>> seqName
-				>> intValue
-				>> intValue
-				>> intValue
-				>> intValue
-				>> qi::omit[*~qi::char_('\t')] >> '\t'
-				>> intVector
-				>> intVector
-				>> qi::omit[*~qi::char_('\n')]
-				;
+		chromValue %= *~qi::char_('\t') >> '\t';
 	
-		//BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(seqName)(txProps) )
+		BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(keyPair)(headerLines)(jannovarStringValue)(jannovarStringValueVector)(stringValue) )
 	}
 	private:
-		qi::rule<Iterator, std::unordered_map<std::string, TxProperties>()> query;
-		qi::rule<Iterator, std::pair<std::string, TxProperties>() > pair;
-		qi::rule<Iterator, std::string()> seqName;
-		qi::rule<Iterator, unsigned int()> intValue;
-		qi::rule<Iterator, std::vector<unsigned int>() > intVector;
-		qi::rule<Iterator, TxProperties()> txProps;
+		qi::rule<Iterator, JannovarVcfParser::vcfTranscriptsMap()> query;
+		qi::rule<Iterator, JannovarVcfParser::Key()> keyPair;
+		qi::rule<Iterator, JannovarVcfParser::Value()> jannovarStringValueVector;
+		qi::rule<Iterator, std::pair<JannovarVcfParser::Key, JannovarVcfParser::Value>() > pair;
+		qi::rule<Iterator, JannovarVcfParser::chromosome()> stringValue;
+		qi::rule<Iterator, JannovarVcfParser::position()> intValue;
+		qi::rule<Iterator, std::string()> chromValue;
+		qi::rule<Iterator, vcfTranscripts()> jannovarStringValue;
+		qi::rule<Iterator, vcfTranscripts()> noAnnotation;
+		qi::rule<Iterator, void()> omittedCol;
+		qi::rule<Iterator, void()> headerLines;
 };
 
 
-KnownGeneParser::KnownGeneParser(const fs::path & f) :
+JannovarVcfParser::JannovarVcfParser(const fs::path & f) :
 	file(f)
 {
 	this->parse();
 }
 
 
-KnownGeneParser::~KnownGeneParser() {}
+JannovarVcfParser::~JannovarVcfParser() {}
 
 
-KnownGeneParser::txPropMap & KnownGeneParser::getData() {
+JannovarVcfParser::vcfTranscriptsMap & JannovarVcfParser::getData() {
 	return this->data;
 }
 
 
-void KnownGeneParser::parse() {
+void JannovarVcfParser::parse() {
 	std::ifstream in((this->file).string());
 
 	typedef std::istreambuf_iterator<char> base_iterator_type;
@@ -85,7 +102,7 @@ void KnownGeneParser::parse() {
 	forward_iterator first = spirit::make_default_multi_pass(base_iterator_type(in));
 	forward_iterator last = spirit::make_default_multi_pass(base_iterator_type());
 	
-	knownGeneGrammar<forward_iterator> grammar;
+	jannovarVcfGrammar<forward_iterator> grammar;
 
 	bool result = qi::parse(first, last, grammar, this->data);
 

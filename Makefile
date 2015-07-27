@@ -60,7 +60,7 @@ $(TPATH)knownGeneParser.o : src/knownGeneParser.hpp src/knownGeneParser.cpp
 	@echo "[Compile] KnownGeneParser"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/knownGeneParser.cpp -o $(TPATH)knownGeneParser.o
 
-$(TPATH)knownGeneParser.o : src/jannovarVcfParser.hpp src/jannovarVcfParser.cpp
+$(TPATH)jannovarVcfParser.o : src/jannovarVcfParser.hpp src/jannovarVcfParser.cpp
 	@echo "[Compile] JannovarVcfParser"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/jannovarVcfParser.cpp -o $(TPATH)jannovarVcfParser.o
 
