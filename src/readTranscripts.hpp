@@ -8,12 +8,15 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 
+
 namespace qi = boost::spirit::qi;
 namespace fs = boost::filesystem;
 
 
+/**
+ * Class used to parse and store values from UCSC's knownGeneMrna files.
+ */
 class ReadTranscripts {	
-
 public:
 	typedef std::unordered_map<std::string, std::string> tMap;
 
@@ -33,3 +36,4 @@ private:
 };
 
 #endif /* __READTRANSCRIPTS_HPP__ */
+

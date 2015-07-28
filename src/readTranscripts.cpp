@@ -8,9 +8,14 @@
 #include <boost/fusion/adapted/std_pair.hpp>
 #include "readTranscripts.hpp"
 
+
 namespace qi = boost::spirit::qi;
 namespace spirit = boost::spirit;
 
+
+/**
+ * Grammar for parsing UCSC's knownGeneMrna files.
+ */
 template <typename Iterator>
 struct knownGeneMrnaGrammar : 
 	qi::grammar<Iterator, std::unordered_map<std::string, std::string>()> {
@@ -29,6 +34,11 @@ struct knownGeneMrnaGrammar :
 };
 
 
+/**
+ * Constructor.
+ *
+ * @param[in]	f	File to be parsed.
+ */
 ReadTranscripts::ReadTranscripts(const fs::path & f):
 	file(f)
 {
@@ -36,14 +46,23 @@ ReadTranscripts::ReadTranscripts(const fs::path & f):
 }
 
 
+/**
+ * Destructor.
+ */
 ReadTranscripts::~ReadTranscripts() {}
 
 
+/**
+ * Return a reference to the parsed data.
+ */
 ReadTranscripts::tMap & ReadTranscripts::getData() {
 	return this->transcripts;
 }
 
 
+/**
+ * Parses the file passed to the constructor.
+ */
 void ReadTranscripts::parse() {
 	std::ifstream in((this->file).string());
 

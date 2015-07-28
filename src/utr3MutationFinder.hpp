@@ -1,10 +1,12 @@
-
 #ifndef __UT3MUTATIONFINDER_HPP__
 #define __UT3MUTATIONFINDER_HPP__
 
 #include "transcriptMutation.hpp"
 
 
+/**
+ * Class to predict the location of the Poly(A) cleavage motif.
+ */
 class Utr3MutationFinder {
 public:
 	static const std::set<std::string> hexamers;

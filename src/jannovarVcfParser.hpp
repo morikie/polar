@@ -9,6 +9,10 @@
 namespace fs = boost::filesystem;
 
 
+/**
+ * Struct containing desired values from the vcf file, i.e. variant type, transcript name
+ * and HGVS string.
+ */
 struct vcfTranscripts {
 
 	friend bool operator== (const vcfTranscripts & left, const vcfTranscripts & right) {
@@ -24,6 +28,9 @@ struct vcfTranscripts {
 };
 
 
+/**
+ * Class to parse VCF files and fill vcfTranscripts.
+ */
 class JannovarVcfParser {
 public:
 	typedef std::string chromosome;

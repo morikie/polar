@@ -1,7 +1,7 @@
 CC 		= g++
 CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2
 LFLAGS		= -Wall
-INCLUDE		= -I $(HOME)/boost_1_58_0 -I $(HOME)/seqan-library-2.0.0
+INCLUDE		= -I $(HOME)/boost_1_58_0 -I $(HOME)/seqan-library-2.0.0/include
 LIBPATH		= -Llib/
 CXX		= /usr/bin/gcc
 LIBS		= -lboost_regex -lboost_filesystem -lboost_system

@@ -1,6 +1,6 @@
-
 #ifndef __TRANSCRIPTMUTATION_HPP__
 #define __TRANSCRIPTMUTATION_HPP__
+
 
 struct TranscriptMutation {
 	

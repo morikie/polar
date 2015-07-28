@@ -4,6 +4,9 @@
 #include "utr3MutationFinder.hpp"
 
 
+/**
+ * Set of known Poly(A) cleavage motifs to be not pathogenic.
+ */
 const std::set<std::string> Utr3MutationFinder::hexamers = boost::assign::list_of
 	("AATAAA")
 	("ATTAAA")
@@ -21,16 +24,25 @@ const std::set<std::string> Utr3MutationFinder::hexamers = boost::assign::list_o
 ;
 
 
+/**
+ * Constructor,
+ */
 Utr3MutationFinder::Utr3MutationFinder(const std::string & seq) :
-sequence(seq)
+	sequence(seq)
 {
 	this->findConsensus();
 }
 
 
+/**
+ * Destructor.
+ */
 Utr3MutationFinder::~Utr3MutationFinder() {}
 
 
+/**
+ * Predicts the location of the UTR3's Poly(A) cleavage recognition motif.
+ */
 void Utr3MutationFinder::findConsensus() {
 //	seqan::Finder<const std::string> finder(this->sequence);
 //	
