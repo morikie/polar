@@ -9,7 +9,7 @@
  */
 class Utr3MutationFinder {
 public:
-	static const std::set<std::string> hexamers;
+	static const std::vector<std::string> hexamers;
 //	const TranscriptMutation mutation;
 
 private:

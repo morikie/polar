@@ -1,15 +1,16 @@
 #ifndef __TRANSCRIPTMUTATION_HPP__
 #define __TRANSCRIPTMUTATION_HPP__
 
+#include <string>
+#include "hgvsParser.hpp"
 
 struct TranscriptMutation {
 	
-//	hgvsParser mutation;
+	const std::string & seqId;
+	const std::string & seq;
+	const HgvsParser & mutation;
 
-	std::string seq;
-	std::string seqId;
 	size_t utr3Start;
-
 
 };
 

@@ -1,10 +1,5 @@
-struct Auto {
-        int tireLength;
-        int hp;
-        int numDoors;
+#ifndef __POLAR_HPP__
+#define __POLAR_HPP__
 
-        int getPs() {
-                return this->hp * 2;
-        }
-};
+#endif /* __POLAR_HPP__ */
 

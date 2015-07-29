@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( knownGeneMrnaParser ) {
 	fs::path file("knownGeneMrna.txt");
 	ReadTranscripts transcripts(file);
 	
-	BOOST_CHECK_EQUAL(transcripts.getData()["uc001aaa.3"], 
+	BOOST_CHECK_EQUAL(transcripts.getValueByKey("uc001aaa.3"), 
 "cttgccgtcagccttttctttgacctcttctttctgttcatgtgtatttgctgtctctta\
 gcccagacttcccgtgtcctttccaccgggcctttgagaggtcacagggtcttgatgctg\
 tggtcttcatctgcaggtgtctgacttccagcaactgctggcctgtgccagggtgcaagc\
@@ -186,11 +186,11 @@ accaacaggggcaggaggcagtcactgaccccgagacgtttgcatcctgcacagctagag\
 atcctttattaaaagcacactgttggtttctg");
 
 
-	BOOST_CHECK_EQUAL(transcripts.getData()["uc021ogw.1"], 
+	BOOST_CHECK_EQUAL(transcripts.getValueByKey("uc021ogw.1"), 
 "gcgttggtggtttagtggtagaattctcgcctcccatgcgggagacccgggttcaattcc\
 cggccactgca");
 
-	BOOST_CHECK_EQUAL(transcripts.getData()["uc011ncc.1"],
+	BOOST_CHECK_EQUAL(transcripts.getValueByKey("uc011ncc.1"),
 "cttgccgtcagccttttctttgacctcttctttctgttcatgtgtatttgctgtctctta\
 gcccagacttcccgtgtcctttccaccaggcctttgagaggtcacagggtcttgatgctgt\
 ggtcttgatctgcaggtgtctgacttccagcaactgctggcctgtgccagggtgcaagctg\
@@ -238,14 +238,11 @@ BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 		std::vector<unsigned int> {12227,12721,14409}
 	};
 
-
-	BOOST_CHECK(newParser.getData()["uc001aaa.3"] == txP1); 
+	BOOST_CHECK(newParser.getValueByKey("uc001aaa.3") == txP1); 
 	
-	std::cerr << "newParser.getData().size(): " << newParser.getData().size() << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
-	
 	fs::path file = "vcf-example.jv.vcf";
 
 	JannovarVcfParser newParser(file);
@@ -255,29 +252,32 @@ BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
 		"uc002wel.4",
 		"c.365+2545A>G"
 	};
-	BOOST_CHECK(newParser.getData()[std::make_pair("20", 1110696u)][0] == vcfTx1);
+	auto key1 = std::make_pair("20", 1110696u);
+	BOOST_CHECK(newParser.getData().find(key1)->second[0] == vcfTx1);
 
-	
 	vcfTranscripts vcfTx2 { 
 		"intergenic_variant",
 		"uc002wcw.3",
 		""
 	};
-	BOOST_CHECK(newParser.getData()[std::make_pair("20", 14370u)][0] == vcfTx2);
+	auto key2 = std::make_pair("20", 14370u);
+	BOOST_CHECK(newParser.getData().find(key2)->second[0] == vcfTx2);
 	
 	vcfTranscripts vcfTx3 { 
 		"3_prime_utr_variant",
 		"uc002wep.4",
 		"c.*2682A>G"
 	};
-	BOOST_CHECK(newParser.getData()[std::make_pair("20", 1148406u)][2] == vcfTx3);
+	auto key3 = std::make_pair("20", 1148406u);
+	BOOST_CHECK(newParser.getData().find(key3)->second[2] == vcfTx3);
 	
 	vcfTranscripts vcfTx4 { 
 		"",
 		"",
 		""
 	};
-	BOOST_CHECK(newParser.getData()[std::make_pair("20", 1230237u)][0] == vcfTx4);
+	auto key4 = std::make_pair("20", 1230237u);
+	BOOST_CHECK(newParser.getData().find(key4)->second[0] == vcfTx4);
 
 }
 

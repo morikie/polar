@@ -78,7 +78,7 @@ struct jannovarVcfGrammar :
 			>> qi::omit[stringValue] >> '|'
 			;
 	
-		BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(keyPair)(headerLines)(jannovarStringValue)(jannovarStringValueVector)(stringValue) )
+	//BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(keyPair)(headerLines)(jannovarStringValue)(jannovarStringValueVector)(stringValue) )
 	}
 
 private:
@@ -116,7 +116,7 @@ JannovarVcfParser::~JannovarVcfParser() {}
 /**
  * Returns a reference to the parsed data. 
  */
-JannovarVcfParser::vcfTranscriptsMap & JannovarVcfParser::getData() {
+const JannovarVcfParser::vcfTranscriptsMap & JannovarVcfParser::getData() const {
 	return this->data;
 }
 

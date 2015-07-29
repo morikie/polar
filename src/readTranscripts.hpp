@@ -21,14 +21,20 @@ public:
 	typedef std::unordered_map<std::string, std::string> tMap;
 
 private:
+	/* file path */
 	const fs::path file;
+	
+	/* empty string for return values */
+	const std::string emptyString = std::string();
+	
+	/* the parsed transcripts */
 	tMap transcripts;
 
 public:
 	ReadTranscripts(const fs::path & f);
 	~ReadTranscripts();
 	
-	tMap & getData();
+	const std::string & getValueByKey(const std::string & k) const;
 
 private:
 	void parse();

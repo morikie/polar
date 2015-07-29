@@ -14,7 +14,9 @@ OBJS		= $(TPATH)fastaReader.o \
 	$(TPATH)hgvsParser.o \
 	$(TPATH)readTranscripts.o \
 	$(TPATH)knownGeneParser.o \
-	$(TPATH)jannovarVcfParser.o
+	$(TPATH)jannovarVcfParser.o \
+	$(TPATH)hgvsParser.o \
+	$(TPATH)readTranscriptMutation.o 
 
 
 .PHONY : all
@@ -40,17 +42,13 @@ $(TPATH)fastaReader.o : src/fastaReader.hpp src/fastaReader.cpp
 	@echo "[Compile] FastaReader"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/fastaReader.cpp -o $(TPATH)fastaReader.o
 
-$(TPATH)utr3MutationFinder.o : src/utr3MutationFinder.hpp src/utr3MutationFinder.cpp
+$(TPATH)utr3MutationFinder.o : src/utr3MutationFinder.hpp src/utr3MutationFinder.cpp src/hgvsParser.hpp src/transcriptMutation.hpp
 	@echo "[Compile] UTR3MutationFinder"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3MutationFinder.cpp -o $(TPATH)utr3MutationFinder.o
 
 $(TPATH)transcriptMutation.o : src/transcriptMutation.hpp src/transcriptMutation.cpp src/hgvsParser.hpp
 	@echo "[Compile] TranscriptMutation"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/transcriptMutation.cpp -o $(TPATH)transcriptMutation.o
-
-$(TPATH)hgvsParser.o : src/hgvsParser.hpp src/hgvsParser.cpp
-	@echo "[Compile] HGVS Parser"
-	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/hgvsParser.cpp -o $(TPATH)hgvsParser.o
 
 $(TPATH)readTranscripts.o : src/readTranscripts.hpp src/readTranscripts.cpp
 	@echo "[Compile] ReadTranscripts"
@@ -63,6 +61,14 @@ $(TPATH)knownGeneParser.o : src/knownGeneParser.hpp src/knownGeneParser.cpp
 $(TPATH)jannovarVcfParser.o : src/jannovarVcfParser.hpp src/jannovarVcfParser.cpp
 	@echo "[Compile] JannovarVcfParser"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/jannovarVcfParser.cpp -o $(TPATH)jannovarVcfParser.o
+
+$(TPATH)hgvsParser.o : src/hgvsParser.hpp src/hgvsParser.cpp
+	@echo "[Compile] HGVS Parser"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/hgvsParser.cpp -o $(TPATH)hgvsParser.o
+
+$(TPATH)readTranscriptMutation.o : src/readTranscriptMutation.hpp src/readTranscriptMutation.cpp
+	@echo "[Compile] readTranscriptMutation"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/readTranscriptMutation.cpp -o $(TPATH)readTranscriptMutation.o
 
 
 .PHONY : clean

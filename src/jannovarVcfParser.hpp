@@ -47,7 +47,7 @@ public:
 	JannovarVcfParser(const fs::path & f);
 	~JannovarVcfParser();
 
-	vcfTranscriptsMap & getData();
+	const vcfTranscriptsMap & getData() const;
 
 private:
 	void parse();

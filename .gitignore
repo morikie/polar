@@ -1,3 +1,5 @@
 *.swp
 *.[oa]
 UTR3_sequences_large.txt
+knownGeneMrna.txt
+knownGene.txt

@@ -1,3 +1,4 @@
+#include <vector>
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <seqan/find.h>
@@ -7,21 +8,21 @@
 /**
  * Set of known Poly(A) cleavage motifs to be not pathogenic.
  */
-const std::set<std::string> Utr3MutationFinder::hexamers = boost::assign::list_of
-	("AATAAA")
-	("ATTAAA")
-	("TATAAA")
-	("AGTAAA")
-	("AAGAAA")
-	("AATATA")
-	("AATACA")
-	("CATAAA")
-	("GATAAA")
-	("AATGAA")
-	("TTTAAA")
-	("ACTAAA")
-	("AATAGA")
-;
+const std::vector<std::string> Utr3MutationFinder::hexamers = {
+	"AATAAA",
+	"ATTAAA",
+	"TATAAA",
+	"AGTAAA",
+	"AAGAAA",
+	"AATATA",
+	"AATACA",
+	"CATAAA",
+	"GATAAA",
+	"AATGAA",
+	"TTTAAA",
+	"ACTAAA",
+	"AATAGA"
+	};
 
 
 /**

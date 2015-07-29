@@ -1,31 +1,31 @@
-#include <cstdlib>
 #include <iostream>
 #include <vector>
-#include <fstream>
-#include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
-#include <boost/regex.hpp>
-#include "fastaReader.hpp"
+#include <boost/filesystem/path.hpp>
+#include "knownGeneParser.hpp"
+#include "jannovarVcfParser.hpp"
+#include "readTranscripts.hpp"
+#include "transcriptMutation.hpp"
+#include "readTranscriptMutation.hpp"
 #include "utr3MutationFinder.hpp"
 #include "polar.hpp"
 
-
-
-using namespace std;
+namespace fs = boost::filesystem;
 
 int main (int args, char * argv[]) {
-	
-	fs::path f = "UTR3_sequences_test.txt";
-        FastaReader newReader(f);
+	fs::path knownGene = "knownGene.txt";
+	fs::path transcripts = "knownGeneMrna.txt";
+	fs::path vcfFile = "vcf-example.jv.vcf";
+	KnownGeneParser txValues(knownGene);
+	ReadTranscripts tx(transcripts);
+	JannovarVcfParser variants(vcfFile);
 
-//	ifstream myFile("UTR3_sequences_test.txt");
-//	string line;
-//	vector<string> myLines;
-//	while (getline(myFile, line)) {
-//		myLines.push_back(line);
-//	}
-//	for (size_t i = 0; i < 2; ++i) {
-//		cerr << myLines[i] << endl;
-//	}
+	std::vector<TranscriptMutation> transMutVector;
+
+	readTranscriptMutation(transMutVector, variants, txValues, tx);
+	
+	std::cerr << "transMutVector.size(): " << transMutVector.size() << std::endl;
+	std::cerr << transMutVector[0].mutation.utr3MutPos << std::endl;
+
 	return EXIT_SUCCESS;
 }

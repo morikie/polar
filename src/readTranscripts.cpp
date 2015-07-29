@@ -53,10 +53,17 @@ ReadTranscripts::~ReadTranscripts() {}
 
 
 /**
- * Return a reference to the parsed data.
+ * Returns the transcript sequence.
+ *
+ * @param[in]	k	Name of the transcript.
  */
-ReadTranscripts::tMap & ReadTranscripts::getData() {
-	return this->transcripts;
+const std::string & ReadTranscripts::getValueByKey(const std::string & k) const{
+	auto it = this->transcripts.find(k);
+	if (it != this->transcripts.end()) {
+		return it->second;
+	} else {
+		return this->emptyString;
+	}
 }
 
 
@@ -71,7 +78,7 @@ void ReadTranscripts::parse() {
 	forward_iterator first = spirit::make_default_multi_pass(base_iterator_type(in));
 	forward_iterator last = spirit::make_default_multi_pass(base_iterator_type());
 
-	knownGeneMrnaGrammar<forward_iterator > grammar;
+	knownGeneMrnaGrammar<forward_iterator> grammar;
 
 	
 	bool result = qi::parse(first, last, grammar, this->transcripts);
