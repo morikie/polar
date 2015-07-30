@@ -13,14 +13,18 @@ public:
 //	const TranscriptMutation mutation;
 
 private:
-	const std::string & sequence;
+	const TranscriptMutation & txMut;
+	unsigned int polyaMotifPos;
 
 public:
-	Utr3MutationFinder(const std::string & seq);
+	Utr3MutationFinder(const TranscriptMutation & tM);
 	~Utr3MutationFinder();
 
-	void findConsensus();
+	bool isMutationInMotif() const;
 
+private:
+	void findPolyaMotif();
+	
 };
 
 #endif /* __UTR3MUTATIONFINDER_HPP__ */

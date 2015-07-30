@@ -8,7 +8,7 @@ struct TranscriptMutation {
 	
 	const std::string & seqId;
 	const std::string & seq;
-	const HgvsParser & mutation;
+	const HgvsParser mutation;
 
 	size_t utr3Start;
 

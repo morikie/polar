@@ -31,7 +31,7 @@ struct vcfTranscripts {
 /**
  * Class to parse VCF files and fill vcfTranscripts.
  */
-class JannovarVcfParser {
+class JannovarVcfParser : boost::noncopyable {
 public:
 	typedef std::string chromosome;
 	typedef unsigned int position;

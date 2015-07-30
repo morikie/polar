@@ -1,5 +1,5 @@
 CC 		= g++
-CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2
+CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2 -g
 LFLAGS		= -Wall
 INCLUDE		= -I $(HOME)/boost_1_58_0 -I $(HOME)/seqan-library-2.0.0/include
 LIBPATH		= -Llib/

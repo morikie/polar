@@ -14,14 +14,18 @@ bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector,
 
 	for ( ; itBegin != itEnd; itBegin++) {
 		
-		BOOST_FOREACH(vcfTranscripts vcfTx, itBegin->second) {
+		BOOST_FOREACH(const vcfTranscripts & vcfTx, itBegin->second) {
 			if (vcfTx.jvVariantType == "3_prime_utr_variant") {
+				auto & mapValues = txValues.getValueByKey(vcfTx.txName);
+				size_t txLength = txSequences.getValueByKey(vcfTx.txName).size();
+				unsigned int utr3Start = txLength - (mapValues.txEnd - mapValues.cdsEnd);
 				
+
 				TranscriptMutation transMut = {
 					vcfTx.txName,
 					txSequences.getValueByKey(vcfTx.txName),
 					HgvsParser(vcfTx.hgvsString),
-					txValues.getValueByKey(vcfTx.txName).cdsEnd
+					utr3Start
 				};
 				transMutVector.push_back(transMut);
 			}

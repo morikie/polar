@@ -1,3 +1,5 @@
+#define BOOST_SPIRIT_DEBUG
+
 #include <boost/spirit/include/qi.hpp>
 #include "hgvsParser.hpp"
 
@@ -29,7 +31,9 @@ void HgvsParser::parse() {
 	auto itBegin = this->hgvsString.begin();
 	auto itEnd = this->hgvsString.end();
 
-	qi::rule<std::string::iterator, unsigned int> r = qi::omit[*~qi::char_('*')] >> '*' >> qi::uint_ >> qi::omit[*qi::char_];
+	qi::rule<std::string::iterator, unsigned int()> r = qi::omit[*~qi::char_('*')] >> '*' >> qi::uint_ >> qi::omit[*qi::char_];
+	//BOOST_SPIRIT_DEBUG_NODES( (r) )
 	qi::parse(itBegin, itEnd, r, this->utr3MutPos);
+
 }
 
