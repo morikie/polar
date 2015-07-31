@@ -14,13 +14,14 @@ public:
 
 private:
 	const TranscriptMutation & txMut;
-	unsigned int polyaMotifPos;
+	mutable unsigned int polyaMotifPos;
 
 public:
 	Utr3MutationFinder(const TranscriptMutation & tM);
 	~Utr3MutationFinder();
 
 	bool isMutationInMotif() const;
+	std::string writeLocation() const;
 
 private:
 	void findPolyaMotif();

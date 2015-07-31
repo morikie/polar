@@ -20,14 +20,12 @@ int main (int args, char * argv[]) {
 	KnownGeneParser txValues(knownGene);
 	ReadTranscripts tx(transcripts);
 	JannovarVcfParser variants(vcfFile);
-
-	std::vector<TranscriptMutation> transMutVector;
-
-	readTranscriptMutation(transMutVector, variants, txValues, tx);
-
 	std::vector<Utr3MutationFinder> utr3MutFinderVector;	
+	std::vector<TranscriptMutation> transMutVector;
+	
+	readTranscriptMutation(transMutVector, variants, txValues, tx);
+	
 	try {
-
 		for (auto it = transMutVector.begin(); it != transMutVector.end(); ++it) {
 			utr3MutFinderVector.push_back(Utr3MutationFinder(*it));
 		}
@@ -37,9 +35,9 @@ int main (int args, char * argv[]) {
 
 	BOOST_FOREACH(const Utr3MutationFinder & utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi.isMutationInMotif()) {
-			std::cerr << "Poly(A) motif mutation detected!" << std::endl;
+			std::cerr << "Poly(A) motif mutation detected: " << utr3MutFi.writeLocation() << std::endl;
 		} else {
-			std::cerr << "Mutation doesn't affect Poly(A) site." << std::endl;
+			std::cerr << "Variant at " << utr3MutFi.writeLocation() << " does not affect Poly(A) site." << std::endl;
 		}
 	}
 

@@ -1,5 +1,5 @@
+#include <sstream>
 #include <vector>
-#include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <seqan/find.h>
 #include "utr3MutationFinder.hpp"
@@ -64,24 +64,42 @@ void Utr3MutationFinder::findPolyaMotif() {
 //		std::cerr << "this->txMut.seq: " << this->txMut.seq << std::endl;
 		
 		BOOST_FOREACH (const std::string & pattern, this->hexamers) {
-			size_t hitPos = 0;	
-			if ((hitPos = this->txMut.seq.find(pattern, txMut.utr3Start)) != std::string::npos) {
+			size_t hitPos = txMut.utr3Start;	
+			while ((hitPos = this->txMut.seq.find(pattern, hitPos + 1)) != std::string::npos) {
 				this->polyaMotifPos = hitPos;
-				std::cerr << "Found hit of " << pattern << " at " << hitPos << std::endl;
-				break;
+				std::cerr << "Found hit of " << pattern << " at " << hitPos << std::endl;	
 			}
-			
+			break;
 		}
 	} else {
 		std::cerr << this->txMut.seq << std::endl;
 	}
 }
 
+
+/**
+ *
+ */
 bool Utr3MutationFinder::isMutationInMotif() const {
-	int diff = static_cast<int>(this->polyaMotifPos) - static_cast<int>(this->txMut.mutation.utr3MutPos);
+	int diff = static_cast<int>(this->polyaMotifPos) - (static_cast<int>(this->txMut.mutation.utr3MutPos) + static_cast<int>(this->txMut.utr3Start));
+	std::cerr << "diff: " << diff << std::endl;
+	std::cerr << "txLength: " << this->txMut.seq.size() << std::endl;
+	std::cerr << "utr3Start: " << this->txMut.utr3Start << std::endl;
+	std::cerr << "mutationPos: " << this->txMut.mutation.utr3MutPos << std::endl; 
 	if (diff < 6 && diff >= 0) {
 		return true;
 	} else {
 		return false;
 	}
-}	
+}
+
+
+/**
+ *
+ */
+std::string Utr3MutationFinder::writeLocation() const {
+	std::stringstream ss;
+	ss << this->txMut.chrom << ", " << this->txMut.genomicPos << ", " << this->txMut.seqId;
+	return ss.str();
+}
+
