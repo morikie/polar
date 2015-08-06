@@ -33,13 +33,15 @@ int main (int args, char * argv[]) {
 		std::cerr << "error occured" << std::endl;
 	}
 
+	size_t noFinds = 0;
 	BOOST_FOREACH(const Utr3MutationFinder & utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi.isMutationInMotif()) {
 			std::cerr << "Poly(A) motif mutation detected: " << utr3MutFi.writeLocation() << std::endl;
 		} else {
-			std::cerr << "Variant at " << utr3MutFi.writeLocation() << " does not affect Poly(A) site." << std::endl;
+			noFinds++;
 		}
 	}
+	std::cerr << "noFinds: " << noFinds << std::endl;
 
 	return EXIT_SUCCESS;
 }

@@ -11,10 +11,11 @@ class Utr3MutationFinder {
 public:
 	static const std::vector<std::string> hexamers;
 //	const TranscriptMutation mutation;
+	static const std::vector<std::string> rHexamers;
 
 private:
 	const TranscriptMutation & txMut;
-	mutable unsigned int polyaMotifPos;
+	unsigned int polyaMotifPos = 0;
 
 public:
 	Utr3MutationFinder(const TranscriptMutation & tM);
