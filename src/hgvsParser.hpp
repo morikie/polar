@@ -15,7 +15,8 @@ public:
 	HgvsParser(const std::string & hgvs);
 	~HgvsParser();
 
-	int getMutPosition();
+	int getMutPosition() const;
+	bool isIntronic() const;
 
 private:
 	void parse();

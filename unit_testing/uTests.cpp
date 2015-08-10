@@ -2,18 +2,19 @@
 
 #include <iostream>
 #include <unordered_map>
-#include <boost/spirit/home/support/multi_pass.hpp>
 #include <boost/test/unit_test.hpp>
 #include "../src/fastaReader.hpp"
 #include "../src/jannovarVcfParser.hpp"
 #include "../src/knownGeneParser.hpp"
 #include "../src/polar.hpp"
 #include "../src/readTranscripts.hpp"
+#include "../src/transcriptMutation.hpp"
 #include "../src/utr3MutationFinder.hpp"
 
 namespace fs = boost::filesystem;
 namespace spirit = boost::spirit;
 
+/*
 BOOST_AUTO_TEST_CASE( fastaReader ) {
 	fs::path f = "UTR3_sequences_test.txt";
 	FastaReader newReader(f);
@@ -149,6 +150,7 @@ TGTATATTTTTTTTTGCATAAAGTA");
 
 	
 }
+*/
 
 BOOST_AUTO_TEST_CASE( knownGeneMrnaParser ) {
 	
@@ -221,13 +223,14 @@ gtttgcatcctgcacagctagaggtcctttattaaaagcacactgttggtttctgctc");
 
 }
 
+
 BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 
 	fs::path file = "knownGene.txt";
 
 	KnownGeneParser newParser(file);
 	
-	TxProperties txP1{ 
+	TxProperties txP1 { 
 		"chr1",
 		"+",
 		11873,
@@ -237,10 +240,35 @@ BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 		std::vector<unsigned int> {11873, 12612, 13220},
 		std::vector<unsigned int> {12227,12721,14409}
 	};
-
 	BOOST_CHECK(newParser.getValueByKey("uc001aaa.3") == txP1); 
-	
+
+	TxProperties txP2 {
+		"chr12",
+		"+",
+		72666528,
+		73059422,
+		72666558,
+		73056975,
+		std::vector<unsigned int> {72666528,72680460,72771774,72863537,72866846,72893277,72936070,72955944,
+			72956632,72962347,72969034,72969266,73012670,73014887,73015423,73046101,73046795,73050706,73056831},
+		std::vector<unsigned int> {72667337,72680734,72771901,72863692,72866960,72893415,72936136,72956010,
+			72956820,72962436,72969168,72969322,73012818,73014985,73015531,73046269,73046936,73050788,73059422}
+	};
+	BOOST_CHECK(newParser.getValueByKey("uc001sxa.3") == txP2);
+
+	TxProperties txP3 {
+		"chrY",
+		"-",
+		59358328,
+		59360854,
+		59358328,
+		59358328,
+		std::vector<unsigned int> {59358328,59360006,59360500},
+		std::vector<unsigned int> {59359508,59360115,59360854}
+	};
+	BOOST_CHECK(newParser.getValueByKey("uc011ncc.1") == txP3);
 }
+
 
 BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
 	fs::path file = "vcf-example.jv.vcf";
@@ -248,40 +276,75 @@ BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
 	JannovarVcfParser newParser(file);
 
 	vcfTranscripts vcfTx1 { 
-		"coding_transcript_intron_variant",
-		"uc002wel.4",
-		"c.365+2545A>G"
+		"3_prime_utr_variant",
+		"uc022cgy.1",
+		"c.*197_*201del"
 	};
-	auto key1 = std::make_pair("20", 1110696u);
+	auto key1 = std::make_pair("X", 151283436u);
 	BOOST_CHECK(newParser.getData().find(key1)->second[0] == vcfTx1);
+	
+	vcfTranscripts vcfTx1_1 {
+		"3_prime_utr_variant",
+		"uc004ffj.3",
+		"c.*197_*201del"
+	};
+	auto key1_1 = std::make_pair("X", 151283436u);
+	BOOST_CHECK(newParser.getData().find(key1_1)->second[1] == vcfTx1_1);
 
 	vcfTranscripts vcfTx2 { 
-		"intergenic_variant",
-		"uc002wcw.3",
-		""
+		"non_coding_transcript_intron_variant",
+		"uc021wmm.1",
+		"n.107+55407T>C"
 	};
-	auto key2 = std::make_pair("20", 14370u);
-	BOOST_CHECK(newParser.getData().find(key2)->second[0] == vcfTx2);
+	auto key2 = std::make_pair("22", 22842206u);
+	BOOST_CHECK(newParser.getData().find(key2)->second[2] == vcfTx2);
 	
 	vcfTranscripts vcfTx3 { 
-		"3_prime_utr_variant",
-		"uc002wep.4",
-		"c.*2682A>G"
+		"missense_variant",
+		"uc031pjn.1",
+		"c.508G>C"
 	};
-	auto key3 = std::make_pair("20", 1148406u);
-	BOOST_CHECK(newParser.getData().find(key3)->second[2] == vcfTx3);
+	auto key3 = std::make_pair("1", 879482u);
+	BOOST_CHECK(newParser.getData().find(key3)->second[0] == vcfTx3);
 	
 	vcfTranscripts vcfTx4 { 
 		"",
 		"",
 		""
 	};
-	auto key4 = std::make_pair("20", 1230237u);
+	auto key4 = std::make_pair("GL000229.1", 13276u);
 	BOOST_CHECK(newParser.getData().find(key4)->second[0] == vcfTx4);
-
+	
+	vcfTranscripts vcfTx5 {
+		"non_coding_transcript_exon_variant",
+		"uc031pkn.1",
+		"n.1727C>T"
+	};
+	auto key5 = std::make_pair("1", 879317u);
+	BOOST_CHECK (newParser.getData().find(key5)->second[32] == vcfTx5);
 }
 
 
-BOOST_AUTO_TEST_CASE( findConsensus ) {	
+BOOST_AUTO_TEST_CASE( findMotif ) {	
+	
+	std::string chrom ("chr1");
+	unsigned int gPos = 12345;
+	std::string strand ("+");
+	std::string seqId ("uc002wel.2");
+	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaacc");
+	HgvsParser newHgvs ("c.*68A>G");
+	unsigned int utr3Start = 20;
 
+	TranscriptMutation  txTest1 {
+		chrom,
+		gPos,
+		strand,
+		seqId,
+		seq,
+		newHgvs,
+		utr3Start
+	};
+	unsigned int utr3MotifPos = 86;
+	Utr3MutationFinder utr3MutFi_test1 (txTest1);
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos(), utr3MotifPos);
 }

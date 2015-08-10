@@ -12,10 +12,12 @@ public:
 	static const std::vector<std::string> hexamers;
 //	const TranscriptMutation mutation;
 	static const std::vector<std::string> rHexamers;
+	
+	static const size_t noHitPos = -1;
 
 private:
 	const TranscriptMutation & txMut;
-	unsigned int polyaMotifPos = 0;
+	size_t polyaMotifPos = 0;
 
 public:
 	Utr3MutationFinder(const TranscriptMutation & tM);
@@ -23,6 +25,7 @@ public:
 
 	bool isMutationInMotif() const;
 	std::string writeLocation() const;
+	size_t getPolyaMotifPos() const;
 
 private:
 	void findPolyaMotif();

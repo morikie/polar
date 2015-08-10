@@ -45,7 +45,8 @@ bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector,
 {
 	auto itBegin = (vcfParser.getData()).begin();
 	auto itEnd = (vcfParser.getData()).end();
-
+	
+	size_t inIntron = 0;
 	for ( ; itBegin != itEnd; itBegin++) {
 			
 		BOOST_FOREACH(const vcfTranscripts & vcfTx, itBegin->second) {
@@ -54,7 +55,7 @@ bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector,
 				size_t txLength = txSequences.getValueByKey(vcfTx.txName).size();
 				auto & strand = txValues.getValueByKey(vcfTx.txName).strand;
 				
-				if (mapValues.cdsEnd - mapValues.cdsStart == 0) continue;
+				if (mapValues.cdsEnd == mapValues.cdsStart) continue;
 
 				size_t utr3Start = findUtrStart(mapValues, txLength);
 
@@ -67,9 +68,15 @@ bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector,
 					HgvsParser(vcfTx.hgvsString),
 					utr3Start
 				};
-				transMutVector.push_back(transMut);
+				if (! transMut.mutation.isIntronic()) {
+					transMutVector.push_back(transMut);
+				} else {
+					inIntron++;		
+				}
+
 			}
 		}
 	}
+	std::cerr << "UTR variants in introns: " << inIntron << std::endl;
 	return true;
 }

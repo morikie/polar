@@ -68,11 +68,12 @@ Utr3MutationFinder::~Utr3MutationFinder() {}
 void Utr3MutationFinder::findPolyaMotif() {
 	size_t seqLength = this->txMut.seq.size();
 	if (this->txMut.strand == "+") {	
+		size_t hitPos = Utr3MutationFinder::noHitPos;
 		BOOST_FOREACH (const std::string & pattern, this->rHexamers) {
-			size_t hitPos = 0;
 			// The range in which the pattern is searched from the end of the transcript
-			size_t offset = 100; //seqLength - this->txMut.utr3Start;
-			if (offset > seqLength - this->txMut.utr3Start) offset = seqLength - this->txMut.utr3Start;
+			size_t utr3Length = seqLength - this->txMut.utr3Start;
+			size_t offset = 100;
+			if (offset > utr3Length) offset = utr3Length; 
 
 			auto posIt = std::search(this->txMut.seq.rbegin(), this->txMut.seq.rbegin() + offset, 
 				pattern.begin(), pattern.end());
@@ -81,12 +82,12 @@ void Utr3MutationFinder::findPolyaMotif() {
 				hitPos = seqLength - (std::distance(this->txMut.seq.rbegin(), posIt) + 6) ;
 				this->polyaMotifPos = hitPos;
 				break;
-			}
-			
+			} 	
 		}
+		if (hitPos == Utr3MutationFinder::noHitPos) this->polyaMotifPos = hitPos;
 	} else {
+		size_t hitPos = Utr3MutationFinder::noHitPos;
 		BOOST_FOREACH (const std::string & pattern, this->rHexamers) {
-			size_t hitPos = 0;
 			// The range in which the pattern is searched from the end of the transcript
 			
 			size_t offset = 100;
@@ -103,6 +104,7 @@ void Utr3MutationFinder::findPolyaMotif() {
 				}
 			}
 		}
+		if (hitPos == Utr3MutationFinder::noHitPos) this->polyaMotifPos = hitPos;
 	}
 }
 
@@ -111,24 +113,25 @@ void Utr3MutationFinder::findPolyaMotif() {
  *
  */
 bool Utr3MutationFinder::isMutationInMotif() const {
-	if (this->polyaMotifPos == 0) return false;
+	if (this->polyaMotifPos == Utr3MutationFinder::noHitPos) return false;
 	
+
 	int diff = -1;
 	if (this->txMut.strand == "+") {
-		std::cerr << "in '+' strand" << std::endl;
+		//std::cerr << "in '+' strand" << std::endl;
 		diff = static_cast<int>(this->polyaMotifPos) - 
-		(static_cast<int>(this->txMut.mutation.utr3MutPos) + static_cast<int>(this->txMut.utr3Start));
+		(this->txMut.mutation.getMutPosition()) + static_cast<int>(this->txMut.utr3Start);
 	} else {
 		diff = (static_cast<int>(this->polyaMotifPos) - 
-		(static_cast<int>(this->txMut.utr3Start)) + static_cast<int>(this->txMut.mutation.utr3MutPos));
+		(static_cast<int>(this->txMut.utr3Start)) + this->txMut.mutation.getMutPosition());
 	}
 	
-	std::cerr << "polyaMotifPos: " << this->polyaMotifPos << std::endl;
-	std::cerr << "strand: " << this->txMut.strand << std::endl;
-	std::cerr << "diff: " << diff << std::endl;
-	std::cerr << "txLength: " << this->txMut.seq.size() << std::endl;
-	std::cerr << "utr3Start: " << this->txMut.utr3Start << std::endl;
-	std::cerr << "mutationPos: " << this->txMut.mutation.utr3MutPos << std::endl; 
+//	std::cerr << "polyaMotifPos: " << this->polyaMotifPos << std::endl;
+//	std::cerr << "strand: " << this->txMut.strand << std::endl;
+//	std::cerr << "diff: " << diff << std::endl;
+//	std::cerr << "txLength: " << this->txMut.seq.size() << std::endl;
+//	std::cerr << "utr3Start: " << this->txMut.utr3Start << std::endl;
+//	std::cerr << "mutationPos: " << this->txMut.mutation.getMutPosition() << std::endl; 
 	if (diff < 6 && diff >= 0) {
 		return true;
 	} else {
@@ -136,6 +139,13 @@ bool Utr3MutationFinder::isMutationInMotif() const {
 	}
 }
 
+
+/**
+ *
+ */
+size_t Utr3MutationFinder::getPolyaMotifPos() const {
+	return this->polyaMotifPos;
+}
 
 /**
  *

@@ -34,7 +34,7 @@ $(TPATH)uTests.o : unit_testing/uTests.cpp
 	@echo "[Compile] uTests"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) unit_testing/uTests.cpp -o $(TPATH)uTests.o
 
-$(TPATH)polar.o : src/polar.hpp src/polar.cpp
+$(TPATH)polar.o : src/polar.hpp src/polar.cpp src/utr3MutationFinder.hpp src/knownGeneParser.hpp src/jannovarVcfParser.hpp src/readTranscripts.hpp src/transcriptMutation.hpp
 	@echo "[Compile] polar"
 	@$(CC) $(INCLUDE) $(CFLAGS) src/polar.cpp -o $(TPATH)polar.o
 
