@@ -15,8 +15,8 @@ public:
 	
 	static const size_t noHitPos = -1;
 
-private:
 	const TranscriptMutation & txMut;
+private:
 	size_t polyaMotifPos = 0;
 
 public:
@@ -24,8 +24,9 @@ public:
 	~Utr3MutationFinder();
 
 	bool isMutationInMotif() const;
-	std::string writeLocation() const;
+	std::string getMotifSequence() const;
 	size_t getPolyaMotifPos() const;
+	std::string writeLocation() const;
 
 private:
 	void findPolyaMotif();

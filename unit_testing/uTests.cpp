@@ -325,26 +325,118 @@ BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
 }
 
 
-BOOST_AUTO_TEST_CASE( findMotif ) {	
+BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {	
 	
 	std::string chrom ("chr1");
-	unsigned int gPos = 12345;
+	size_t gPos = 12345;
 	std::string strand ("+");
 	std::string seqId ("uc002wel.2");
 	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaacc");
-	HgvsParser newHgvs ("c.*68A>G");
-	unsigned int utr3Start = 20;
-
+	HgvsParser newHgvs1 ("c.*68A>G");
+	size_t utr3Start = 20;
 	TranscriptMutation  txTest1 {
 		chrom,
 		gPos,
 		strand,
 		seqId,
 		seq,
-		newHgvs,
+		newHgvs1,
 		utr3Start
 	};
-	unsigned int utr3MotifPos = 86;
+	size_t utr3MotifPos = 86;
 	Utr3MutationFinder utr3MutFi_test1 (txTest1);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos(), utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(), std::string ("aataaa"));	
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);	
+	
+
+	chrom = "chr1";
+	gPos = 12345;
+	strand = "-";
+	seqId = "uc002wel.2";
+	seq = "acaaataatataccaagagagaataaacc";
+	HgvsParser newHgvs2 ("c.*2A>G");
+	utr3Start = 20;
+	TranscriptMutation  txTest2 {
+		chrom,
+		gPos,
+		strand,
+		seqId,
+		seq,
+		newHgvs2,
+		utr3Start
+	};
+	utr3MotifPos = 21;
+	Utr3MutationFinder utr3MutFi_test2 (txTest2);
+	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos(), utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence(), std::string ("aataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test2.isMutationInMotif(), true);	
+
+	chrom = "chr1";
+	gPos = 12345;
+	strand = "+";
+	seqId = "uc002wel.2";
+	seq = "acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtatataaaccaagagagaaaaacc";
+	HgvsParser newHgvs3 ("c.*21A>G");
+	utr3Start = 60;
+	TranscriptMutation  txTest3 {
+		chrom,
+		gPos,
+		strand,
+		seqId,
+		seq,
+		newHgvs3,
+		utr3Start
+	};
+	utr3MotifPos = 75;
+	Utr3MutationFinder utr3MutFi_test3 (txTest3);
+	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos(), utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence(), std::string ("tataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test3.isMutationInMotif(), true);	
+
+	chrom = "chr1";
+	gPos = 12345;
+	strand = "-";
+	seqId = "uc002wel.2";
+	seq = "accccaaatatccccccccacagtatataaaccaagagagaaaaacc";
+	HgvsParser newHgvs4 ("c.*6A>G");
+	utr3Start = 20;
+	TranscriptMutation  txTest4 {
+		chrom,
+		gPos,
+		strand,
+		seqId,
+		seq,
+		newHgvs4,
+		utr3Start
+	};
+	utr3MotifPos = 25;
+	Utr3MutationFinder utr3MutFi_test4 (txTest4);
+	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos(), utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence(), std::string ("tataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test4.isMutationInMotif(), true);	
+
+	chrom = "chr1";
+	gPos = 12345;
+	strand = "-";
+	seqId = "uc002wel.2";
+	seq = "accccaatccccccccacagtataaccaagagagaaaaacc";
+	HgvsParser newHgvs5 ("c.*2A>G");
+	utr3Start = 10;
+	TranscriptMutation  txTest5 {
+		chrom,
+		gPos,
+		strand,
+		seqId,
+		seq,
+		newHgvs5,
+		utr3Start
+	};
+	utr3MotifPos = Utr3MutationFinder::noHitPos;
+	Utr3MutationFinder utr3MutFi_test5 (txTest5);
+	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos(), utr3MotifPos);
+	BOOST_CHECK (utr3MutFi_test5.getMotifSequence() == "");
+	BOOST_CHECK_EQUAL (utr3MutFi_test5.isMutationInMotif(), false);	
+	
+
 }

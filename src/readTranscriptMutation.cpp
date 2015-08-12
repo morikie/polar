@@ -4,8 +4,8 @@
 
 
 inline size_t findUtrStart (const TxProperties & txProp, const size_t & txLength) {
+	size_t utr3Length = 0;
 	if (txProp.strand == "+") {
-		size_t utr3Length = 0;
 
 		for (int i = txProp.exonStarts.size() - 1; i >= 0; i--) {
 			if (txProp.cdsEnd >= txProp.exonStarts[i]) {
@@ -16,10 +16,8 @@ inline size_t findUtrStart (const TxProperties & txProp, const size_t & txLength
 				break;
 			}
 		}
-		return txLength - utr3Length;
 	} else {
 
-		size_t utr3Length = 0;
 
 		for (size_t i = 0; i < txProp.exonEnds.size(); i++) {
 			if (txProp.cdsStart <= txProp.exonEnds[i]) {
@@ -30,8 +28,8 @@ inline size_t findUtrStart (const TxProperties & txProp, const size_t & txLength
 				break;
 			}
 		}
-		return utr3Length;
 	}
+	return txLength - utr3Length;
 }
 
 
@@ -55,6 +53,7 @@ bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector,
 				size_t txLength = txSequences.getValueByKey(vcfTx.txName).size();
 				auto & strand = txValues.getValueByKey(vcfTx.txName).strand;
 				
+				//ignore transcripts that have no coding sequence 
 				if (mapValues.cdsEnd == mapValues.cdsStart) continue;
 
 				size_t utr3Start = findUtrStart(mapValues, txLength);

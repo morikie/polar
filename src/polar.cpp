@@ -43,12 +43,16 @@ int main (int args, char * argv[]) {
 	}
 
 	size_t undetectedUtr3Motifs = 0;
-	
+	size_t minusStrands = 0;
+
 	BOOST_FOREACH (const Utr3MutationFinder & utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi.getPolyaMotifPos() == Utr3MutationFinder::noHitPos) {
 			undetectedUtr3Motifs++;
 		}
+		if (utr3MutFi.txMut.strand == "-") minusStrands++;
 	}
+
+	std::cerr << "minusStrands " << minusStrands << std::endl;
 	std::cerr << "undetectedUtr3Motifs: " << undetectedUtr3Motifs << std::endl;
 	std::cerr << "utr3MutFinderVector.size(): " << utr3MutFinderVector.size() << std::endl;
 	std::cerr << "noFinds: " << noFinds << std::endl;
