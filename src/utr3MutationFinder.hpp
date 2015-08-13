@@ -14,11 +14,12 @@ public:
 	static const std::vector<std::string> rHexamers;
 	
 	static const size_t noHitPos = -1;
-
+	//TEMP adjustment: used to access the number of "-" strand transcripts in polar.cpp
 	const TranscriptMutation & txMut;
-private:
-	size_t polyaMotifPos = 0;
 
+private:
+	size_t polyaMotifPos = noHitPos;
+	
 public:
 	Utr3MutationFinder(const TranscriptMutation & tM);
 	~Utr3MutationFinder();

@@ -38,7 +38,7 @@ void HgvsParser::parse() {
 	
 	qi::rule<std::string::iterator, void()> notExonic = ((qi::lit('+') | qi::lit('-') | qi::lit('_')) >> qi::omit[*qi::char_]); 
 	qi::rule<std::string::iterator, void()> exonic = (qi::omit[*qi::char_]);
-	qi::rule<std::string::iterator, void()> entry = qi::omit[*~qi::char_('*')] >> '*' >> qi::int_[boost::phoenix::ref(this->utr3MutPos) = qi::_1] 
+	qi::rule<std::string::iterator, void()> entry = qi::omit[*~qi::char_('*')] >> '*' >> qi::int_[boost::phoenix::ref(this->utr3MutPos) = qi::_1 - 1] 
 		>> notExonic[classic::assign_a(this->intronic, true)] | exonic[classic::assign_a(this->intronic, false)];
 	//BOOST_SPIRIT_DEBUG_NODES( (r) )
 	qi::parse(itBegin, itEnd, entry, this->utr3MutPos);
@@ -46,7 +46,7 @@ void HgvsParser::parse() {
 
 
 /**
- *
+ * Return the position of the mutation mapped to index starting with zero (hence the -1).
  */
 int HgvsParser::getMutPosition() const {
 	return this->utr3MutPos;

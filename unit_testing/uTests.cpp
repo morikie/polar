@@ -331,9 +331,10 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	size_t gPos = 12345;
 	std::string strand ("+");
 	std::string seqId ("uc002wel.2");
-	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaacc");
+	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaa");
 	HgvsParser newHgvs1 ("c.*68A>G");
 	size_t utr3Start = 20;
+	size_t txLength = seq.size() - 15;
 	TranscriptMutation  txTest1 {
 		chrom,
 		gPos,
@@ -341,7 +342,8 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 		seqId,
 		seq,
 		newHgvs1,
-		utr3Start
+		utr3Start,
+		txLength
 	};
 	size_t utr3MotifPos = 86;
 	Utr3MutationFinder utr3MutFi_test1 (txTest1);
@@ -357,6 +359,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	seq = "acaaataatataccaagagagaataaacc";
 	HgvsParser newHgvs2 ("c.*2A>G");
 	utr3Start = 20;
+	txLength = seq.size();
 	TranscriptMutation  txTest2 {
 		chrom,
 		gPos,
@@ -364,7 +367,8 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 		seqId,
 		seq,
 		newHgvs2,
-		utr3Start
+		utr3Start,
+		txLength
 	};
 	utr3MotifPos = 21;
 	Utr3MutationFinder utr3MutFi_test2 (txTest2);
@@ -379,6 +383,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	seq = "acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtatataaaccaagagagaaaaacc";
 	HgvsParser newHgvs3 ("c.*21A>G");
 	utr3Start = 60;
+	txLength = seq.size();
 	TranscriptMutation  txTest3 {
 		chrom,
 		gPos,
@@ -386,7 +391,8 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 		seqId,
 		seq,
 		newHgvs3,
-		utr3Start
+		utr3Start,
+		txLength
 	};
 	utr3MotifPos = 75;
 	Utr3MutationFinder utr3MutFi_test3 (txTest3);
@@ -401,6 +407,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	seq = "accccaaatatccccccccacagtatataaaccaagagagaaaaacc";
 	HgvsParser newHgvs4 ("c.*6A>G");
 	utr3Start = 20;
+	txLength = seq.size();
 	TranscriptMutation  txTest4 {
 		chrom,
 		gPos,
@@ -408,7 +415,8 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 		seqId,
 		seq,
 		newHgvs4,
-		utr3Start
+		utr3Start,
+		txLength
 	};
 	utr3MotifPos = 25;
 	Utr3MutationFinder utr3MutFi_test4 (txTest4);
@@ -423,6 +431,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	seq = "accccaatccccccccacagtataaccaagagagaaaaacc";
 	HgvsParser newHgvs5 ("c.*2A>G");
 	utr3Start = 10;
+	txLength = seq.size();
 	TranscriptMutation  txTest5 {
 		chrom,
 		gPos,
@@ -430,13 +439,13 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 		seqId,
 		seq,
 		newHgvs5,
-		utr3Start
+		utr3Start,
+		txLength
 	};
 	utr3MotifPos = Utr3MutationFinder::noHitPos;
 	Utr3MutationFinder utr3MutFi_test5 (txTest5);
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK (utr3MutFi_test5.getMotifSequence() == "");
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.isMutationInMotif(), false);	
-	
-
 }
+

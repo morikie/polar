@@ -14,8 +14,8 @@ struct TranscriptMutation {
 	const std::string & seq;
 	const HgvsParser mutation;
 
-	size_t utr3Start;
-	
+	const size_t utr3Start;
+	const size_t txLength;
 };
 
 #endif /* __TRANSCRIPTMUTATION_HPP__ */
