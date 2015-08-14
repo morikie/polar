@@ -1,4 +1,5 @@
 #include <numeric>
+#include <boost/optional.hpp>
 #include "readTranscriptMutation.hpp"
 #include "hgvsParser.hpp"
 
@@ -75,7 +76,7 @@ bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector,
 				size_t utr3Start = findUtrStart(mapValues, txLength);
 
 				TranscriptMutation transMut = {
-					(itBegin->first).first,
+					boost::optional<std::string>((itBegin->first).first),
 					(itBegin->first).second,
 					strand,
 					vcfTx.txName,

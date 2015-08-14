@@ -1,4 +1,3 @@
-#define BOOST_SPIRIT_DEBUG
 #define BOOST_SPIRIT_USE_PHOENIX_V3
 #include <fstream>
 #include <string>

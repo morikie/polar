@@ -2,12 +2,13 @@
 #define __TRANSCRIPTMUTATION_HPP__
 
 #include <string>
+#include <boost/optional.hpp>
 #include "hgvsParser.hpp"
 
-struct TranscriptMutation {
-	
-	const std::string & chrom;
-	const unsigned int & genomicPos;
+
+struct TranscriptMutation {	
+	const boost::optional<std::string> & chrom;
+	const size_t & genomicPos;
 	const std::string strand;
 
 	const std::string & seqId;

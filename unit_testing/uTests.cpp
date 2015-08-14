@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <boost/optional/optional_io.hpp>
 #include <boost/test/unit_test.hpp>
 #include "../src/fastaReader.hpp"
 #include "../src/jannovarVcfParser.hpp"
@@ -152,6 +153,10 @@ TGTATATTTTTTTTTGCATAAAGTA");
 }
 */
 
+
+/**
+ * Tests for the knownGeneMrna Parser.
+ */
 BOOST_AUTO_TEST_CASE( knownGeneMrnaParser ) {
 	
 	fs::path file("knownGeneMrna.txt");
@@ -220,10 +225,12 @@ tgactatttttagagaccccgtgtctgtcactgaaaccttttttgtgggagactattcctc\
 ccatctgcaacagctgcccctgctgactgcccttctctcccagagaaacaggtcagctggg\
 agcttctgcccccactgcctagggaccaacaggggcaggaggcagtcactgaccccgagac\
 gtttgcatcctgcacagctagaggtcctttattaaaagcacactgttggtttctgctc");
-
 }
 
 
+/**
+ * Tests for the knownGene Parser.
+ */
 BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 
 	fs::path file = "knownGene.txt";
@@ -270,9 +277,11 @@ BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 }
 
 
+/**
+ * Tests for the Jannovar VCF Parser.
+ */
 BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
 	fs::path file = "vcf-example.jv.vcf";
-
 	JannovarVcfParser newParser(file);
 
 	vcfTranscripts vcfTx1 { 
@@ -325,8 +334,36 @@ BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
 }
 
 
-BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {	
+/**
+ * Tests for the HGVS string parser. 
+ */
+BOOST_AUTO_TEST_CASE ( hgvsParser ) {
+	std::string hgvs = "c.*150A>G";
+	HgvsParser newHgvs1 (hgvs);
+	BOOST_CHECK_EQUAL(newHgvs1.getMutPosition(), 149);
+	BOOST_CHECK_EQUAL(newHgvs1.isIntronic(), false);
+
+	hgvs = "c.*114122_*114124del";
+	HgvsParser newHgvs2 (hgvs);
+	BOOST_CHECK_EQUAL(newHgvs2.getMutPosition(), 114121);
+	BOOST_CHECK_EQUAL(newHgvs2.isIntronic(), false);
 	
+	hgvs = "c.*150+20A>G";
+	HgvsParser newHgvs3 (hgvs);
+	BOOST_CHECK_EQUAL(newHgvs3.getMutPosition(), 149);
+	BOOST_CHECK_EQUAL(newHgvs3.isIntronic(), true);
+
+	hgvs = "c.*150-20A>G";
+	HgvsParser newHgvs4 (hgvs);
+	BOOST_CHECK_EQUAL(newHgvs4.getMutPosition(), 149);
+	BOOST_CHECK_EQUAL(newHgvs4.isIntronic(), true);	
+}
+
+
+/**
+ * Tests for class Utr3MutationFinder.
+ */
+BOOST_AUTO_TEST_CASE ( utr3MutationFinder ) {	
 	std::string chrom ("chr1");
 	size_t gPos = 12345;
 	std::string strand ("+");
@@ -336,7 +373,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	size_t utr3Start = 20;
 	size_t txLength = seq.size() - 15;
 	TranscriptMutation  txTest1 {
-		chrom,
+		boost::optional<std::string>(chrom),
 		gPos,
 		strand,
 		seqId,
@@ -349,8 +386,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	Utr3MutationFinder utr3MutFi_test1 (txTest1);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(), std::string ("aataaa"));	
-	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);	
-	
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);		
 
 	chrom = "chr1";
 	gPos = 12345;
@@ -361,7 +397,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	utr3Start = 20;
 	txLength = seq.size();
 	TranscriptMutation  txTest2 {
-		chrom,
+		boost::optional<std::string>(chrom),
 		gPos,
 		strand,
 		seqId,
@@ -385,7 +421,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	utr3Start = 60;
 	txLength = seq.size();
 	TranscriptMutation  txTest3 {
-		chrom,
+		boost::optional<std::string>(chrom),
 		gPos,
 		strand,
 		seqId,
@@ -409,7 +445,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	utr3Start = 20;
 	txLength = seq.size();
 	TranscriptMutation  txTest4 {
-		chrom,
+		boost::optional<std::string>(chrom),
 		gPos,
 		strand,
 		seqId,
@@ -433,7 +469,7 @@ BOOST_AUTO_TEST_CASE( utr3MutationFinder ) {
 	utr3Start = 10;
 	txLength = seq.size();
 	TranscriptMutation  txTest5 {
-		chrom,
+		boost::optional<std::string>(chrom),
 		gPos,
 		strand,
 		seqId,

@@ -47,6 +47,7 @@ int main (int args, char * argv[]) {
 
 	BOOST_FOREACH (const Utr3MutationFinder & utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi.getPolyaMotifPos() == Utr3MutationFinder::noHitPos) {
+			std::cerr << "couldn't find motif: " << utr3MutFi.writeLocation() << std::endl;
 			undetectedUtr3Motifs++;
 		}
 		if (utr3MutFi.txMut.strand == "-") minusStrands++;

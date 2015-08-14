@@ -7,7 +7,7 @@
 
 
 /**
- * Vector of known Poly(A) cleavage motifs to be not pathogenic.
+ * Vector of known Poly(A) cleavage motifs to be not pathogenic. Sorted by frequency (highest first).
  */
 const std::vector<std::string> Utr3MutationFinder::hexamers = {
 	"aataaa",
@@ -22,12 +22,13 @@ const std::vector<std::string> Utr3MutationFinder::hexamers = {
 	"aatgaa",
 	"tttaaa",
 	"actaaa",
-	"aataga"
+	"aataga",
+	"aataac"
 };
 
 
 /**
- * Vector with reversed hexamers.
+ * Vector with reversed hexamers. Same as hexamers, just reversed.
  */
 const std::vector<std::string> Utr3MutationFinder::rHexamers = {
 	"aaataa",
@@ -42,7 +43,8 @@ const std::vector<std::string> Utr3MutationFinder::rHexamers = {
 	"aagtaa",
 	"aaattt",
 	"aaatca",
-	"agataa"
+	"agataa",
+	"caataa"
 };
 
 
@@ -63,7 +65,7 @@ Utr3MutationFinder::~Utr3MutationFinder() {}
 
 
 /**
- * Predicts the location of the UTR3's Poly(A) cleavage recognition motif.
+ * Predicts the location of the UTR3's Poly(A) motif.
  */
 void Utr3MutationFinder::findPolyaMotif() {
 	size_t seqLength = txMut.txLength;
@@ -95,7 +97,7 @@ void Utr3MutationFinder::findPolyaMotif() {
 
 
 /**
- *
+ * Checks if variant is in the Poly(A) motif.
  */
 bool Utr3MutationFinder::isMutationInMotif() const {
 	if (this->polyaMotifPos == Utr3MutationFinder::noHitPos) return false;
@@ -117,7 +119,7 @@ bool Utr3MutationFinder::isMutationInMotif() const {
 
 
 /**
- *
+ * Returns the Poly(A) motif position in the transcript.
  */
 size_t Utr3MutationFinder::getPolyaMotifPos() const {
 	return this->polyaMotifPos;
@@ -125,7 +127,7 @@ size_t Utr3MutationFinder::getPolyaMotifPos() const {
 
 
 /**
- *
+ * Returns the motif hexamer.
  */
 std::string Utr3MutationFinder::getMotifSequence() const {
 	if (this->polyaMotifPos == Utr3MutationFinder::noHitPos) return std::string();
@@ -135,12 +137,13 @@ std::string Utr3MutationFinder::getMotifSequence() const {
 	return std::string(motifStart, motifEnd);	
 }
 
+
 /**
- *
+ * Return a string with information about the transcript and mutation.
  */
 std::string Utr3MutationFinder::writeLocation() const {
 	std::stringstream ss;
-	ss << this->txMut.chrom 
+	ss << *this->txMut.chrom 
 		<< ", " << this->txMut.genomicPos 
 		<< ", " << this->txMut.seqId 
 		<< ", Poly(A) Pos: " << this->polyaMotifPos 
@@ -148,5 +151,4 @@ std::string Utr3MutationFinder::writeLocation() const {
 		<< ", MutPos: " << this->txMut.utr3Start + txMut.mutation.getMutPosition();
 	return ss.str();
 }
-
 

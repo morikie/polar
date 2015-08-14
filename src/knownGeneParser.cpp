@@ -1,4 +1,3 @@
-#define BOOST_SPIRIT_DEBUG
 #define BOOST_SPIRIT_USE_PHOENIX_V3
 #include <fstream>
 #include <string>
@@ -49,8 +48,6 @@ struct knownGeneGrammar :
 				>> intVector
 				>> qi::omit[*~qi::char_('\n')]
 				;
-	
-		//BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(seqName)(txProps) )
 	}
 	private:
 		qi::rule<Iterator, std::unordered_map<std::string, TxProperties>()> query;
