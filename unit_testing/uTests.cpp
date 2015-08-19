@@ -9,8 +9,8 @@
 #include "../src/knownGeneParser.hpp"
 #include "../src/polar.hpp"
 #include "../src/readTranscripts.hpp"
-#include "../src/transcriptMutation.hpp"
-#include "../src/utr3MutationFinder.hpp"
+#include "../src/seqStruct.hpp"
+#include "../src/utr3Finder.hpp"
 
 namespace fs = boost::filesystem;
 namespace spirit = boost::spirit;
@@ -361,125 +361,105 @@ BOOST_AUTO_TEST_CASE ( hgvsParser ) {
 
 
 /**
- * Tests for class Utr3MutationFinder.
+ * Tests for class Utr3Finder.
  */
-BOOST_AUTO_TEST_CASE ( utr3MutationFinder ) {	
-	std::string chrom ("chr1");
-	size_t gPos = 12345;
-	std::string strand ("+");
-	std::string seqId ("uc002wel.2");
+BOOST_AUTO_TEST_CASE ( utr3Finder ) {	
 	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaa");
-	HgvsParser newHgvs1 ("c.*68A>G");
+	boost::optional<const HgvsParser> newHgvs1 = HgvsParser("c.*68A>G");
 	size_t utr3Start = 20;
 	size_t txLength = seq.size() - 15;
-	TranscriptMutation  txTest1 {
-		boost::optional<std::string>(chrom),
-		gPos,
-		strand,
-		seqId,
+	SeqStruct  txTest1 {
 		seq,
-		newHgvs1,
 		utr3Start,
-		txLength
+		txLength,
+		newHgvs1,
+		boost::none,
+		boost::none,
+		boost::none,
+		boost::none
 	};
 	size_t utr3MotifPos = 86;
-	Utr3MutationFinder utr3MutFi_test1 (txTest1);
+	Utr3Finder utr3MutFi_test1 (txTest1);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(), std::string ("aataaa"));	
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);		
 
-	chrom = "chr1";
-	gPos = 12345;
-	strand = "-";
-	seqId = "uc002wel.2";
 	seq = "acaaataatataccaagagagaataaacc";
-	HgvsParser newHgvs2 ("c.*2A>G");
+	boost::optional<const HgvsParser> newHgvs2 = HgvsParser("c.*2A>G");
 	utr3Start = 20;
 	txLength = seq.size();
-	TranscriptMutation  txTest2 {
-		boost::optional<std::string>(chrom),
-		gPos,
-		strand,
-		seqId,
+	SeqStruct  txTest2 {
 		seq,
-		newHgvs2,
 		utr3Start,
-		txLength
+		txLength,
+		newHgvs2,
+		boost::none,
+		boost::none,
+		boost::none,
+		boost::none
 	};
 	utr3MotifPos = 21;
-	Utr3MutationFinder utr3MutFi_test2 (txTest2);
+	Utr3Finder utr3MutFi_test2 (txTest2);
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence(), std::string ("aataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.isMutationInMotif(), true);	
 
-	chrom = "chr1";
-	gPos = 12345;
-	strand = "+";
-	seqId = "uc002wel.2";
 	seq = "acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtatataaaccaagagagaaaaacc";
-	HgvsParser newHgvs3 ("c.*21A>G");
+	boost::optional<const HgvsParser> newHgvs3 = HgvsParser("c.*21A>G");
 	utr3Start = 60;
 	txLength = seq.size();
-	TranscriptMutation  txTest3 {
-		boost::optional<std::string>(chrom),
-		gPos,
-		strand,
-		seqId,
+	SeqStruct  txTest3 {
 		seq,
-		newHgvs3,
 		utr3Start,
-		txLength
+		txLength,
+		newHgvs3,
+		boost::none,
+		boost::none,
+		boost::none,
+		boost::none
 	};
 	utr3MotifPos = 75;
-	Utr3MutationFinder utr3MutFi_test3 (txTest3);
+	Utr3Finder utr3MutFi_test3 (txTest3);
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence(), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.isMutationInMotif(), true);	
 
-	chrom = "chr1";
-	gPos = 12345;
-	strand = "-";
-	seqId = "uc002wel.2";
 	seq = "accccaaatatccccccccacagtatataaaccaagagagaaaaacc";
-	HgvsParser newHgvs4 ("c.*6A>G");
+	boost::optional<const HgvsParser> newHgvs4 = HgvsParser("c.*6A>G");
 	utr3Start = 20;
 	txLength = seq.size();
-	TranscriptMutation  txTest4 {
-		boost::optional<std::string>(chrom),
-		gPos,
-		strand,
-		seqId,
+	SeqStruct  txTest4 {
 		seq,
-		newHgvs4,
 		utr3Start,
-		txLength
+		txLength,
+		newHgvs4,
+		boost::none,
+		boost::none,
+		boost::none,
+		boost::none
 	};
 	utr3MotifPos = 25;
-	Utr3MutationFinder utr3MutFi_test4 (txTest4);
+	Utr3Finder utr3MutFi_test4 (txTest4);
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence(), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.isMutationInMotif(), true);	
 
-	chrom = "chr1";
-	gPos = 12345;
-	strand = "-";
-	seqId = "uc002wel.2";
 	seq = "accccaatccccccccacagtataaccaagagagaaaaacc";
-	HgvsParser newHgvs5 ("c.*2A>G");
+	boost::optional<const HgvsParser> newHgvs5 = HgvsParser("c.*2A>G");
 	utr3Start = 10;
 	txLength = seq.size();
-	TranscriptMutation  txTest5 {
-		boost::optional<std::string>(chrom),
-		gPos,
-		strand,
-		seqId,
+	SeqStruct  txTest5 {
 		seq,
-		newHgvs5,
 		utr3Start,
-		txLength
+		txLength,
+		newHgvs5,
+		boost::none,
+		boost::none,
+		boost::none,
+		boost::none
 	};
-	utr3MotifPos = Utr3MutationFinder::noHitPos;
-	Utr3MutationFinder utr3MutFi_test5 (txTest5);
+	utr3MotifPos = Utr3Finder::noHitPos;
+	Utr3Finder utr3MutFi_test5 (txTest5);
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK (utr3MutFi_test5.getMotifSequence() == "");
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.isMutationInMotif(), false);	

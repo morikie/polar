@@ -34,7 +34,7 @@ struct vcfTranscripts {
 class JannovarVcfParser : boost::noncopyable {
 public:
 	typedef std::string chromosome;
-	typedef unsigned int position;
+	typedef size_t position;
 	typedef std::pair<chromosome, position> Key;
 	typedef std::vector<vcfTranscripts> Value;
 	typedef std::map<Key, Value> vcfTranscriptsMap;

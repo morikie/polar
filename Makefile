@@ -9,14 +9,14 @@ LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system
 TPATH		= bin/
 
 OBJS		= $(TPATH)fastaReader.o \
-	$(TPATH)utr3MutationFinder.o \
-	$(TPATH)transcriptMutation.o \
+	$(TPATH)utr3Finder.o \
+	$(TPATH)seqStruct.o \
 	$(TPATH)hgvsParser.o \
 	$(TPATH)readTranscripts.o \
 	$(TPATH)knownGeneParser.o \
 	$(TPATH)jannovarVcfParser.o \
 	$(TPATH)hgvsParser.o \
-	$(TPATH)readTranscriptMutation.o 
+	$(TPATH)readSeqStruct.o 
 
 
 .PHONY : all
@@ -34,7 +34,7 @@ $(TPATH)uTests.o : unit_testing/uTests.cpp
 	@echo "[Compile] uTests"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) unit_testing/uTests.cpp -o $(TPATH)uTests.o
 
-$(TPATH)polar.o : src/polar.hpp src/polar.cpp src/utr3MutationFinder.hpp src/knownGeneParser.hpp src/jannovarVcfParser.hpp src/readTranscripts.hpp src/transcriptMutation.hpp
+$(TPATH)polar.o : src/polar.hpp src/polar.cpp src/utr3Finder.hpp src/knownGeneParser.hpp src/jannovarVcfParser.hpp src/readTranscripts.hpp src/seqStruct.hpp
 	@echo "[Compile] polar"
 	@$(CC) $(INCLUDE) $(CFLAGS) src/polar.cpp -o $(TPATH)polar.o
 
@@ -42,13 +42,13 @@ $(TPATH)fastaReader.o : src/fastaReader.hpp src/fastaReader.cpp
 	@echo "[Compile] FastaReader"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/fastaReader.cpp -o $(TPATH)fastaReader.o
 
-$(TPATH)utr3MutationFinder.o : src/utr3MutationFinder.hpp src/utr3MutationFinder.cpp src/hgvsParser.hpp src/transcriptMutation.hpp
+$(TPATH)utr3Finder.o : src/utr3Finder.hpp src/utr3Finder.cpp src/hgvsParser.hpp src/seqStruct.hpp
 	@echo "[Compile] UTR3MutationFinder"
-	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3MutationFinder.cpp -o $(TPATH)utr3MutationFinder.o
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3Finder.cpp -o $(TPATH)utr3Finder.o
 
-$(TPATH)transcriptMutation.o : src/transcriptMutation.hpp src/transcriptMutation.cpp src/hgvsParser.hpp
-	@echo "[Compile] TranscriptMutation"
-	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/transcriptMutation.cpp -o $(TPATH)transcriptMutation.o
+$(TPATH)seqStruct.o : src/seqStruct.hpp src/seqStruct.cpp src/hgvsParser.hpp
+	@echo "[Compile] SeqStruct"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/seqStruct.cpp -o $(TPATH)seqStruct.o
 
 $(TPATH)readTranscripts.o : src/readTranscripts.hpp src/readTranscripts.cpp
 	@echo "[Compile] ReadTranscripts"
@@ -66,9 +66,9 @@ $(TPATH)hgvsParser.o : src/hgvsParser.hpp src/hgvsParser.cpp
 	@echo "[Compile] HGVS Parser"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/hgvsParser.cpp -o $(TPATH)hgvsParser.o
 
-$(TPATH)readTranscriptMutation.o : src/readTranscriptMutation.hpp src/readTranscriptMutation.cpp
-	@echo "[Compile] readTranscriptMutation"
-	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/readTranscriptMutation.cpp -o $(TPATH)readTranscriptMutation.o
+$(TPATH)readSeqStruct.o : src/readSeqStruct.hpp src/readSeqStruct.cpp
+	@echo "[Compile] readSeqStruct"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/readSeqStruct.cpp -o $(TPATH)readSeqStruct.o
 
 
 .PHONY : clean

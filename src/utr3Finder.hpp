@@ -1,33 +1,33 @@
 #ifndef __UT3MUTATIONFINDER_HPP__
 #define __UT3MUTATIONFINDER_HPP__
 
-#include "transcriptMutation.hpp"
+#include <boost/optional.hpp>
+#include "seqStruct.hpp"
 
 
 /**
  * Class to predict the location of the Poly(A) cleavage motif.
  */
-class Utr3MutationFinder {
+class Utr3Finder {
 public:
 	static const std::vector<std::string> hexamers;
-//	const TranscriptMutation mutation;
+//	const SeqStruct mutation;
 	static const std::vector<std::string> rHexamers;
 	
 	static const size_t noHitPos = -1;
-	//TEMP adjustment: used to access the number of "-" strand transcripts in polar.cpp
-	const TranscriptMutation & txMut;
 
 private:
+	const SeqStruct & txMut;
 	size_t polyaMotifPos = noHitPos;
 	
 public:
-	Utr3MutationFinder(const TranscriptMutation & tM);
-	~Utr3MutationFinder();
+	Utr3Finder(const SeqStruct & tM);
+	~Utr3Finder();
 
 	bool isMutationInMotif() const;
 	std::string getMotifSequence() const;
 	size_t getPolyaMotifPos() const;
-	std::string writeLocation() const;
+	std::string writeInfo() const;
 
 private:
 	void findPolyaMotif();

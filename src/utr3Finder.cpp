@@ -1,15 +1,16 @@
 #include <algorithm>
 #include <sstream>
 #include <vector>
+#include <boost/optional.hpp>
 #include <boost/foreach.hpp>
 #include <seqan/find.h>
-#include "utr3MutationFinder.hpp"
+#include "utr3Finder.hpp"
 
 
 /**
  * Vector of known Poly(A) cleavage motifs to be not pathogenic. Sorted by frequency (highest first).
  */
-const std::vector<std::string> Utr3MutationFinder::hexamers = {
+const std::vector<std::string> Utr3Finder::hexamers = {
 	"aataaa",
 	"attaaa",
 	"tataaa",
@@ -22,15 +23,14 @@ const std::vector<std::string> Utr3MutationFinder::hexamers = {
 	"aatgaa",
 	"tttaaa",
 	"actaaa",
-	"aataga",
-	"aataac"
+	"aataga"
 };
 
 
 /**
- * Vector with reversed hexamers. Same as hexamers, just reversed.
+ * Vector with reversed hexamers. Same as hexamers, just reversed (not complemented). Used for searching with reverse_iterator.
  */
-const std::vector<std::string> Utr3MutationFinder::rHexamers = {
+const std::vector<std::string> Utr3Finder::rHexamers = {
 	"aaataa",
 	"aaatta",
 	"aaatat",
@@ -43,15 +43,14 @@ const std::vector<std::string> Utr3MutationFinder::rHexamers = {
 	"aagtaa",
 	"aaattt",
 	"aaatca",
-	"agataa",
-	"caataa"
+	"agataa"
 };
 
 
 /**
  * Constructor.
  */
-Utr3MutationFinder::Utr3MutationFinder(const TranscriptMutation & tM) :
+Utr3Finder::Utr3Finder(const SeqStruct & tM) :
 	txMut(tM)
 {
 	this->findPolyaMotif();
@@ -61,30 +60,31 @@ Utr3MutationFinder::Utr3MutationFinder(const TranscriptMutation & tM) :
 /**
  * Destructor.
  */
-Utr3MutationFinder::~Utr3MutationFinder() {}
+Utr3Finder::~Utr3Finder() {}
 
 
 /**
  * Predicts the location of the UTR3's Poly(A) motif.
  */
-void Utr3MutationFinder::findPolyaMotif() {
+void Utr3Finder::findPolyaMotif() {
+	//transcript length is not always the same as sequence size
 	size_t seqLength = txMut.txLength;
-	size_t hitPos = Utr3MutationFinder::noHitPos;
+	size_t hitPos = Utr3Finder::noHitPos;
 	//length of the sequence searched from transcript end
-	size_t offset = 40;
-	//ignoring the Poly(a) tail
+	size_t searchRange = 40;
+	//ignoring nucleotides that aren't part of the transcript (possibly Poly(A) tail)
 	size_t searchOffset = 0;
 	if (txMut.seq.size() > seqLength) searchOffset = txMut.seq.size() - seqLength;
 
 	BOOST_FOREACH (const std::string & pattern, this->rHexamers) {
 		size_t utr3Length = seqLength - this->txMut.utr3Start;
 		// The range in which the pattern is searched from the end of the transcript
-		if (offset > utr3Length) offset = utr3Length; 
+		if (searchRange > utr3Length) searchRange = utr3Length; 
 
-		auto posIt = std::search(this->txMut.seq.rbegin() + searchOffset, this->txMut.seq.rbegin() + (searchOffset + offset), 
+		auto posIt = std::search(this->txMut.seq.rbegin() + searchOffset, this->txMut.seq.rbegin() + (searchOffset + searchRange), 
 			pattern.begin(), pattern.end());
 		
-		if (posIt != this->txMut.seq.rbegin() + (searchOffset + offset)) {
+		if (posIt != this->txMut.seq.rbegin() + (searchOffset + searchRange)) {
 			/* Since positions are indexed starting with zero we have to substract 1 
 			from the seqLength and the std::distance (+5 instead of +6) value */
 			hitPos = (seqLength - 1) - (std::distance(this->txMut.seq.rbegin() + searchOffset, posIt) + 5);
@@ -92,16 +92,16 @@ void Utr3MutationFinder::findPolyaMotif() {
 			break;
 		} 	
 	}
-	if (hitPos == Utr3MutationFinder::noHitPos) this->polyaMotifPos = hitPos;
+	if (hitPos == Utr3Finder::noHitPos) this->polyaMotifPos = hitPos;
 }
 
 
 /**
  * Checks if variant is in the Poly(A) motif.
  */
-bool Utr3MutationFinder::isMutationInMotif() const {
-	if (this->polyaMotifPos == Utr3MutationFinder::noHitPos) return false;
-	int diff = this->txMut.mutation.getMutPosition() + static_cast<int>(this->txMut.utr3Start) -
+bool Utr3Finder::isMutationInMotif() const {
+	if (this->polyaMotifPos == Utr3Finder::noHitPos) return false;
+	int diff = this->txMut.mutation->getMutPosition() + static_cast<int>(this->txMut.utr3Start) -
 		static_cast<int>(this->polyaMotifPos);
 //	std::cerr << "polyaMotifPos: " << this->polyaMotifPos << std::endl;
 //	std::cerr << "strand: " << this->txMut.strand << std::endl;
@@ -109,7 +109,7 @@ bool Utr3MutationFinder::isMutationInMotif() const {
 //	std::cerr << "diff: " << diff << std::endl;
 //	std::cerr << "txLength: " << this->txMut.seq.size() << std::endl;
 //	std::cerr << "utr3Start: " << this->txMut.utr3Start << std::endl;
-//	std::cerr << "mutationPos: " << this->txMut.mutation.getMutPosition() << std::endl; 
+//	std::cerr << "mutationPos: " << this->txMut.mutation->getMutPosition() << std::endl; 
 	if (diff < 6 && diff >= 0) {
 		return true;
 	} else {
@@ -121,7 +121,7 @@ bool Utr3MutationFinder::isMutationInMotif() const {
 /**
  * Returns the Poly(A) motif position in the transcript.
  */
-size_t Utr3MutationFinder::getPolyaMotifPos() const {
+size_t Utr3Finder::getPolyaMotifPos() const {
 	return this->polyaMotifPos;
 }
 
@@ -129,8 +129,8 @@ size_t Utr3MutationFinder::getPolyaMotifPos() const {
 /**
  * Returns the motif hexamer.
  */
-std::string Utr3MutationFinder::getMotifSequence() const {
-	if (this->polyaMotifPos == Utr3MutationFinder::noHitPos) return std::string();
+std::string Utr3Finder::getMotifSequence() const {
+	if (this->polyaMotifPos == Utr3Finder::noHitPos) return std::string();
 
 	auto motifStart = this->txMut.seq.begin() + this->polyaMotifPos;
 	auto motifEnd = this->txMut.seq.begin() + this->polyaMotifPos + 6;
@@ -141,14 +141,14 @@ std::string Utr3MutationFinder::getMotifSequence() const {
 /**
  * Return a string with information about the transcript and mutation.
  */
-std::string Utr3MutationFinder::writeLocation() const {
+std::string Utr3Finder::writeInfo() const {
 	std::stringstream ss;
 	ss << *this->txMut.chrom 
-		<< ", " << this->txMut.genomicPos 
-		<< ", " << this->txMut.seqId 
+		<< ", " << *this->txMut.genomicPos 
+		<< ", " << *this->txMut.seqId 
 		<< ", Poly(A) Pos: " << this->polyaMotifPos 
 		<< ", utr3Start: " << this->txMut.utr3Start
-		<< ", MutPos: " << this->txMut.utr3Start + txMut.mutation.getMutPosition();
+		<< ", MutPos: " << this->txMut.utr3Start + txMut.mutation->getMutPosition();
 	return ss.str();
 }
 

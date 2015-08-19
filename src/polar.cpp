@@ -5,9 +5,9 @@
 #include "knownGeneParser.hpp"
 #include "jannovarVcfParser.hpp"
 #include "readTranscripts.hpp"
-#include "transcriptMutation.hpp"
-#include "readTranscriptMutation.hpp"
-#include "utr3MutationFinder.hpp"
+#include "seqStruct.hpp"
+#include "readSeqStruct.hpp"
+#include "utr3Finder.hpp"
 #include "polar.hpp"
 
 namespace fs = boost::filesystem;
@@ -19,14 +19,14 @@ int main (int args, char * argv[]) {
 	KnownGeneParser txValues(knownGene);
 	ReadTranscripts tx(transcripts);
 	JannovarVcfParser variants(vcfFile);
-	std::vector<Utr3MutationFinder> utr3MutFinderVector;	
-	std::vector<TranscriptMutation> transMutVector;
+	std::vector<Utr3Finder> utr3MutFinderVector;	
+	std::vector<SeqStruct> transMutVector;
 	
-	readTranscriptMutation (transMutVector, variants, txValues, tx);
+	readSeqStruct (transMutVector, variants, txValues, tx);
 	
 	try {
 		for (auto it = transMutVector.begin(); it != transMutVector.end(); ++it) {
-			utr3MutFinderVector.push_back(Utr3MutationFinder(*it));
+			utr3MutFinderVector.push_back(Utr3Finder(*it));
 		}
 	} catch (...) {
 		std::cerr << "error occured" << std::endl;
@@ -34,26 +34,23 @@ int main (int args, char * argv[]) {
 	
 	//Amount of UTR3 mutations which do not affect the Poly(A) motif
 	size_t noFinds = 0;
-	BOOST_FOREACH (const Utr3MutationFinder & utr3MutFi, utr3MutFinderVector) {
+	BOOST_FOREACH (const Utr3Finder & utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi.isMutationInMotif()) {
-			std::cerr << "Poly(A) motif mutation detected: " << utr3MutFi.writeLocation() << std::endl;
+			std::cerr << "Poly(A) motif mutation detected: " << utr3MutFi.writeInfo() << std::endl;
 		} else {
 			noFinds++;
 		}
 	}
 
 	size_t undetectedUtr3Motifs = 0;
-	size_t minusStrands = 0;
 
-	BOOST_FOREACH (const Utr3MutationFinder & utr3MutFi, utr3MutFinderVector) {
-		if (utr3MutFi.getPolyaMotifPos() == Utr3MutationFinder::noHitPos) {
-			std::cerr << "couldn't find motif: " << utr3MutFi.writeLocation() << std::endl;
+	BOOST_FOREACH (const Utr3Finder & utr3MutFi, utr3MutFinderVector) {
+		if (utr3MutFi.getPolyaMotifPos() == Utr3Finder::noHitPos) {
+			std::cerr << "couldn't find motif: " << utr3MutFi.writeInfo() << std::endl;
 			undetectedUtr3Motifs++;
 		}
-		if (utr3MutFi.txMut.strand == "-") minusStrands++;
 	}
 
-	std::cerr << "minusStrands " << minusStrands << std::endl;
 	std::cerr << "undetectedUtr3Motifs: " << undetectedUtr3Motifs << std::endl;
 	std::cerr << "utr3MutFinderVector.size(): " << utr3MutFinderVector.size() << std::endl;
 	std::cerr << "noFinds: " << noFinds << std::endl;

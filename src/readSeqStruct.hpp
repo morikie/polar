@@ -5,12 +5,12 @@
 #include "jannovarVcfParser.hpp"
 #include "knownGeneParser.hpp"
 #include "readTranscripts.hpp"
-#include "transcriptMutation.hpp"
+#include "seqStruct.hpp"
 
 /**
  *
  */
-bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector, 
+bool readSeqStruct (std::vector<SeqStruct> & transMutVector, 
 	const JannovarVcfParser & vcfParser, 
 	const KnownGeneParser & txValues, 
 	const ReadTranscripts & txSequences);

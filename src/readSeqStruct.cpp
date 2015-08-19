@@ -1,6 +1,6 @@
 #include <numeric>
 #include <boost/optional.hpp>
-#include "readTranscriptMutation.hpp"
+#include "readSeqStruct.hpp"
 #include "hgvsParser.hpp"
 
 
@@ -51,9 +51,9 @@ inline size_t getTxLength (const TxProperties & txProp) {
 
 
 /**
- * Fills up the TranscriptMutation objects needed for the Utr3MutationFinder.
+ * Fills up the SeqStruct objects needed for the Utr3Finder.
  */
-bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector, 
+bool readSeqStruct (std::vector<SeqStruct> & transMutVector, 
 	const JannovarVcfParser & vcfParser, 
 	const KnownGeneParser & txValues, 
 	const ReadTranscripts & txSequences) 
@@ -68,24 +68,26 @@ bool readTranscriptMutation (std::vector<TranscriptMutation> & transMutVector,
 			if (vcfTx.jvVariantType == "3_prime_utr_variant") {
 				auto & mapValues = txValues.getValueByKey(vcfTx.txName);
 				size_t txLength = getTxLength(mapValues); 
-				auto & strand = txValues.getValueByKey(vcfTx.txName).strand;
-				
+				auto & chrom = (itBegin->first).first;
+				auto & genePos = (itBegin->first).second;
+				auto & strand = mapValues.strand;
+
 				//ignore transcripts that have no coding sequence 
 				if (mapValues.cdsEnd == mapValues.cdsStart) continue;
 
 				size_t utr3Start = findUtrStart(mapValues, txLength);
 
-				TranscriptMutation transMut = {
-					boost::optional<std::string>((itBegin->first).first),
-					(itBegin->first).second,
-					strand,
-					vcfTx.txName,
+				SeqStruct transMut = {
 					txSequences.getValueByKey(vcfTx.txName),
-					HgvsParser(vcfTx.hgvsString),
 					utr3Start,
-					txLength
+					txLength,
+					boost::optional<const HgvsParser>(HgvsParser(vcfTx.hgvsString)),
+					boost::optional<const std::string &>(chrom),
+					boost::optional<const size_t &>(genePos),
+					boost::optional<const std::string &>(strand),
+					boost::optional<const std::string &>(vcfTx.txName)
 				};
-				if (! transMut.mutation.isIntronic()) {
+				if (! transMut.mutation->isIntronic()) {
 					transMutVector.push_back(transMut);
 				} else {
 					inIntron++;		
