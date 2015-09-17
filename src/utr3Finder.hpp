@@ -11,7 +11,6 @@
 class Utr3Finder {
 public:
 	static const std::vector<std::string> hexamers;
-//	const SeqStruct mutation;
 	static const std::vector<std::string> rHexamers;
 	
 	static const size_t noHitPos = -1;
@@ -25,6 +24,7 @@ public:
 	~Utr3Finder();
 
 	bool isMutationInMotif() const;
+	std::string getSequence() const;
 	std::string getMotifSequence() const;
 	size_t getPolyaMotifPos() const;
 	std::string writeInfo() const;

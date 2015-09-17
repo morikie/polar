@@ -159,7 +159,7 @@ TGTATATTTTTTTTTGCATAAAGTA");
  */
 BOOST_AUTO_TEST_CASE( knownGeneMrnaParser ) {
 	
-	fs::path file("knownGeneMrna.txt");
+	fs::path file("ucsc_data/knownGeneTxMrna.txt");
 	ReadTranscripts transcripts(file);
 	
 	BOOST_CHECK_EQUAL(transcripts.getValueByKey("uc001aaa.3"), 
@@ -233,7 +233,7 @@ gtttgcatcctgcacagctagaggtcctttattaaaagcacactgttggtttctgctc");
  */
 BOOST_AUTO_TEST_CASE( knownGeneParser ) {
 
-	fs::path file = "knownGene.txt";
+	fs::path file = "ucsc_data/knownGene.txt";
 
 	KnownGeneParser newParser(file);
 	
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE( knownGeneParser ) {
  * Tests for the Jannovar VCF Parser.
  */
 BOOST_AUTO_TEST_CASE( jannovarVcfParser ) {
-	fs::path file = "vcf-example.jv.vcf";
+	fs::path file = "vcf/vcf-example.jv.vcf";
 	JannovarVcfParser newParser(file);
 
 	vcfTranscripts vcfTx1 { 

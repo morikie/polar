@@ -20,7 +20,7 @@ OBJS		= $(TPATH)fastaReader.o \
 
 
 .PHONY : all
-all : $(TPATH)polar $(TPATH)uTests
+all : $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test
 
 $(TPATH)polar : $(TPATH)polar.o $(OBJS) 
 	@echo "[Link] polar"
@@ -43,7 +43,7 @@ $(TPATH)fastaReader.o : src/fastaReader.hpp src/fastaReader.cpp
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/fastaReader.cpp -o $(TPATH)fastaReader.o
 
 $(TPATH)utr3Finder.o : src/utr3Finder.hpp src/utr3Finder.cpp src/hgvsParser.hpp src/seqStruct.hpp
-	@echo "[Compile] UTR3MutationFinder"
+	@echo "[Compile] UTR3Finder"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3Finder.cpp -o $(TPATH)utr3Finder.o
 
 $(TPATH)seqStruct.o : src/seqStruct.hpp src/seqStruct.cpp src/hgvsParser.hpp
@@ -70,6 +70,19 @@ $(TPATH)readSeqStruct.o : src/readSeqStruct.hpp src/readSeqStruct.cpp
 	@echo "[Compile] readSeqStruct"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/readSeqStruct.cpp -o $(TPATH)readSeqStruct.o
 
+#targets for the performance tests
+
+$(TPATH)acc_test : $(TPATH)acc_test.o $(TPATH)readKnownPolyA.o
+	@echo "[Link] acc_test"
+	@$(CC) $(INCLUDE) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)acc_test
+
+$(TPATH)acc_test.o : perf_testing/acc_test.hpp perf_testing/acc_test.cpp perf_testing/readKnownPolyA.hpp
+	@echo "[Compile] acc_test"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/acc_test.cpp -o $(TPATH)acc_test.o
+
+$(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnownPolyA.cpp
+	@echo "[Compile] readKnownPolyA"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/readKnownPolyA.cpp -o $(TPATH)readKnownPolyA.o
 
 .PHONY : clean
 clean :

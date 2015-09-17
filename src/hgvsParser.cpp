@@ -36,9 +36,11 @@ void HgvsParser::parse() {
 	auto itEnd = this->hgvsString.end();
 	
 	qi::rule<std::string::iterator, void()> notExonic = (qi::lit('+') | qi::lit('-') | qi::lit('_')) >> qi::omit[*qi::char_]; 
-	qi::rule<std::string::iterator, void()> deletion = qi::lit('_') >> qi::lit('*') >> qi::omit[qi::int_] >> qi::lit("del") >> qi::omit[*qi::char_];
+	qi::rule<std::string::iterator, void()> deletion = qi::lit('_') >> qi::lit('*') >> 
+		qi::omit[qi::int_] >> qi::lit("del") >> qi::omit[*qi::char_];
 	qi::rule<std::string::iterator, void()> exonic = qi::omit[*qi::char_];
-	qi::rule<std::string::iterator, void()> entry = qi::omit[*~qi::char_('*')] >> qi::lit('*') >> qi::int_[boost::phoenix::ref(this->utr3MutPos) = qi::_1 - 1]
+	qi::rule<std::string::iterator, void()> entry = qi::omit[*~qi::char_('*')] >> qi::lit('*') 
+		>> qi::int_[boost::phoenix::ref(this->utr3MutPos) = qi::_1 - 1]
 		>> ( 
 			deletion[classic::assign_a(this->intronic, false)] | 
 			notExonic[classic::assign_a(this->intronic, true)] | 
