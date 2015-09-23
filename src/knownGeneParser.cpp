@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <boost/filesystem.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -80,6 +81,10 @@ const TxProperties & KnownGeneParser::getValueByKey(const std::string & k) const
 
 
 void KnownGeneParser::parse() {
+	if (! boost::filesystem::exists(this->file)) {
+		std::cerr << "Could not find " << this->file.string() << std::endl;
+		return;
+	}
 	std::ifstream in((this->file).string());
 
 	typedef std::istreambuf_iterator<char> base_iterator_type;

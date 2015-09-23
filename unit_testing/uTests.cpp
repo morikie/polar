@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE ( hgvsParser ) {
  * Tests for class Utr3Finder.
  */
 BOOST_AUTO_TEST_CASE ( utr3Finder ) {	
-	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaa");
+	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	boost::optional<const HgvsParser> newHgvs1 = HgvsParser("c.*68A>G");
 	size_t utr3Start = 20;
 	size_t txLength = seq.size() - 15;
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE ( utr3Finder ) {
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(), std::string ("aataaa"));	
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);		
 
-	seq = "acaaataatataccaagagagaataaacc";
+	seq = "acaaataatataccaagagagaataaaccaaaaaaaaaaaaaaaaaa";
 	boost::optional<const HgvsParser> newHgvs2 = HgvsParser("c.*2A>G");
 	utr3Start = 20;
 	txLength = seq.size();

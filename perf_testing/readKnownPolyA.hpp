@@ -10,7 +10,8 @@ namespace fs = boost::filesystem;
 struct KnownPolyA {
 	std::string id;
 	std::string seq;
-	std::vector<unsigned int> polyApos;
+	std::vector<size_t> polyApos;
+	size_t len = 1;
 };
 
 void readKnownPolyA (const fs::path & f, std::vector<KnownPolyA> & knownPolyAvec);

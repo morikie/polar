@@ -72,7 +72,7 @@ $(TPATH)readSeqStruct.o : src/readSeqStruct.hpp src/readSeqStruct.cpp
 
 #targets for the performance tests
 
-$(TPATH)acc_test : $(TPATH)acc_test.o $(TPATH)readKnownPolyA.o
+$(TPATH)acc_test : $(TPATH)acc_test.o $(TPATH)readKnownPolyA.o $(TPATH)hgvsParser.o $(TPATH)utr3Finder.o $(TPATH)seqStruct.o
 	@echo "[Link] acc_test"
 	@$(CC) $(INCLUDE) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)acc_test
 
@@ -80,7 +80,7 @@ $(TPATH)acc_test.o : perf_testing/acc_test.hpp perf_testing/acc_test.cpp perf_te
 	@echo "[Compile] acc_test"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/acc_test.cpp -o $(TPATH)acc_test.o
 
-$(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnownPolyA.cpp
+$(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnownPolyA.cpp 
 	@echo "[Compile] readKnownPolyA"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/readKnownPolyA.cpp -o $(TPATH)readKnownPolyA.o
 

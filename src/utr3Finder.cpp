@@ -75,26 +75,33 @@ Utr3Finder::~Utr3Finder() {}
 void Utr3Finder::findPolyaMotif() {
 	//transcript length is not always the same as sequence size
 	size_t seqLength = txMut.txLength;
+	//cutoff is difference between true length (like str.size())
+	//of the sequence and the designated length from external sources.
+	size_t cutoff = txMut.seq.size() - seqLength;
 	size_t utr3Length = seqLength - this->txMut.utr3Start;
 	size_t hitPos = Utr3Finder::noHitPos;
 	//length of the sequence searched from transcript end
-	size_t searchRange = 50;
-	//ignoring nucleotides that aren't part of the transcript (possibly Poly(A) tail)
+	size_t searchRange = 100;
+	//excepting remnants of the Poly(A) tail from the search
 	size_t searchOffset = 0;
-	if (txMut.seq.size() > seqLength) searchOffset = txMut.seq.size() - seqLength;
-
+	auto it = this->txMut.seq.rbegin() + cutoff; 
+	while (*it == 'a') {
+		searchOffset++;
+		it++;
+	}
+	if (searchRange > utr3Length) searchRange = utr3Length; 
+	
 	BOOST_FOREACH (const std::string & pattern, this->rHexamers) {
-		// The range in which the pattern is searched from the end of the transcript
-		if (searchRange > utr3Length) searchRange = utr3Length; 
-
-		auto posIt = std::search(this->txMut.seq.rbegin() + searchOffset, 
-			this->txMut.seq.rbegin() + searchOffset + searchRange, 
+		//std::search returns an iterator to the start of the match
+		//(in this case to the "end" of the match since we use reverse_iterators)
+		auto posIt = std::search(this->txMut.seq.rbegin() + cutoff + searchOffset, 
+			this->txMut.seq.rbegin() + cutoff + searchOffset + searchRange, 
 			pattern.begin(), pattern.end());
 		
-		if (posIt != this->txMut.seq.rbegin() + searchOffset + searchRange) {
-			/* Since positions are indexed starting with zero we have to substract 1 
-			from the seqLength and the std::distance (+5 instead of +6) value */
-			hitPos = (seqLength - 1) - (std::distance(this->txMut.seq.rbegin() + searchOffset, posIt) + 5);
+		if (posIt != this->txMut.seq.rbegin() + cutoff + searchOffset + searchRange) {
+			//Since positions are indexed starting with zero we have to substract 1 
+			//from the seqLength and the std::distance (+5 instead of +6) value
+			hitPos = (seqLength - 1) - (std::distance(this->txMut.seq.rbegin() + cutoff, posIt + 5));
 			this->polyaMotifPos = hitPos;
 			break;
 		} 	
@@ -108,7 +115,8 @@ void Utr3Finder::findPolyaMotif() {
  */
 bool Utr3Finder::isMutationInMotif() const {
 	if (this->polyaMotifPos == Utr3Finder::noHitPos) return false;
-	
+	if (! this->txMut.mutation) return false;
+
 	int diff = this->txMut.mutation->getMutPosition() + static_cast<int>(this->txMut.utr3Start) -
 		static_cast<int>(this->polyaMotifPos);
 	if (diff < 6 && diff >= 0) {
@@ -148,19 +156,20 @@ std::string Utr3Finder::getSequence() const {
 
 
 /**
- * Return a string with information about the transcript and mutation.
+ * Writes a string to the error console with information about the transcript and mutation (if available).
  */
-std::string Utr3Finder::writeInfo() const {
+void Utr3Finder::writeInfo() const {
 	std::stringstream ss;
-	ss << *this->txMut.chrom 
-		<< ", " << *this->txMut.genomicPos 
-		<< ", " << *this->txMut.seqId
-		<< ", " << *this->txMut.strand
-		<< ", Poly(A) Pos: " << this->polyaMotifPos 
+	ss << "Poly(A) Pos: " << this->polyaMotifPos 
 		<< ", utr3Start: " << this->txMut.utr3Start
-		<< ", MutPos: " << this->txMut.utr3Start + txMut.mutation->getMutPosition()
 		<< ", txLength: " << this->txMut.txLength;
-	return ss.str();
+	if (this->txMut.chrom) ss << ", chrom: " <<  *this->txMut.chrom;
+	if (this->txMut.genomicPos) ss << ", gPos: " <<  *this->txMut.genomicPos;
+	if (this->txMut.seqId) ss << ", seqID: " << *this->txMut.seqId;
+	if (this->txMut.strand) ss << ", strand: " << *this->txMut.strand;
+	if (this->txMut.mutation) ss << ", MutPos: " << this->txMut.utr3Start + this->txMut.mutation->getMutPosition();
+	
+	std::cerr << ss.str() << std::endl;
 }
 
 

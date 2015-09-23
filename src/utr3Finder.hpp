@@ -27,7 +27,7 @@ public:
 	std::string getSequence() const;
 	std::string getMotifSequence() const;
 	size_t getPolyaMotifPos() const;
-	std::string writeInfo() const;
+	void writeInfo() const;
 
 private:
 	void findPolyaMotif();

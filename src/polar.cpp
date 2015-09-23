@@ -15,7 +15,8 @@ namespace fs = boost::filesystem;
 int main (int args, char * argv[]) {
 	fs::path knownGene = "ucsc_data/knownGene.txt";
 	fs::path transcripts = "ucsc_data/knownGeneTxMrna.txt";
-	fs::path vcfFile = "vcf/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
+	//fs::path vcfFile = "vcf/vcf-example.jv.vcf";
+	fs::path vcfFile = "vcf/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.jv.vcf";
 	KnownGeneParser txValues(knownGene);
 	ReadTranscripts tx(transcripts);
 	JannovarVcfParser variants(vcfFile);
@@ -36,7 +37,8 @@ int main (int args, char * argv[]) {
 	size_t noPolya = 0;
 	BOOST_FOREACH (const Utr3Finder & utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi.isMutationInMotif()) {
-			std::cerr << "Poly(A) motif mutation detected: " << utr3MutFi.writeInfo() << std::endl;
+			std::cerr << "Poly(A) motif mutation detected: ";
+			utr3MutFi.writeInfo();
 		} else {
 			noPolya++;
 		}
@@ -45,8 +47,8 @@ int main (int args, char * argv[]) {
 	size_t undetectedUtr3Motifs = 0;
 	BOOST_FOREACH (const Utr3Finder & utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi.getPolyaMotifPos() == Utr3Finder::noHitPos) {
-			std::cerr << utr3MutFi.writeInfo() << std::endl;
-			std::cerr << utr3MutFi.getSequence() << std::endl;
+			//tr3MutFi.writeInfo();
+			//std::cerr << utr3MutFi.getSequence() << std::endl;
 			//std::cerr << "couldn't find motif: " << utr3MutFi.writeInfo() << std::endl;
 			undetectedUtr3Motifs++;
 		}

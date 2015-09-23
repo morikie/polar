@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <boost/filesystem.hpp>
 #include <boost/spirit/home/support/multi_pass.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
@@ -71,6 +72,10 @@ const std::string & ReadTranscripts::getValueByKey(const std::string & k) const{
  * Parses the file passed to the constructor.
  */
 void ReadTranscripts::parse() {
+	if (! boost::filesystem::exists(this->file)) {
+		std::cerr << "Could not find " << this->file.string() << std::endl;
+		return;
+	}
 	std::ifstream in((this->file).string());
 
 	typedef std::istreambuf_iterator<char> base_iterator_type;
@@ -84,3 +89,4 @@ void ReadTranscripts::parse() {
 	bool result = qi::parse(first, last, grammar, this->transcripts);
 
 }
+
