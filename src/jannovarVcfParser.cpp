@@ -1,3 +1,4 @@
+//#define BOOST_SPIRIT_DEBUG 
 #define BOOST_SPIRIT_USE_PHOENIX_V3
 #include <fstream>
 #include <string>
@@ -5,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/home/support/multi_pass.hpp>
 #include "jannovarVcfParser.hpp"
@@ -44,7 +46,7 @@ struct jannovarVcfGrammar :
 		
 		/* Actual grammar structure. query being the entry point. */
 		query	%= qi::omit[*headerLines]
-			>> pair >> *(qi::lit('\n') >> pair);	//pair as in std::map<key, kalue>
+			>> pair >> *(qi::eol >> pair);	//pair as in std::map<key, kalue>
 
 		pair    %= keyPair  			//CHROM and POS colums (used as key for the std::map)
 			>> qi::omit[stringColumnValue]	//ID column
@@ -52,8 +54,8 @@ struct jannovarVcfGrammar :
 			>> qi::omit[stringColumnValue] 	//ALT colum
 			>> qi::omit[stringColumnValue] 	//QUAL colum
 			>> qi::omit[stringColumnValue]	//FILTER colum
-			>> jannovarStringValueVector	//INFO column (contains the jannovar annotation string)
-			>> qi::omit[*~qi::char_('\n')];	//skip anything that follows after the INFO column until EOL
+			>> qi::omit[*(qi::char_ - qi::lit("ANN="))] >> jannovarStringValueVector	//INFO column (contains the jannovar annotation string)
+			>> qi::omit[*(qi::char_ - qi::eol)];	//skip anything that follows after the INFO column until EOL
 		
 		keyPair %= stringColumnValue >> intColumnValue;
 		
@@ -125,20 +127,21 @@ const JannovarVcfParser::vcfTranscriptsMap & JannovarVcfParser::getData() const 
  * Parses the file passed to the constructor. 
  */
 void JannovarVcfParser::parse() {
-	if (! boost::filesystem::exists(this->file) {
+	if (! boost::filesystem::exists(this->file)) {
 		std::cerr << "Could not find " << this->file.string() << std::endl;
 		return;
 	}
-	std::ifstream in((this->file).string());
-
-	typedef std::istreambuf_iterator<char> base_iterator_type;
-	typedef spirit::multi_pass<base_iterator_type> forward_iterator;
-	forward_iterator first = spirit::make_default_multi_pass(base_iterator_type(in));
-	forward_iterator last = spirit::make_default_multi_pass(base_iterator_type());
+	boost::iostreams::mapped_file_source  in(this->file.string());
 	
-	jannovarVcfGrammar<forward_iterator> grammar;
+	typedef char const* base_iterator_type;
+	base_iterator_type first(in.data());
+	base_iterator_type last(in.end());
+	//typedef spirit::multi_pass<base_iterator_type> forward_iterator;
+	//forward_iterator first = spirit::make_default_multi_pass(base_iterator_type(in));
+	//forward_iterator last = spirit::make_default_multi_pass(base_iterator_type());
+	
+	jannovarVcfGrammar<base_iterator_type> grammar;
 
 	bool result = qi::parse(first, last, grammar, this->data);
-
 }
 

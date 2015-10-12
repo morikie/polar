@@ -2,6 +2,8 @@
 #include <boost/filesystem.hpp>
 #include "../src/hgvsParser.hpp"
 #include "../src/utr3Finder.hpp"
+#include "../src/utr3FinderFuzzy.hpp"
+#include "../src/utr3FinderNaive.hpp"
 #include "readKnownPolyA.hpp"
 #include "acc_test.hpp"
 
@@ -12,7 +14,7 @@ int main (int argc, char * argv[]) {
 	fs::path knownPolyA = "../perf_testing/knownPolyAtranscript.txt";
 	std::vector<SeqStruct> seqStt;
 	std::vector<KnownPolyA> kPolyAvec;
-	std::vector<Utr3Finder> u3F;
+	std::vector<Utr3Finder*> u3F;
 	if (fs::exists(knownPolyA)) {
 		readKnownPolyA(knownPolyA, kPolyAvec);
 	} else {
@@ -30,13 +32,13 @@ int main (int argc, char * argv[]) {
 	*/
 	buildSeqStruct(seqStt, kPolyAvec);
 	
-	for (auto it = seqStt.begin(); it != seqStt.end(); it++) {
-		u3F.push_back(Utr3Finder(*it));
+	for (auto it = seqStt.begin(); it != seqStt.end(); ++it) {
+		u3F.push_back(new Utr3FinderNaive(*it));
 	}
 	size_t correctPredict = 0;
 	size_t total = u3F.size();
 	for (size_t i = 0; i < u3F.size(); i++) {
-		size_t predictedPos = u3F[i].getPolyaMotifPos();
+		size_t predictedPos = u3F[i]->getPolyaMotifPos();
 		for (size_t j = 0; j < kPolyAvec[i].polyApos.size(); j++) {
 			if (predictedPos == kPolyAvec[i].polyApos[j]) {
 				correctPredict++;
@@ -44,7 +46,7 @@ int main (int argc, char * argv[]) {
 			}
 			if (j + 1 == kPolyAvec[i].polyApos.size()) {
 				std::cerr << "reference polyA: " << kPolyAvec[i].polyApos[j] << ", ";
-				u3F[i].writeInfo();
+				u3F[i]->writeInfo();
 			}
 		}
 	}

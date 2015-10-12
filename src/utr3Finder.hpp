@@ -1,38 +1,31 @@
-#ifndef __UT3MUTATIONFINDER_HPP__
-#define __UT3MUTATIONFINDER_HPP__
+#ifndef __UTR3FINDER_HPP__
+#define __UTR3FINDER_HPP__
 
-#include <boost/optional.hpp>
+#include <string>
+#include <vector>
 #include "seqStruct.hpp"
 
-
-/**
- * Class to predict the location of the Poly(A) cleavage motif.
- */
 class Utr3Finder {
 public:
 	static const std::vector<std::string> hexamers;
 	static const std::vector<std::string> rHexamers;
-	
+
 	static const size_t noHitPos = -1;
 
-private:
-	const SeqStruct & txMut;
-	size_t polyaMotifPos = noHitPos;
-	
+protected:
+	const SeqStruct & seqStruct;
+
 public:
-	Utr3Finder(const SeqStruct & tM);
-	~Utr3Finder();
+	Utr3Finder(const SeqStruct & sSt);
+	virtual ~Utr3Finder() = 0;
 
-	bool isMutationInMotif() const;
-	std::string getSequence() const;
-	std::string getMotifSequence() const;
-	size_t getPolyaMotifPos() const;
-	void writeInfo() const;
+	virtual size_t getPolyaMotifPos() const  = 0;
+	virtual bool isMutationInMotif() const = 0;
+	virtual void writeInfo() const  = 0;
 
-private:
-	void findPolyaMotif();
-	
+protected:
+	virtual void findPolyaMotif() = 0;
+
 };
 
-#endif /* __UTR3MUTATIONFINDER_HPP__ */
-
+#endif /* __UTR3FINDER_HPP__ */

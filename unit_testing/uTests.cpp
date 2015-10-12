@@ -11,6 +11,9 @@
 #include "../src/readTranscripts.hpp"
 #include "../src/seqStruct.hpp"
 #include "../src/utr3Finder.hpp"
+#include "../src/utr3FinderFuzzy.hpp"
+#include "../src/utr3FinderNaive.hpp"
+
 
 namespace fs = boost::filesystem;
 namespace spirit = boost::spirit;
@@ -363,7 +366,7 @@ BOOST_AUTO_TEST_CASE ( hgvsParser ) {
 /**
  * Tests for class Utr3Finder.
  */
-BOOST_AUTO_TEST_CASE ( utr3Finder ) {	
+BOOST_AUTO_TEST_CASE ( utr3FinderNaive ) {	
 	std::string seq ("acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	boost::optional<const HgvsParser> newHgvs1 = HgvsParser("c.*68A>G");
 	size_t utr3Start = 20;
@@ -379,7 +382,7 @@ BOOST_AUTO_TEST_CASE ( utr3Finder ) {
 		boost::none
 	};
 	size_t utr3MotifPos = 86;
-	Utr3Finder utr3MutFi_test1 (txTest1);
+	Utr3FinderNaive utr3MutFi_test1 (txTest1);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(), std::string ("aataaa"));	
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);		
@@ -399,7 +402,7 @@ BOOST_AUTO_TEST_CASE ( utr3Finder ) {
 		boost::none
 	};
 	utr3MotifPos = 21;
-	Utr3Finder utr3MutFi_test2 (txTest2);
+	Utr3FinderNaive utr3MutFi_test2 (txTest2);
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence(), std::string ("aataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.isMutationInMotif(), true);	
@@ -419,7 +422,7 @@ BOOST_AUTO_TEST_CASE ( utr3Finder ) {
 		boost::none
 	};
 	utr3MotifPos = 75;
-	Utr3Finder utr3MutFi_test3 (txTest3);
+	Utr3FinderNaive utr3MutFi_test3 (txTest3);
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence(), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.isMutationInMotif(), true);	
@@ -439,7 +442,7 @@ BOOST_AUTO_TEST_CASE ( utr3Finder ) {
 		boost::none
 	};
 	utr3MotifPos = 25;
-	Utr3Finder utr3MutFi_test4 (txTest4);
+	Utr3FinderNaive utr3MutFi_test4 (txTest4);
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence(), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.isMutationInMotif(), true);	
@@ -458,8 +461,8 @@ BOOST_AUTO_TEST_CASE ( utr3Finder ) {
 		boost::none,
 		boost::none
 	};
-	utr3MotifPos = Utr3Finder::noHitPos;
-	Utr3Finder utr3MutFi_test5 (txTest5);
+	utr3MotifPos = Utr3FinderNaive::noHitPos;
+	Utr3FinderNaive utr3MutFi_test5 (txTest5);
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos(), utr3MotifPos);
 	BOOST_CHECK (utr3MutFi_test5.getMotifSequence() == "");
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.isMutationInMotif(), false);	

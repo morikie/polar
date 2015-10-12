@@ -1,3 +1,4 @@
+//#define BOOST_SPIRIT_DEBUG
 #define BOOST_SPIRIT_USE_PHOENIX_V3
 #include <fstream>
 #include <string>
@@ -5,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/home/support/multi_pass.hpp>
 #include "knownGeneParser.hpp"
@@ -49,7 +51,10 @@ struct knownGeneGrammar :
 				>> intVector
 				>> qi::omit[*~qi::char_('\n')]
 				;
+	
+	//BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(seqName)(intValue)(intVector)(txProps))
 	}
+
 	private:
 		qi::rule<Iterator, std::unordered_map<std::string, TxProperties>()> query;
 		qi::rule<Iterator, std::pair<std::string, TxProperties>() > pair;
@@ -85,14 +90,16 @@ void KnownGeneParser::parse() {
 		std::cerr << "Could not find " << this->file.string() << std::endl;
 		return;
 	}
-	std::ifstream in((this->file).string());
+	boost::iostreams::mapped_file_source in(this->file.string());
 
-	typedef std::istreambuf_iterator<char> base_iterator_type;
-	typedef spirit::multi_pass<base_iterator_type> forward_iterator;
-	forward_iterator first = spirit::make_default_multi_pass(base_iterator_type(in));
-	forward_iterator last = spirit::make_default_multi_pass(base_iterator_type());
+	typedef char const* base_iterator_type;
+	base_iterator_type first(in.data());
+	base_iterator_type last(in.end());
+	//typedef spirit::multi_pass<base_iterator_type> forward_iterator;
+	//forward_iterator first = spirit::make_default_multi_pass(base_iterator_type(in));
+	//forward_iterator last = spirit::make_default_multi_pass(base_iterator_type());
 	
-	knownGeneGrammar<forward_iterator> grammar;
+	knownGeneGrammar<base_iterator_type> grammar;
 
 	bool result = qi::parse(first, last, grammar, this->data);
 

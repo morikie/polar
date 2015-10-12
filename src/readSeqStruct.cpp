@@ -1,4 +1,5 @@
 #include <numeric>
+#include <sstream>
 #include <boost/optional.hpp>
 #include "readSeqStruct.hpp"
 #include "hgvsParser.hpp"
@@ -62,10 +63,22 @@ bool readSeqStruct (std::vector<SeqStruct> & transMutVector,
 	auto itEnd = (vcfParser.getData()).end();
 	
 	size_t inIntron = 0;
+	size_t count = 0;
+	size_t count_affectedTx = 0;
+	size_t count_affectedUtr3 = 0;
+	//size_t counter = 1;
 	for ( ; itBegin != itEnd; itBegin++) {
-			
+		count++;
 		BOOST_FOREACH(const vcfTranscripts & vcfTx, itBegin->second) {
-			if (vcfTx.jvVariantType == "3_prime_utr_variant") {
+			count_affectedTx++;
+			if (vcfTx.jvVariantType.find("3_prime_utr_variant") != std::string::npos) {	
+				//std::stringstream ss;
+				//ss << "3_prime_utr_variant" << counter;
+				/*if (vcfTx.jvVariantType.find(ss.str()) != std::string::npos) {
+					std::cerr << ss.str() << " wasn't found!" << std::endl;
+				}
+				counter++;*/
+				count_affectedUtr3++;
 				auto & mapValues = txValues.getValueByKey(vcfTx.txName);
 				size_t txLength = getTxLength(mapValues); 
 				auto & chrom = (itBegin->first).first;
@@ -76,7 +89,6 @@ bool readSeqStruct (std::vector<SeqStruct> & transMutVector,
 				if (mapValues.cdsEnd == mapValues.cdsStart) continue;
 
 				size_t utr3Start = findUtrStart(mapValues, txLength);
-
 				SeqStruct transMut = {
 					txSequences.getValueByKey(vcfTx.txName),
 					utr3Start,
@@ -92,10 +104,12 @@ bool readSeqStruct (std::vector<SeqStruct> & transMutVector,
 				} else {
 					inIntron++;		
 				}
-
 			}
 		}
 	}
-	std::cerr << "UTR variants in introns: " << inIntron << std::endl;
+//	std::cerr << "jv Tx counts: " << count_affectedTx << std::endl;
+//	std::cerr << "jv UTR3 counts: " << count_affectedUtr3 << std::endl;
+//	std::cerr << "UTR variants in introns: " << inIntron << std::endl;
 	return true;
 }
+
