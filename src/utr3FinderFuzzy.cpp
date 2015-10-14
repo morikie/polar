@@ -1,3 +1,5 @@
+#include <string>
+#include <vector>
 #include "seqStruct.hpp"
 #include "utr3FinderFuzzy.hpp"
 
@@ -10,6 +12,7 @@ Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt):
 
 
 Utr3FinderFuzzy::~Utr3FinderFuzzy() {}
+
 
 void Utr3FinderFuzzy::findPolyaMotif() {
 /* implementation */
@@ -26,13 +29,13 @@ std::string Utr3FinderFuzzy::getSequence() const {
 }
 
 
-std::string Utr3FinderFuzzy::getMotifSequence() const {
-	return std::string();
+std::vector<std::string> Utr3FinderFuzzy::getMotifSequence() const {
+	return std::vector<std::string>(1, std::string());
 }
 
 
-size_t Utr3FinderFuzzy::getPolyaMotifPos() const {
-	return 0;
+std::vector<size_t> Utr3FinderFuzzy::getPolyaMotifPos() const {
+	return std::vector<size_t>(1, 0);
 }
 
 

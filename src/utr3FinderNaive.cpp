@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
@@ -33,7 +34,7 @@ void Utr3FinderNaive::findPolyaMotif() {
 	//of the sequence and the designated length from external sources.
 	size_t cutoff = seqStruct.seq.size() - seqLength;
 	size_t utr3Length = seqLength - this->seqStruct.utr3Start;
-	size_t hitPos = Utr3FinderNaive::noHitPos;
+	size_t hitPos = Utr3Finder::noHitPos;
 	//length of the sequence searched from transcript end
 	size_t searchRange = 100;
 	//excepting remnants of the Poly(A) tail from the search
@@ -56,11 +57,11 @@ void Utr3FinderNaive::findPolyaMotif() {
 			//Since positions are indexed starting with zero we have to substract 1 
 			//from the seqLength and the std::distance (+5 instead of +6) value
 			hitPos = (seqLength - 1) - (std::distance(this->seqStruct.seq.rbegin() + cutoff, posIt + 5));
-			this->polyaMotifPos = hitPos;
+			this->polyaPosVector[0] = hitPos;
 			break;
 		} 	
 	}
-	if (hitPos == Utr3FinderNaive::noHitPos) this->polyaMotifPos = hitPos;
+	if (hitPos == Utr3Finder::noHitPos) this->polyaPosVector[0] = hitPos;
 }
 
 
@@ -68,11 +69,11 @@ void Utr3FinderNaive::findPolyaMotif() {
  * Checks if variant is in the Poly(A) motif.
  */
 bool Utr3FinderNaive::isMutationInMotif() const {
-	if (this->polyaMotifPos == Utr3FinderNaive::noHitPos) return false;
+	if (this->polyaPosVector[0] == Utr3Finder::noHitPos) return false;
 	if (! this->seqStruct.mutation) return false;
 
 	int diff = this->seqStruct.mutation->getMutPosition() + static_cast<int>(this->seqStruct.utr3Start) -
-		static_cast<int>(this->polyaMotifPos);
+		static_cast<int>(this->polyaPosVector[0]);
 	if (diff < 6 && diff >= 0) {
 		return true;
 	} else {
@@ -84,20 +85,20 @@ bool Utr3FinderNaive::isMutationInMotif() const {
 /**
  * Returns the Poly(A) motif position in the transcript.
  */
-size_t Utr3FinderNaive::getPolyaMotifPos() const {
-	return this->polyaMotifPos;
+std::vector<size_t> Utr3FinderNaive::getPolyaMotifPos() const {
+	return std::vector<size_t>(1, this->polyaPosVector[0]);
 }
 
 
 /**
  * Returns the motif hexamer.
  */
-std::string Utr3FinderNaive::getMotifSequence() const {
-	if (this->polyaMotifPos == Utr3FinderNaive::noHitPos) return std::string();
+std::vector<std::string> Utr3FinderNaive::getMotifSequence() const {
+	if (this->polyaPosVector[0] == Utr3Finder::noHitPos) return std::vector<std::string>(1, std::string());
 
-	auto motifStart = this->seqStruct.seq.begin() + this->polyaMotifPos;
-	auto motifEnd = this->seqStruct.seq.begin() + this->polyaMotifPos + 6;
-	return std::string(motifStart, motifEnd);	
+	auto motifStart = this->seqStruct.seq.begin() + this->polyaPosVector[0];
+	auto motifEnd = this->seqStruct.seq.begin() + this->polyaPosVector[0] + 6;
+	return std::vector<std::string>(1, std::string(motifStart, motifEnd));
 }
 
 
@@ -114,7 +115,7 @@ std::string Utr3FinderNaive::getSequence() const {
  */
 void Utr3FinderNaive::writeInfo() const {
 	std::stringstream ss;
-	ss << "Poly(A) Pos: " << this->polyaMotifPos 
+	ss << "Poly(A) Pos: " << this->polyaPosVector[0] 
 		<< ", utr3Start: " << this->seqStruct.utr3Start
 		<< ", txLength: " << this->seqStruct.txLength;
 	if (this->seqStruct.chrom) ss << ", chrom: " <<  *this->seqStruct.chrom;
@@ -125,5 +126,4 @@ void Utr3FinderNaive::writeInfo() const {
 	
 	std::cerr << ss.str() << std::endl;
 }
-
 

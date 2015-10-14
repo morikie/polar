@@ -383,8 +383,8 @@ BOOST_AUTO_TEST_CASE ( utr3FinderNaive ) {
 	};
 	size_t utr3MotifPos = 86;
 	Utr3FinderNaive utr3MutFi_test1 (txTest1);
-	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos(), utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(), std::string ("aataaa"));	
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence()[0], std::string ("aataaa"));	
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);		
 
 	seq = "acaaataatataccaagagagaataaaccaaaaaaaaaaaaaaaaaa";
@@ -403,8 +403,8 @@ BOOST_AUTO_TEST_CASE ( utr3FinderNaive ) {
 	};
 	utr3MotifPos = 21;
 	Utr3FinderNaive utr3MutFi_test2 (txTest2);
-	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos(), utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence(), std::string ("aataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence()[0], std::string ("aataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.isMutationInMotif(), true);	
 
 	seq = "acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtatataaaccaagagagaaaaacc";
@@ -423,8 +423,8 @@ BOOST_AUTO_TEST_CASE ( utr3FinderNaive ) {
 	};
 	utr3MotifPos = 75;
 	Utr3FinderNaive utr3MutFi_test3 (txTest3);
-	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos(), utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence(), std::string ("tataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence()[0], std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.isMutationInMotif(), true);	
 
 	seq = "accccaaatatccccccccacagtatataaaccaagagagaaaaacc";
@@ -443,8 +443,8 @@ BOOST_AUTO_TEST_CASE ( utr3FinderNaive ) {
 	};
 	utr3MotifPos = 25;
 	Utr3FinderNaive utr3MutFi_test4 (txTest4);
-	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos(), utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence(), std::string ("tataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence()[0], std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.isMutationInMotif(), true);	
 
 	seq = "accccaatccccccccacagtataaccaagagagaaaaacc";
@@ -463,8 +463,8 @@ BOOST_AUTO_TEST_CASE ( utr3FinderNaive ) {
 	};
 	utr3MotifPos = Utr3FinderNaive::noHitPos;
 	Utr3FinderNaive utr3MutFi_test5 (txTest5);
-	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos(), utr3MotifPos);
-	BOOST_CHECK (utr3MutFi_test5.getMotifSequence() == "");
+	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK (utr3MutFi_test5.getMotifSequence()[0] == "");
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.isMutationInMotif(), false);	
 }
 

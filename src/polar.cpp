@@ -43,7 +43,7 @@ int main (int args, char * argv[]) {
 	size_t noPolya = 0;
 	BOOST_FOREACH (const Utr3Finder * utr3MutFi, utr3MutFinderVector) {
 		if (utr3MutFi->isMutationInMotif()) {
-	//		std::cerr << "Poly(A) motif mutation detected: ";
+			std::cerr << "Poly(A) motif mutation detected: ";
 			utr3MutFi->writeInfo();
 		} else {
 			noPolya++;
@@ -52,7 +52,7 @@ int main (int args, char * argv[]) {
 
 	size_t undetectedUtr3Motifs = 0;
 	BOOST_FOREACH (const Utr3Finder * utr3MutFi, utr3MutFinderVector) {
-		if (utr3MutFi->getPolyaMotifPos() == Utr3Finder::noHitPos) {
+		if (utr3MutFi->getPolyaMotifPos()[0] == Utr3Finder::noHitPos) {
 			//tr3MutFi.writeInfo();
 			//std::cerr << utr3MutFi.getSequence() << std::endl;
 			//std::cerr << "couldn't find motif: " << utr3MutFi.writeInfo() << std::endl;
@@ -60,9 +60,9 @@ int main (int args, char * argv[]) {
 		}
 	}
 
-	//std::cerr << "undetectedUtr3Motifs: " << undetectedUtr3Motifs << std::endl;
-	//std::cerr << "utr3MutFinderVector.size(): " << utr3MutFinderVector.size() << std::endl;
-	//std::cerr << "noPolya: " << noPolya << std::endl;
+	std::cerr << "undetectedUtr3Motifs: " << undetectedUtr3Motifs << std::endl;
+	std::cerr << "utr3MutFinderVector.size(): " << utr3MutFinderVector.size() << std::endl;
+	std::cerr << "noPolya: " << noPolya << std::endl;
 
 	return EXIT_SUCCESS;
 }

@@ -5,6 +5,7 @@
 #include <vector>
 #include "seqStruct.hpp"
 
+/* Interface class */
 class Utr3Finder {
 public:
 	static const std::vector<std::string> hexamers;
@@ -14,12 +15,15 @@ public:
 
 protected:
 	const SeqStruct & seqStruct;
-
+	std::vector<size_t> polyaPosVector = std::vector<size_t>(1, noHitPos);
+	
 public:
 	Utr3Finder(const SeqStruct & sSt);
 	virtual ~Utr3Finder() = 0;
 
-	virtual size_t getPolyaMotifPos() const  = 0;
+	virtual std::vector<size_t> getPolyaMotifPos() const  = 0;
+	virtual std::string getSequence() const = 0;
+	virtual std::vector<std::string> getMotifSequence() const = 0;
 	virtual bool isMutationInMotif() const = 0;
 	virtual void writeInfo() const  = 0;
 
