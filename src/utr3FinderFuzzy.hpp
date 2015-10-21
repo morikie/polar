@@ -7,6 +7,11 @@
 
 
 class Utr3FinderFuzzy : public Utr3Finder {
+protected:
+	DseLocation dLoc;
+	DseUracil dUra;
+	UseUracil uUra;
+
 public: 
 	Utr3FinderFuzzy(const SeqStruct & sSt);
 	virtual ~Utr3FinderFuzzy();

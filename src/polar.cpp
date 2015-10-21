@@ -18,7 +18,8 @@ int main (int args, char * argv[]) {
 	fs::path knownGene = "ucsc_data/knownGene.txt";
 	fs::path transcripts = "ucsc_data/knownGeneTxMrna.txt";
 	//fs::path vcfFile = "vcf/vcf-example.jv.vcf";
-	fs::path vcfFile = "vcf/1000Genomes/ALL.chr17.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
+	//fs::path vcfFile = "vcf/1000Genomes/ALL.chr17.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
+	fs::path vcfFile = "vcf/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.jv.vcf";
 	//fs::path vcfFile = "vcf/1000Genomes/taddaa2.txt";
 	//fs::path vcfFile = "vcf/1000Genomes/ALL.chr1.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
 	//fs::path vcfFile = "vcf/vcf-example.jv.vcf";

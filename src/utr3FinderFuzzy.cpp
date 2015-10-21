@@ -4,6 +4,21 @@
 #include "utr3FinderFuzzy.hpp"
 
 
+class DseLocation {
+	
+};
+
+
+class DseUracil {
+
+};
+
+
+class UseUracil {
+
+};
+
+
 Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt):
 	Utr3Finder(sSt)
 {
@@ -15,7 +30,7 @@ Utr3FinderFuzzy::~Utr3FinderFuzzy() {}
 
 
 void Utr3FinderFuzzy::findPolyaMotif() {
-/* implementation */
+	
 }
 
 
