@@ -21,64 +21,83 @@ public:
 protected:
 	virtual void findPolyaMotif() override;
 
+	double getDseLocationTvalue(std::string pas, size_t pos) const;
+	double getDseUcontentTvalue(std::string pas, double uContent) const;
+	double getUseUcontentTvalue(std::string pas, double uContent) const;
+
 public:
 	/**
 	 * Class that holds values to calculate the truth value for a certain DSE location.
 	 */
 	class DseLocation {
-	private:
+	public:
 		typedef std::pair<size_t, size_t> range;
 		
-		range positiveIntermediate; //range where TV is something between 0 and 1; positive slope of the (acute) trapezoid side (usually left side)
-		range negativeIntermediate; //...; negative slope of the (acute) trapzoid side (usually right side)
-		//double threshold;
-
-	public:
-		DseLocation(range p, range n);
-		~DseLocation();
-	
-	private:
 		typedef double intercept;
 		typedef double slope;
 		typedef std::pair<slope, intercept> straight;
+		
+	private:
+		//range where TV is something between 0 and 1; positive slope of the (acute) trapezoid side (usually left side)
+		range positiveIntermediate;
+		//range where TV is something between 0 and 1; negative slope of the (acute) trapzoid side (usually right side)
+		range negativeIntermediate; 
+		//double threshold;
 
 		straight positiveStraight;
 		straight negativeStraight;
 
+	public:
+		DseLocation(range p, range n);
+		DseLocation();
+		~DseLocation();
+		
+		range getLeftRange() const;
+		range getRightRange() const;
+		straight getLeftStraight() const;
+		straight getRightStraight() const;
+
+	private:
 		void calcStraights();
+
+
 	};
 
 	/**
 	 * Class that holds values to calculate the truth value for a certain uracil content.
 	 */
 	class UracilContent {
-	private:
-		double upperBound;
-		double lowerBound;
-		double maxTruthValue;
-
 	public:
-		UracilContent(double uB, double lB, double maxTv);
-		~UracilContent();
-
-	private:
 		typedef double intercept;
 		typedef double slope;
 		typedef std::pair<slope, intercept> straight;
 
+	private:
+		double lowerBound;
+		double upperBound;
+		double maxTruthValue;
+
 		straight intermediate;
 
+	public:
+		UracilContent(double lB, double uB, double maxTv);
+		UracilContent();
+		~UracilContent();
+		
+		double getLowerBound() const;
+		double getUpperBound() const;
+		double getMaxTruthValue() const;
+		straight getStraight() const;
+
+	private:
 		void calcStraight();
+
 	};
 
 protected:
-	static std::unordered_map<std::string, DseLocation> dseLocMap;
-	static std::unordered_map<std::string, UracilContent> dseUracilMap;
-	static std::unordered_map<std::string, UracilContent> useUracilMap;
-
-	double getDseLocationTvalue(std::string pas, size_t pos);
-	double getDseUcontentTvalue(std::string pas, double uContent);
-	double getUseUcontentTvalue(std::string pas, double uContent);
+	static std::unordered_map<std::string, Utr3FinderFuzzy::DseLocation> dseLocMap;
+	static std::unordered_map<std::string, Utr3FinderFuzzy::UracilContent> dseUracilMap;
+	static std::unordered_map<std::string, Utr3FinderFuzzy::UracilContent> useUracilMap;
 
 };      
 
