@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <string>
 #include <vector>
+#include <boost/foreach.hpp>
 #include "utr3Finder.hpp"
 
 
@@ -17,36 +19,24 @@ const std::vector<std::string> Utr3Finder::hexamers = {
 	"cataaa",
 	"gataaa",
 	"aatgaa",
-	"tttaaa",
 	"actaaa",
-	"aataga",
-	"aaaaag",
-	"aaaaca",
-	"ggggct"
+	"aataga"
+//	"tttaaa",
+//	"aaaaag",
+//	"aaaaca",
+//	"ggggct"
 };
 
 
 /**
 * Vector with reversed hexamers. Same as hexamers, but reversed (not complemented). Used for searching with reverse_iterator.
 */
-const std::vector<std::string> Utr3Finder::rHexamers = { 
-	"aaataa",
-	"aaatta",
-	"aaatat",
-	"aaatga",
-	"aaagaa",
-	"atataa",
-	"acataa",
-	"aaatac",
-	"aaatag",
-	"aagtaa",
-	"aaattt",
-	"aaatca",
-	"agataa",
-	"gaaaaa",
-	"acaaaa",
-	"tcgggg"
-};
+const std::vector<std::string> Utr3Finder::rHexamers( [] ()
+{
+	std::vector<std::string> temp(Utr3Finder::hexamers.begin(), Utr3Finder::hexamers.end());
+	BOOST_FOREACH(std::string & str, temp) std::reverse(str.begin(), str.end());
+	return temp;
+}());
 
 
 Utr3Finder::Utr3Finder(const SeqStruct & sSt):

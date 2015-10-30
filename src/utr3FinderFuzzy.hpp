@@ -14,17 +14,18 @@ public:
 
 	virtual bool isMutationInMotif() const override;
 	virtual std::string getSequence() const override;
-	virtual std::vector<std::string> getMotifSequence() const override;
+	virtual std::string getMotifSequence(const size_t & pos) const override;
 	virtual std::vector<size_t> getPolyaMotifPos() const override;
 	virtual void writeInfo() const override;
 
 protected:
 	virtual void findPolyaMotif() override;
 
-	double getDseLocationTvalue(std::string pas, size_t pos) const;
-	double getDseUcontentTvalue(std::string pas, double uContent) const;
-	double getUseUcontentTvalue(std::string pas, double uContent) const;
-
+	double getDseLocationTvalue(const std::string & pas, const size_t & pos) const;
+	double getDseUcontentTvalue(const std::string & pas, const double & uContent) const;
+	double getUseUcontentTvalue(const std::string & pas, const double & uContent) const;
+	
+	double calcCombinedDseTvalue(const size_t & pos);
 public:
 	/**
 	 * Class that holds values to calculate the truth value for a certain DSE location.
@@ -49,7 +50,6 @@ public:
 
 	public:
 		DseLocation(range p, range n);
-		DseLocation();
 		~DseLocation();
 		
 		range getLeftRange() const;
@@ -81,7 +81,6 @@ public:
 
 	public:
 		UracilContent(double lB, double uB, double maxTv);
-		UracilContent();
 		~UracilContent();
 		
 		double getLowerBound() const;
@@ -94,11 +93,16 @@ public:
 
 	};
 
-protected:
-	static std::unordered_map<std::string, Utr3FinderFuzzy::DseLocation> dseLocMap;
-	static std::unordered_map<std::string, Utr3FinderFuzzy::UracilContent> dseUracilMap;
-	static std::unordered_map<std::string, Utr3FinderFuzzy::UracilContent> useUracilMap;
+public:
+	typedef std::string motifSequence;
+	typedef std::unordered_map<motifSequence, DseLocation> pasToDseLocMap;
+	typedef std::unordered_map<motifSequence, UracilContent> pasToUcontentMap;
 
+public:
+	static pasToDseLocMap dseLocMap;
+	static pasToUcontentMap dseUracilMap;
+	static pasToUcontentMap useUracilMap;
+	static std::unordered_map<motifSequence, double> thresholdMap;
 };      
 
 

@@ -1,6 +1,8 @@
 #define BOOST_TEST_MAIN polar 
 
+#include <cmath>
 #include <iostream>
+#include <limits>
 #include <unordered_map>
 #include <boost/optional/optional_io.hpp>
 #include <boost/test/unit_test.hpp>
@@ -17,6 +19,18 @@
 
 namespace fs = boost::filesystem;
 namespace spirit = boost::spirit;
+
+/**
+ * Floating point comparison. Returns true if two floats are equal up to the desired ULP (units in the last place). 
+ * Copied from http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon;
+ */
+template<typename T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+	almost_equal(T x, T y, int ulp)
+{
+	return std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * ulp
+		|| std::abs(x-y) < std::numeric_limits<T>::min();
+}
 
 /*
 BOOST_AUTO_TEST_CASE( fastaReader ) {
@@ -385,7 +399,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	size_t utr3MotifPos = 86;
 	Utr3FinderNaive utr3MutFi_test1 (txTest1);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos()[0], utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence()[0], std::string ("aataaa"));	
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(utr3MutFi_test1.getPolyaMotifPos()[0]), std::string ("aataaa"));	
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);		
 
 	seq = "acaaataatataccaagagagaataaaccaaaaaaaaaaaaaaaaaa";
@@ -405,7 +419,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	utr3MotifPos = 21;
 	Utr3FinderNaive utr3MutFi_test2 (txTest2);
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos()[0], utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence()[0], std::string ("aataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence(utr3MutFi_test2.getPolyaMotifPos()[0]), std::string ("aataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.isMutationInMotif(), true);	
 
 	seq = "acaataaaacccccccccccccatttttttttttggggtagagatagagccgagcagatagcccagagcacagtatataaaccaagagagaaaaacc";
@@ -425,7 +439,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	utr3MotifPos = 75;
 	Utr3FinderNaive utr3MutFi_test3 (txTest3);
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos()[0], utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence()[0], std::string ("tataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence(utr3MutFi_test3.getPolyaMotifPos()[0]), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.isMutationInMotif(), true);	
 
 	seq = "accccaaatatccccccccacagtatataaaccaagagagaaaaacc";
@@ -445,7 +459,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	utr3MotifPos = 25;
 	Utr3FinderNaive utr3MutFi_test4 (txTest4);
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos()[0], utr3MotifPos);
-	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence()[0], std::string ("tataaa"));
+	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence(utr3MutFi_test4.getPolyaMotifPos()[0]), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.isMutationInMotif(), true);	
 
 	seq = "accccaatccccccccacagtataaccaagagagaaaaacc";
@@ -465,7 +479,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	utr3MotifPos = Utr3FinderNaive::noHitPos;
 	Utr3FinderNaive utr3MutFi_test5 (txTest5);
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos()[0], utr3MotifPos);
-	BOOST_CHECK (utr3MutFi_test5.getMotifSequence()[0] == "");
+	BOOST_CHECK (utr3MutFi_test5.getMotifSequence(utr3MutFi_test5.getPolyaMotifPos()[0]) == "");
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.isMutationInMotif(), false);	
 }
 
@@ -489,7 +503,28 @@ BOOST_AUTO_TEST_CASE ( utr3FinderFuzzy ) {
 	};
 	size_t utr3MotifPos = 26;
 	Utr3FinderFuzzy utr3FinderFuz_test1 (txTest1);
-	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.getPolyaMotifPos()[0], utr3MotifPos);
-	BOOST_CHECK (utr3FinderFuz_test1.getMotifSequence()[0] == "aataaa");
-	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.isMutationInMotif(), true);	
+	auto pairLeft1 = Utr3FinderFuzzy::dseLocMap.find(std::string("aataaa"))->second.getLeftStraight();
+	auto pairRight1 = Utr3FinderFuzzy::dseLocMap.find(std::string("aataaa"))->second.getRightStraight();
+	double slopeLeft1 = 1.0 / 15;
+	double interceptLeft1 = - 2.0 / 3;
+	double slopeRight1 = - 1.0 / 20;
+	double interceptRight1 = 11.0 / 4;
+	BOOST_CHECK(almost_equal(pairLeft1.first, slopeLeft1, 2));
+	BOOST_CHECK(almost_equal(pairLeft1.second, interceptLeft1, 2));
+	BOOST_CHECK(almost_equal(pairRight1.first, slopeRight1, 2));
+	BOOST_CHECK(almost_equal(pairRight1.second, interceptRight1, 2));
+
+	auto pairLeft2 = Utr3FinderFuzzy::dseLocMap.find(std::string("attaaa"))->second.getLeftStraight();
+	auto pairRight2 = Utr3FinderFuzzy::dseLocMap.find(std::string("attaaa"))->second.getRightStraight();
+	double slopeLeft2 = 1.0 / 15;
+	double interceptLeft2 = - 2.0 / 3;
+	double slopeRight2 = - 1.0 / 27;
+	double interceptRight2 = 20.0 / 9;
+	BOOST_CHECK(almost_equal(pairLeft2.first, slopeLeft2, 2));
+	BOOST_CHECK(almost_equal(pairLeft2.second, interceptLeft2, 2));
+	BOOST_CHECK(almost_equal(pairRight2.first, slopeRight2, 2));
+	BOOST_CHECK(almost_equal(pairRight2.second, interceptRight2, 2));
+//	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.getPolyaMotifPos()[0], utr3MotifPos);
+//	BOOST_CHECK (utr3FinderFuz_test1.getMotifSequence(utr3FinderFuz_test1.getPolyaMotifPos()[0]) == "aataaa");
+//	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.isMutationInMotif(), true);	
 }

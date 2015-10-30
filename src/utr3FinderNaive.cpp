@@ -46,7 +46,7 @@ void Utr3FinderNaive::findPolyaMotif() {
 	}
 	if (searchRange > utr3Length) searchRange = utr3Length; 
 	
-	BOOST_FOREACH (const std::string & pattern, this->rHexamers) {
+	BOOST_FOREACH (const std::string & pattern, Utr3Finder::rHexamers) {
 		//std::search returns an iterator to the start of the match
 		//(in this case to the "end" of the match since we use reverse_iterators)
 		auto posIt = std::search(this->seqStruct.seq.rbegin() + cutoff + searchOffset, 
@@ -93,12 +93,13 @@ std::vector<size_t> Utr3FinderNaive::getPolyaMotifPos() const {
 /**
  * Returns the motif hexamer.
  */
-std::vector<std::string> Utr3FinderNaive::getMotifSequence() const {
-	if (this->polyaPosVector[0] == Utr3Finder::noHitPos) return std::vector<std::string>(1, std::string());
+std::string Utr3FinderNaive::getMotifSequence(const size_t & pos) const {
+	if (pos == Utr3Finder::noHitPos) return std::string();
+	if (pos != Utr3Finder::polyaPosVector[0]) return std::string();
 
-	auto motifStart = this->seqStruct.seq.begin() + this->polyaPosVector[0];
-	auto motifEnd = this->seqStruct.seq.begin() + this->polyaPosVector[0] + 6;
-	return std::vector<std::string>(1, std::string(motifStart, motifEnd));
+	auto motifStart = this->seqStruct.seq.begin() + pos;
+	auto motifEnd = this->seqStruct.seq.begin() + pos + 6;
+	return std::string(motifStart, motifEnd);
 }
 
 

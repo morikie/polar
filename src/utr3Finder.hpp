@@ -23,7 +23,7 @@ public:
 
 	virtual std::vector<size_t> getPolyaMotifPos() const  = 0;
 	virtual std::string getSequence() const = 0;
-	virtual std::vector<std::string> getMotifSequence() const = 0;
+	virtual std::string getMotifSequence(const size_t & pos) const = 0;
 	virtual bool isMutationInMotif() const = 0;
 	virtual void writeInfo() const  = 0;
 
