@@ -96,6 +96,7 @@ std::vector<size_t> Utr3FinderNaive::getPolyaMotifPos() const {
 std::string Utr3FinderNaive::getMotifSequence(const size_t & pos) const {
 	if (pos == Utr3Finder::noHitPos) return std::string();
 	if (pos != Utr3Finder::polyaPosVector[0]) return std::string();
+	if (Utr3Finder::polyaPosVector[0] == Utr3Finder::noHitPos) return std::string();
 
 	auto motifStart = this->seqStruct.seq.begin() + pos;
 	auto motifEnd = this->seqStruct.seq.begin() + pos + 6;

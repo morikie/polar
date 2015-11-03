@@ -26,6 +26,7 @@ protected:
 	double getUseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	
 	double calcCombinedDseTvalue(const size_t & pos);
+	double calcUseTvalue(const size_t & pos);
 public:
 	/**
 	 * Class that holds values to calculate the truth value for a certain DSE location.

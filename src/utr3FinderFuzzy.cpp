@@ -121,11 +121,19 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		}
 	}
 
-
+	std::vector<size_t> authenticPas;
 	BOOST_FOREACH(const size_t & candPos, candidatePositions) {
-		calcCombinedDseTvalue(candPos);
+		std::string motif(seq.begin() + candPos, seq.begin() + candPos + 6);
+		double combDseTValue = calcCombinedDseTvalue(candPos);
+		double useTvalue = calcUseTvalue(candPos);
+
+		double finalTvalue = combDseTValue + useTvalue;
+		
+		if (finalTvalue > thresholdMap.find(motif)->second) {
+			authenticPas.push_back(candPos);
+		}
 	}
-	
+	this->polyaPosVector = authenticPas;
 }
 
 
@@ -136,50 +144,81 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 double Utr3FinderFuzzy::calcCombinedDseTvalue(const size_t & pos) {		
 	const std::string & seq = this->seqStruct.seq;
 	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
-	std::cerr << "motif: " << motif << std::endl;
 	DseLocation & dseLoc = Utr3FinderFuzzy::dseLocMap.find(motif)->second;
 		
 	size_t sWindowSize = 9;
-	std::string::const_pointer start = &seq[pos + dseLoc.getLeftRange().first + 6];
-	std::list<std::string::const_pointer> slidingWindow;
-	for (size_t i = 0; i < sWindowSize; i++) {
-		slidingWindow.push_back(start + i);
-	}
+	auto start = seq.begin() + pos + dseLoc.getLeftRange().first + 6;
+	std::list<std::string::value_type> slidingWindow(start, start + sWindowSize);
 	
-	std::cerr << *(slidingWindow.front()) << std::endl;
 	double dseLocTvalue = 0.0;
 	double dseUcontentTvalue = 0.0;
 	double truthValue = 0.0;
 	double maxTruthValue = 0.0;
-	size_t uracilCounter = std::count(start, start + 9, 't');
+	size_t uracilCounter = std::count(slidingWindow.begin(),slidingWindow.end(), 't');
 	double uContent = static_cast<double>(uracilCounter) / static_cast<double>(sWindowSize);
 	
-	std::string::const_pointer end;
-	if (dseLoc.getRightRange().second - dseLoc.getLeftRange().first < static_cast<size_t>(std::distance(start, &seq[seq.size()]))) {
+	std::string::const_iterator end;
+	if (dseLoc.getRightRange().second - dseLoc.getLeftRange().first < static_cast<size_t>(std::distance(start, seq.end()))) {
 		end = start + dseLoc.getRightRange().second - dseLoc.getLeftRange().first;
 	} else {
-		end = &seq[seq.size()-8];
+		end = seq.end() - (sWindowSize - 1);
 	}
 
 	for (auto posIt = start; posIt != end; posIt++) {	
-		for (auto it = slidingWindow.begin(); it != slidingWindow.end(); it++)
-			std::cerr << **it;
-		std::cerr << std::endl << "uracilCounter: " << uracilCounter << std::endl;
-		
-		if (*(slidingWindow.front()) == 't') uracilCounter--;
+		if (slidingWindow.front() == 't') uracilCounter--;
 		slidingWindow.pop_front();
-		slidingWindow.push_back(slidingWindow.back() + 1);
-		if (*(slidingWindow.back()) == 't') uracilCounter++;
+		slidingWindow.push_back(*(posIt + sWindowSize));
+		if (slidingWindow.back() == 't') uracilCounter++;
+		
 		uContent = static_cast<double>(uracilCounter) / static_cast<double>(sWindowSize);
-		dseLocTvalue = getDseLocationTvalue(motif, std::distance(start - dseLoc.getLeftRange().first, posIt));
+		size_t distanceToPas = std::distance(start - dseLoc.getLeftRange().first, posIt);
+		dseLocTvalue = getDseLocationTvalue(motif, distanceToPas);
 		dseUcontentTvalue = getDseUcontentTvalue(motif, uContent);
 		truthValue = std::min(dseLocTvalue, dseUcontentTvalue);
-		std::cerr << "pos: " << pos + 6 + dseLoc.getLeftRange().first + std::distance(start, posIt) << std::endl;
-		std::cerr << "uContent: " << uContent << "  truthValue: " << truthValue << std::endl;
 		if (truthValue > maxTruthValue) maxTruthValue = truthValue;
 	}
 	return maxTruthValue;
 }
+
+
+/**
+ * Scans upstream of a potential PAS for a uracil-rich region.
+ * Returns the max truth value.
+ */
+double Utr3FinderFuzzy::calcUseTvalue(const size_t & pos) {
+	size_t searchRange = 20;
+	size_t sWindowSize = 9;
+	const std::string & seq = this->seqStruct.seq;
+	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
+	std::string::const_reverse_iterator start = seq.rend() - pos;
+
+	std::list<std::string::value_type> slidingWindow(start, start + sWindowSize);
+	
+	double useUcontentTvalue = 0.0;
+	double maxTvalue = 0.0;
+	size_t uracilCounter = std::count(slidingWindow.begin(), slidingWindow.end(), 't');
+	double uContent = static_cast<double>(uracilCounter) / static_cast<double>(sWindowSize);
+
+	std::string::const_reverse_iterator end;
+	if (static_cast<size_t>(std::distance(start, seq.rend())) < searchRange) {
+		end = seq.rend() - (sWindowSize - 1);
+	} else {
+		end = start + searchRange;
+	}
+
+	for (auto posIt = start; posIt != end; posIt++) {
+		if (slidingWindow.front() == 't') uracilCounter--;
+		slidingWindow.pop_front();
+		slidingWindow.push_back(*(posIt + sWindowSize));
+		if (slidingWindow.back() == 't') uracilCounter++;
+		
+		uContent = static_cast<double>(uracilCounter) / static_cast<double>(sWindowSize);
+		useUcontentTvalue = getUseUcontentTvalue(motif, uContent);
+		if (useUcontentTvalue > maxTvalue) maxTvalue = useUcontentTvalue;
+	}
+	return maxTvalue;
+}
+
 
 /**
  * Checks if a variant hits the Poly(A) motif.
@@ -193,7 +232,7 @@ bool Utr3FinderFuzzy::isMutationInMotif() const {
  * Returns the sequence that was searched on.
  */
 std::string Utr3FinderFuzzy::getSequence() const {
-	return std::string();
+	return this->seqStruct.seq;
 }
 
 
@@ -202,7 +241,7 @@ std::string Utr3FinderFuzzy::getSequence() const {
  */
 std::string Utr3FinderFuzzy::getMotifSequence(const size_t & pos) const {
 	if (pos == Utr3Finder::noHitPos) return std::string();
-	if (pos != Utr3Finder::polyaPosVector[0]) return std::string();
+	if (Utr3Finder::polyaPosVector[0] == Utr3Finder::noHitPos) return std::string();
 	
 	auto motifStart = this->seqStruct.seq.begin() + pos;
 	auto motifEnd = this->seqStruct.seq.begin() + pos + 6;
@@ -214,7 +253,7 @@ std::string Utr3FinderFuzzy::getMotifSequence(const size_t & pos) const {
  * Returns the positions of the found PAS.
  */
 std::vector<size_t> Utr3FinderFuzzy::getPolyaMotifPos() const {
-	return std::vector<size_t>(1, 0);
+	return this->polyaPosVector;
 }
 
 
