@@ -16,3 +16,4 @@ bool readSeqStruct (std::vector<SeqStruct> & transMutVector,
 	const ReadTranscripts & txSequences);
 
 #endif /* __READTRANSCRIPTMUATION_HPP__ */
+

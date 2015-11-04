@@ -8,7 +8,8 @@ LIBS		= -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams
 LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system -lboost_iostreams
 TPATH		= bin/
 
-OBJS		= $(TPATH)fastaReader.o \
+OBJS		= $(TPATH)buildIndexFile.o \
+	$(TPATH)fastaReader.o \
 	$(TPATH)hgvsParser.o \
 	$(TPATH)jannovarVcfParser.o \
 	$(TPATH)knownGeneParser.o \
@@ -27,6 +28,7 @@ $(TPATH)polar : $(TPATH)polar.o $(OBJS)
 	@echo "[Link] polar"
 	@$(CC) $(INCLUDE) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)polar 
 
+#unit testing
 $(TPATH)uTests : $(TPATH)uTests.o $(OBJS) 
 	@echo "[Link] uTests"
 	@$(CC) $^ $(LIBPATH) $(LFLAGS) $(LIBSTEST) -o bin/uTests
@@ -35,6 +37,7 @@ $(TPATH)uTests.o : unit_testing/uTests.cpp
 	@echo "[Compile] uTests"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) unit_testing/uTests.cpp -o $(TPATH)uTests.o
 
+#polar main program
 $(TPATH)polar.o : src/polar.hpp \
 	src/polar.cpp \
 	src/jannovarVcfParser.hpp \
@@ -47,6 +50,10 @@ $(TPATH)polar.o : src/polar.hpp \
 	src/utr3FinderNaive.hpp 
 	@echo "[Compile] polar"
 	@$(CC) $(INCLUDE) $(CFLAGS) src/polar.cpp -o $(TPATH)polar.o
+
+$(TPATH)buildIndexFile.o : src/buildIndexFile.hpp src/buildIndexFile.cpp
+	@echo "[Compile] BuildIndexFile"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/buildIndexFile.cpp -o $(TPATH)buildIndexFile.o
 
 $(TPATH)fastaReader.o : src/fastaReader.hpp src/fastaReader.cpp
 	@echo "[Compile] FastaReader"
@@ -89,7 +96,6 @@ $(TPATH)utr3FinderFuzzy.o : src/utr3FinderFuzzy.hpp src/utr3FinderFuzzy.cpp src/
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3FinderFuzzy.cpp -o $(TPATH)utr3FinderFuzzy.o
 
 #targets for the performance tests
-
 $(TPATH)acc_test : $(TPATH)acc_test.o \
 	$(TPATH)readKnownPolyA.o \
 	$(TPATH)hgvsParser.o \
@@ -111,5 +117,5 @@ $(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnow
 .PHONY : clean
 clean :
 	@echo "[Delete] object and binary files"
-	@rm $(TPATH)polar $(TPATH)uTests $(TPATH)*.o
+	@rm $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test $(TPATH)*.o 
  

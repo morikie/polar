@@ -1,7 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <boost/foreach.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
+#include <seqan/seq_io.h>
+#include "buildIndexFile.hpp"
 #include "knownGeneParser.hpp"
 #include "jannovarVcfParser.hpp"
 #include "readTranscripts.hpp"
@@ -14,12 +17,15 @@
 
 namespace fs = boost::filesystem;
 
+
 int main (int args, char * argv[]) {
 	fs::path knownGene = "ucsc_data/knownGene.txt";
 	fs::path transcripts = "ucsc_data/knownGeneTxMrna.txt";
-	//fs::path vcfFile = "vcf/vcf-example.jv.vcf";
+	fs::path vcfFile = "vcf/vcf-example.jv.vcf";
+	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
+	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
 	//fs::path vcfFile = "vcf/1000Genomes/ALL.chr17.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
-	fs::path vcfFile = "vcf/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.jv.vcf";
+	//fs::path vcfFile = "vcf/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.jv.vcf";
 	//fs::path vcfFile = "vcf/1000Genomes/taddaa2.txt";
 	//fs::path vcfFile = "vcf/1000Genomes/ALL.chr1.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
 	//fs::path vcfFile = "vcf/vcf-example.jv.vcf";
@@ -31,6 +37,17 @@ int main (int args, char * argv[]) {
 	
 	readSeqStruct (transMutVector, variants, txValues, tx);
 	
+	if (! fs::exists(refGenomeIndex)) {
+		buildIndexFile(referenceGenome);
+	}
+	
+	seqan::FaiIndex faiIndex;
+	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
+		std::cerr << "could not open index file for " << referenceGenome << std::endl;
+	}
+	seqan::String<char> sequence;
+	seqan::readRegion(sequence, faiIndex, 0, 10000, 10100);
+	std::cerr << sequence << std::endl;
 
 	try {
 		for (auto it = transMutVector.begin(); it != transMutVector.end(); ++it) {
