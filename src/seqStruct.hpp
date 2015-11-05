@@ -11,8 +11,8 @@
  */
 struct SeqStruct {	
 	const std::string & seq;
-	const size_t utr3Start;
-	const size_t txLength;
+	boost::optional<const size_t> utr3Start;
+	boost::optional<const size_t> txLength;
 	//HGVS string parser
 	boost::optional<const HgvsParser> mutation;
 	

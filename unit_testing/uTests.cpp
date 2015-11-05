@@ -488,13 +488,10 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 
 BOOST_AUTO_TEST_CASE ( utr3FinderFuzzy ) {	
 	std::string seq = "agggagagattaatttttcccaccccaataaaccccccccacagtataaccaagagattttatttgaaaaacc";
-	boost::optional<const HgvsParser> newHgvs1 = HgvsParser("c.*2A>G");
-	size_t utr3Start = 10;
-	size_t txLength = seq.size();
 	SeqStruct  txTest1 {
 		seq,
-		utr3Start,
-		txLength,
+		boost::none,
+		boost::none,
 		boost::none,
 		boost::none,
 		boost::none,
@@ -524,6 +521,7 @@ BOOST_AUTO_TEST_CASE ( utr3FinderFuzzy ) {
 	BOOST_CHECK(almost_equal(pairLeft2.second, interceptLeft2, 2));
 	BOOST_CHECK(almost_equal(pairRight2.first, slopeRight2, 2));
 	BOOST_CHECK(almost_equal(pairRight2.second, interceptRight2, 2));
+	BOOST_CHECK_EQUAL(utr3MotifPos, utr3FinderFuz_test1.getPolyaMotifPos()[0]);
 //	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.getPolyaMotifPos()[0], utr3MotifPos);
 //	BOOST_CHECK (utr3FinderFuz_test1.getMotifSequence(utr3FinderFuz_test1.getPolyaMotifPos()[0]) == "aataaa");
 //	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.isMutationInMotif(), true);	

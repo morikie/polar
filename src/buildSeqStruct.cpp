@@ -1,7 +1,8 @@
-#include <numeric>
+#include <regex>
 #include <sstream>
 #include <boost/optional.hpp>
-#include "readSeqStruct.hpp"
+#include <seqan/seq_io.h>
+#include "buildSeqStruct.hpp"
 #include "hgvsParser.hpp"
 
 
@@ -54,7 +55,7 @@ inline size_t getTxLength (const TxProperties & txProp) {
 /**
  * Fills up the SeqStruct objects needed for the Utr3Finder.
  */
-bool readSeqStruct (std::vector<SeqStruct> & transMutVector, 
+bool buildSeqStructFromTranscripts (std::vector<SeqStruct> & transMutVector, 
 	const JannovarVcfParser & vcfParser, 
 	const KnownGeneParser & txValues, 
 	const ReadTranscripts & txSequences) 
@@ -113,3 +114,64 @@ bool readSeqStruct (std::vector<SeqStruct> & transMutVector,
 	return true;
 }
 
+
+/**
+ * Fills up the SeqStruct objects needed for the Utr3Finder.
+ */
+bool buildSeqStructFromGenome (std::vector<SeqStruct> & transMutVector, 
+	const JannovarVcfParser & vcfParser,
+	const seqan::FaiIndex & fai)
+{
+	auto itBegin = (vcfParser.getData()).begin();
+	auto itEnd = (vcfParser.getData()).end();
+	
+	for ( ; itBegin != itEnd; itBegin++) {
+		BOOST_FOREACH(const vcfTranscripts & vcfTx, itBegin->second) {
+			if (vcfTx.jvVariantType.find("3_prime_utr_variant") != std::string::npos) {	
+				auto & chrom = (itBegin->first).first;
+				auto & genePos = (itBegin->first).second;
+				
+				std::string chr = chrom;
+				chr.erase(0,3);
+				unsigned idx;
+				if (chr == "X") {
+					idx = 22;
+				} else if (chr == "Y") {
+					idx = 23;
+				} else {
+					idx = std::stoi(chr);
+				}
+				
+
+				seqan::String<char> seq;
+				
+				size_t startRange;
+				size_t endRange;
+				if (genePos < 150) {
+					startRange = 0;
+				} else {
+					startRange = genePos - 150;
+				}
+				if (genePos + 150 > 
+
+				seqan::readRegion(seq, fai, idx, startRange, genePos + 150);
+				std::string sequence(seqan::toCString(seq));
+
+
+				SeqStruct transMut = {
+					sequence,
+					boost::none,
+					boost::none,
+					boost::optional<const HgvsParser>(HgvsParser(vcfTx.hgvsString)),
+					boost::optional<const std::string &>(chr),
+					boost::optional<const size_t &>(genePos),
+					boost::none,
+					boost::optional<const std::string &>(vcfTx.txName)
+				};
+				if (! transMut.mutation->isIntronic()) 
+					transMutVector.push_back(transMut);
+			}
+		}
+	}
+	return true;
+}

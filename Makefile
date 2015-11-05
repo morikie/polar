@@ -13,7 +13,7 @@ OBJS		= $(TPATH)buildIndexFile.o \
 	$(TPATH)hgvsParser.o \
 	$(TPATH)jannovarVcfParser.o \
 	$(TPATH)knownGeneParser.o \
-	$(TPATH)readSeqStruct.o \
+	$(TPATH)buildSeqStruct.o \
 	$(TPATH)readTranscripts.o \
 	$(TPATH)seqStruct.o \
 	$(TPATH)utr3Finder.o \
@@ -42,7 +42,7 @@ $(TPATH)polar.o : src/polar.hpp \
 	src/polar.cpp \
 	src/jannovarVcfParser.hpp \
 	src/knownGeneParser.hpp \
-	src/readSeqStruct.hpp \
+	src/buildSeqStruct.hpp \
 	src/readTranscripts.hpp \
 	src/seqStruct.hpp \
 	src/utr3Finder.hpp \
@@ -71,9 +71,9 @@ $(TPATH)knownGeneParser.o : src/knownGeneParser.hpp src/knownGeneParser.cpp
 	@echo "[Compile] KnownGeneParser"
 	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/knownGeneParser.cpp -o $(TPATH)knownGeneParser.o
 
-$(TPATH)readSeqStruct.o : src/readSeqStruct.hpp src/readSeqStruct.cpp
-	@echo "[Compile] readSeqStruct"
-	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/readSeqStruct.cpp -o $(TPATH)readSeqStruct.o
+$(TPATH)buildSeqStruct.o : src/buildSeqStruct.hpp src/buildSeqStruct.cpp
+	@echo "[Compile] buildSeqStruct"
+	@$(CC) $(INCLUDE) $(LIBPATH) $(CFLAGS) $(LIBS) src/buildSeqStruct.cpp -o $(TPATH)buildSeqStruct.o
 
 $(TPATH)readTranscripts.o : src/readTranscripts.hpp src/readTranscripts.cpp
 	@echo "[Compile] ReadTranscripts"

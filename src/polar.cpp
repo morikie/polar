@@ -9,7 +9,7 @@
 #include "jannovarVcfParser.hpp"
 #include "readTranscripts.hpp"
 #include "seqStruct.hpp"
-#include "readSeqStruct.hpp"
+#include "buildSeqStruct.hpp"
 #include "utr3Finder.hpp"
 #include "utr3FinderNaive.hpp"
 #include "utr3FinderFuzzy.hpp"
@@ -32,55 +32,59 @@ int main (int args, char * argv[]) {
 	KnownGeneParser txValues(knownGene);
 	ReadTranscripts tx(transcripts);
 	JannovarVcfParser variants(vcfFile);
-	std::vector<Utr3Finder*> utr3MutFinderVector;	
+	std::vector<std::shared_ptr<Utr3Finder> > utr3MutFinderVector;	
 	std::vector<SeqStruct> transMutVector;
 	
-	readSeqStruct (transMutVector, variants, txValues, tx);
-	
-	if (! fs::exists(refGenomeIndex)) {
-		buildIndexFile(referenceGenome);
-	}
-	
-	seqan::FaiIndex faiIndex;
-	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
-		std::cerr << "could not open index file for " << referenceGenome << std::endl;
-	}
-	seqan::String<char> sequence;
-	seqan::readRegion(sequence, faiIndex, 0, 10000, 10100);
-	std::cerr << sequence << std::endl;
 
-	try {
-		for (auto it = transMutVector.begin(); it != transMutVector.end(); ++it) {
-			utr3MutFinderVector.push_back(new Utr3FinderNaive(*it));
-		}
-	} catch (...) {
-	//	std::cerr << "error occured" << std::endl;
-	}
-	
-	//Amount of UTR3 mutations which do not affect the Poly(A) motif
-	size_t noPolya = 0;
-	BOOST_FOREACH (const Utr3Finder * utr3MutFi, utr3MutFinderVector) {
-		if (utr3MutFi->isMutationInMotif()) {
-			std::cerr << "Poly(A) motif mutation detected: ";
-			utr3MutFi->writeInfo();
-		} else {
-			noPolya++;
-		}
-	}
+	if (std::string(argv[1]) == "naive") {
 
-	size_t undetectedUtr3Motifs = 0;
-	BOOST_FOREACH (const Utr3Finder * utr3MutFi, utr3MutFinderVector) {
-		if (utr3MutFi->getPolyaMotifPos()[0] == Utr3Finder::noHitPos) {
-			//tr3MutFi.writeInfo();
-			//std::cerr << utr3MutFi.getSequence() << std::endl;
-			//std::cerr << "couldn't find motif: " << utr3MutFi.writeInfo() << std::endl;
-			undetectedUtr3Motifs++;
-		}
-	}
+		buildSeqStructFromTranscripts (transMutVector, variants, txValues, tx);
 
-	std::cerr << "undetectedUtr3Motifs: " << undetectedUtr3Motifs << std::endl;
-	std::cerr << "utr3MutFinderVector.size(): " << utr3MutFinderVector.size() << std::endl;
-	std::cerr << "noPolya: " << noPolya << std::endl;
+		try {
+			for (auto it = transMutVector.begin(); it != transMutVector.end(); ++it) {
+				utr3MutFinderVector.push_back(std::shared_ptr<Utr3Finder>(new Utr3FinderNaive(*it)));
+			}
+		} catch (...) {
+		//	std::cerr << "error occured" << std::endl;
+		}
+		
+		//Amount of UTR3 mutations which do not affect the Poly(A) motif
+		size_t noPolya = 0;
+		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3MutFi, utr3MutFinderVector) {
+			if (utr3MutFi->isMutationInMotif()) {
+				std::cerr << "Poly(A) motif mutation detected: ";
+				utr3MutFi->writeInfo();
+			} else {
+				noPolya++;
+			}
+		}
+
+		size_t undetectedUtr3Motifs = 0;
+		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3MutFi, utr3MutFinderVector) {
+			if (utr3MutFi->getPolyaMotifPos()[0] == Utr3Finder::noHitPos) {
+				//tr3MutFi.writeInfo();
+				//std::cerr << utr3MutFi.getSequence() << std::endl;
+				//std::cerr << "couldn't find motif: " << utr3MutFi.writeInfo() << std::endl;
+				undetectedUtr3Motifs++;
+			}
+		}
+
+		std::cerr << "undetectedUtr3Motifs: " << undetectedUtr3Motifs << std::endl;
+		std::cerr << "utr3MutFinderVector.size(): " << utr3MutFinderVector.size() << std::endl;
+		std::cerr << "noPolya: " << noPolya << std::endl;
+
+	} else {	
+		if (! fs::exists(refGenomeIndex)) {
+			buildIndexFile(referenceGenome);	
+		}
+		
+		seqan::FaiIndex faiIndex;
+		if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
+			std::cerr << "could not open index file for " << referenceGenome << std::endl;
+		}
+
+		buildSeqStructFromGenome(transMutVector, variants, faiIndex); 
+	}
 
 	return EXIT_SUCCESS;
 }
