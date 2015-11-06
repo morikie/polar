@@ -10,7 +10,7 @@
  * This class is used as a wrapper for the arguments "needed" by Utr3Finder  
  */
 struct SeqStruct {	
-	const std::string & seq;
+	const std::string seq;
 	boost::optional<const size_t> utr3Start;
 	boost::optional<const size_t> txLength;
 	//HGVS string parser

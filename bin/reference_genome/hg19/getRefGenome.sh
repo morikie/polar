@@ -17,9 +17,12 @@ for i in "${chromosomes[@]}"
 do
 	url=$ucscFtp$i$zipExtension
 	zippedFile=$i$zipExtension
-	
-	wget -v $url
-	gunzip $zippedFile
+	if [ ! -f $i$extension ]; then
+		wget -v $url
+		gunzip $zippedFile
+		tr '[:upper:]' '[:lower:]' < $i$extension > $i$extension'temp'
+		mv $i$extension'temp' $i$extension
+	fi
 	cat "$i$extension" >> $refGen 
 done
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <vector>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -32,25 +33,25 @@ int main (int args, char * argv[]) {
 	KnownGeneParser txValues(knownGene);
 	ReadTranscripts tx(transcripts);
 	JannovarVcfParser variants(vcfFile);
-	std::vector<std::shared_ptr<Utr3Finder> > utr3MutFinderVector;	
-	std::vector<SeqStruct> transMutVector;
+	std::vector<std::shared_ptr<Utr3Finder> > utr3FinderVector;	
+	std::vector<SeqStruct> seqStructVector;
 	
-
-	if (std::string(argv[1]) == "naive") {
-
-		buildSeqStructFromTranscripts (transMutVector, variants, txValues, tx);
-
+	
+	if (args > 1) {
+		std::cerr << "Naive" << std::endl;
+		buildSeqStructFromTranscripts (seqStructVector, variants, txValues, tx);
+		std::cerr << seqStructVector.size() << std::endl;
 		try {
-			for (auto it = transMutVector.begin(); it != transMutVector.end(); ++it) {
-				utr3MutFinderVector.push_back(std::shared_ptr<Utr3Finder>(new Utr3FinderNaive(*it)));
+			for (auto it = seqStructVector.begin(); it != seqStructVector.end(); ++it) {
+				utr3FinderVector.push_back(std::shared_ptr<Utr3Finder>(new Utr3FinderNaive(*it)));
 			}
 		} catch (...) {
-		//	std::cerr << "error occured" << std::endl;
+			std::cerr << "error occured creating Utr3Finder object" << std::endl;
 		}
 		
 		//Amount of UTR3 mutations which do not affect the Poly(A) motif
 		size_t noPolya = 0;
-		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3MutFi, utr3MutFinderVector) {
+		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3MutFi, utr3FinderVector) {
 			if (utr3MutFi->isMutationInMotif()) {
 				std::cerr << "Poly(A) motif mutation detected: ";
 				utr3MutFi->writeInfo();
@@ -60,7 +61,7 @@ int main (int args, char * argv[]) {
 		}
 
 		size_t undetectedUtr3Motifs = 0;
-		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3MutFi, utr3MutFinderVector) {
+		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3MutFi, utr3FinderVector) {
 			if (utr3MutFi->getPolyaMotifPos()[0] == Utr3Finder::noHitPos) {
 				//tr3MutFi.writeInfo();
 				//std::cerr << utr3MutFi.getSequence() << std::endl;
@@ -70,10 +71,11 @@ int main (int args, char * argv[]) {
 		}
 
 		std::cerr << "undetectedUtr3Motifs: " << undetectedUtr3Motifs << std::endl;
-		std::cerr << "utr3MutFinderVector.size(): " << utr3MutFinderVector.size() << std::endl;
+		std::cerr << "utr3FinderVector.size(): " << utr3FinderVector.size() << std::endl;
 		std::cerr << "noPolya: " << noPolya << std::endl;
 
-	} else {	
+	} else {
+		std::cerr << "Fuzzy" << std::endl;
 		if (! fs::exists(refGenomeIndex)) {
 			buildIndexFile(referenceGenome);	
 		}
@@ -82,8 +84,31 @@ int main (int args, char * argv[]) {
 		if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
 			std::cerr << "could not open index file for " << referenceGenome << std::endl;
 		}
+		
+		seqan::CharString test;
+		seqan::readRegion(test, faiIndex, 22, 49106919 - 150, 49106919 + 150);
+		std::cerr << test << std::endl;
 
-		buildSeqStructFromGenome(transMutVector, variants, faiIndex); 
+		buildSeqStructFromGenome(seqStructVector, variants, faiIndex); 
+		
+		try {
+			for (auto it = seqStructVector.begin(); it != seqStructVector.end(); ++it) {
+				utr3FinderVector.push_back(std::shared_ptr<Utr3Finder>(new Utr3FinderFuzzy(*it)));
+			}
+		} catch (...) {
+			std::cerr << "error occured creating Utr3Finder object" << std::endl;
+		}
+
+		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3Fuzzy, utr3FinderVector) {
+				if (! utr3Fuzzy->getPolyaMotifPos().empty()) { 
+					std::vector<size_t> positions = utr3Fuzzy->getPolyaMotifPos();
+					BOOST_FOREACH(size_t pos, positions) {
+						if (pos >= 144 && pos <= 150) {
+							utr3Fuzzy->writeInfo();
+						}
+					}
+				}
+		}
 	}
 
 	return EXIT_SUCCESS;

@@ -1,9 +1,14 @@
-#include <regex>
+#include <climits>
+#include <exception>
 #include <sstream>
+#include <string>
 #include <boost/optional.hpp>
+#include <boost/spirit/include/qi.hpp>
 #include <seqan/seq_io.h>
 #include "buildSeqStruct.hpp"
 #include "hgvsParser.hpp"
+
+namespace qi = boost::spirit::qi;
 
 
 /**
@@ -67,18 +72,11 @@ bool buildSeqStructFromTranscripts (std::vector<SeqStruct> & transMutVector,
 	size_t count = 0;
 	size_t count_affectedTx = 0;
 	size_t count_affectedUtr3 = 0;
-	//size_t counter = 1;
 	for ( ; itBegin != itEnd; itBegin++) {
 		count++;
 		BOOST_FOREACH(const vcfTranscripts & vcfTx, itBegin->second) {
 			count_affectedTx++;
 			if (vcfTx.jvVariantType.find("3_prime_utr_variant") != std::string::npos) {	
-				//std::stringstream ss;
-				//ss << "3_prime_utr_variant" << counter;
-				/*if (vcfTx.jvVariantType.find(ss.str()) != std::string::npos) {
-					std::cerr << ss.str() << " wasn't found!" << std::endl;
-				}
-				counter++;*/
 				count_affectedUtr3++;
 				auto & mapValues = txValues.getValueByKey(vcfTx.txName);
 				size_t txLength = getTxLength(mapValues); 
@@ -108,9 +106,6 @@ bool buildSeqStructFromTranscripts (std::vector<SeqStruct> & transMutVector,
 			}
 		}
 	}
-//	std::cerr << "jv Tx counts: " << count_affectedTx << std::endl;
-//	std::cerr << "jv UTR3 counts: " << count_affectedUtr3 << std::endl;
-//	std::cerr << "UTR variants in introns: " << inIntron << std::endl;
 	return true;
 }
 
@@ -132,19 +127,20 @@ bool buildSeqStructFromGenome (std::vector<SeqStruct> & transMutVector,
 				auto & genePos = (itBegin->first).second;
 				
 				std::string chr = chrom;
-				chr.erase(0,3);
-				unsigned idx;
+				unsigned idx = UINT_MAX;
 				if (chr == "X") {
 					idx = 22;
 				} else if (chr == "Y") {
 					idx = 23;
 				} else {
-					idx = std::stoi(chr);
+					if (! qi::parse(chr.begin(), chr.end(), qi::uint_, idx)) {
+						throw std::invalid_argument("error parsing chromosome value from vcf");
+					}
+					//adjusting idx to 0-starting map
+					idx--;
 				}
-				
 
-				seqan::String<char> seq;
-				
+				seqan::String<char> seq;	
 				size_t startRange;
 				size_t endRange;
 				if (genePos < 150) {
@@ -152,18 +148,23 @@ bool buildSeqStructFromGenome (std::vector<SeqStruct> & transMutVector,
 				} else {
 					startRange = genePos - 150;
 				}
-				if (genePos + 150 > 
-
-				seqan::readRegion(seq, fai, idx, startRange, genePos + 150);
+				if (genePos + 150 > seqan::sequenceLength(fai, idx)) {
+					endRange = seqan::sequenceLength(fai, idx);
+				} else {
+					endRange = genePos + 150;
+				}
+				seqan::readRegion(seq, fai, idx, startRange, endRange);
 				std::string sequence(seqan::toCString(seq));
-
+				if (sequence.empty() || sequence.size() < 300) {
+					std::cerr << "warning: very small sequence" << std::endl;
+				}
 
 				SeqStruct transMut = {
 					sequence,
 					boost::none,
 					boost::none,
 					boost::optional<const HgvsParser>(HgvsParser(vcfTx.hgvsString)),
-					boost::optional<const std::string &>(chr),
+					boost::optional<const std::string &>(chrom),
 					boost::optional<const size_t &>(genePos),
 					boost::none,
 					boost::optional<const std::string &>(vcfTx.txName)

@@ -31,7 +31,7 @@ void Utr3FinderNaive::findPolyaMotif() {
 	//transcript length is not always the same as sequence size
 	size_t seqLength;
 	if (this->seqStruct.txLength) {
-		seqLength = *this->seqStruct.txLength;
+		seqLength = *(this->seqStruct.txLength);
 	} else {
 		seqLength = this->seqStruct.seq.size();
 	}
@@ -119,14 +119,14 @@ std::string Utr3FinderNaive::getSequence() const {
 void Utr3FinderNaive::writeInfo() const {
 	std::stringstream ss;
 	ss << "Poly(A) Pos: " << this->polyaPosVector[0];
-	if (this->seqStruct.utr3Start) ss << ", utr3Start: " << *this->seqStruct.utr3Start;
-	if (this->seqStruct.txLength) ss << ", txLength: " << *this->seqStruct.txLength;
-	if (this->seqStruct.chrom) ss << ", chrom: " <<  *this->seqStruct.chrom;
-	if (this->seqStruct.genomicPos) ss << ", gPos: " <<  *this->seqStruct.genomicPos;
-	if (this->seqStruct.seqId) ss << ", seqID: " << *this->seqStruct.seqId;
-	if (this->seqStruct.strand) ss << ", strand: " << *this->seqStruct.strand;
+	if (this->seqStruct.utr3Start) ss << ", utr3Start: " << *(this->seqStruct.utr3Start);
+	if (this->seqStruct.txLength) ss << ", txLength: " << *(this->seqStruct.txLength);
+	if (this->seqStruct.chrom) ss << ", chrom: " <<  *(this->seqStruct.chrom);
+	if (this->seqStruct.genomicPos) ss << ", gPos: " <<  *(this->seqStruct.genomicPos);
+	if (this->seqStruct.seqId) ss << ", seqID: " << *(this->seqStruct.seqId);
+	if (this->seqStruct.strand) ss << ", strand: " << *(this->seqStruct.strand);
 	if (this->seqStruct.mutation && this->seqStruct.utr3Start) 
-		ss << ", MutPos: " << *this->seqStruct.utr3Start + this->seqStruct.mutation->getMutPosition();
+		ss << ", MutPos: " << *(this->seqStruct.utr3Start) + this->seqStruct.mutation->getMutPosition();
 	
 	std::cerr << ss.str() << std::endl;
 }
