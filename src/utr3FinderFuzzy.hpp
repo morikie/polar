@@ -8,6 +8,9 @@
 
 
 class Utr3FinderFuzzy : public Utr3Finder {
+protected:
+	std::string reversedSeq;
+	
 public: 
 	Utr3FinderFuzzy(const SeqStruct & sSt);
 	virtual ~Utr3FinderFuzzy();
@@ -25,8 +28,10 @@ protected:
 	double getDseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	double getUseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	
-	double calcCombinedDseTvalue(const size_t & pos);
-	double calcUseTvalue(const size_t & pos);
+	double calcCombinedDseTvalue(const size_t & pos, const std::string & seq);
+	double calcUseTvalue(const size_t & pos, const std::string & seq);
+
+	void reverseComplement();
 public:
 	/**
 	 * Class that holds values to calculate the truth value for a certain DSE location.
@@ -40,11 +45,10 @@ public:
 		typedef std::pair<slope, intercept> straight;
 		
 	private:
-		//range where TV is something between 0 and 1; positive slope of the (acute) trapezoid side (usually left side)
+		//range where TV is something between 0 and 1; positive slope of the (acute) trapezoid side ("left" side)
 		range positiveIntermediate;
-		//range where TV is something between 0 and 1; negative slope of the (acute) trapzoid side (usually right side)
+		//range where TV is something between 0 and 1; negative slope of the (acute) trapzoid side ("right" side)
 		range negativeIntermediate; 
-		//double threshold;
 
 		straight positiveStraight;
 		straight negativeStraight;

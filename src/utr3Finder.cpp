@@ -39,6 +39,27 @@ const std::vector<std::string> Utr3Finder::rHexamers( [] ()
 }());
 
 
+char Utr3Finder::complement(const char c) {
+	switch(c) {
+	case 'a':
+		return 't';
+		break;
+	case 'c':
+		return 'g';
+		break;
+	case 'g':
+		return 'c';
+		break;
+	case 't':
+		return 'a';
+		break;
+	default:
+		return 'n';
+		break;
+	}
+}
+
+
 Utr3Finder::Utr3Finder(const SeqStruct & sSt):
 	seqStruct(sSt)
 {}

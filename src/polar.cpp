@@ -20,6 +20,7 @@ namespace fs = boost::filesystem;
 
 
 int main (int args, char * argv[]) {
+	std::cerr << __FUNCTION__ << std::endl;
 	fs::path knownGene = "ucsc_data/knownGene.txt";
 	fs::path transcripts = "ucsc_data/knownGeneTxMrna.txt";
 	fs::path vcfFile = "vcf/vcf-example.jv.vcf";

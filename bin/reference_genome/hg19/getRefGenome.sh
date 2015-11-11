@@ -20,9 +20,9 @@ do
 	if [ ! -f $i$extension ]; then
 		wget -v $url
 		gunzip $zippedFile
-		tr '[:upper:]' '[:lower:]' < $i$extension > $i$extension'temp'
-		mv $i$extension'temp' $i$extension
 	fi
+	tr '[:upper:]' '[:lower:]' < $i$extension > $i$extension'temp'
+	mv $i$extension'temp' $i$extension
 	cat "$i$extension" >> $refGen 
 done
 

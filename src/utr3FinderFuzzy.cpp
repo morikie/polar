@@ -97,7 +97,11 @@ std::unordered_map<Utr3FinderFuzzy::motifSequence, double> Utr3FinderFuzzy::thre
 Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt):
 	Utr3Finder(sSt)
 {	
+	const std::string & seq = this->seqStruct.seq;
+	std::transform(seq.rbegin(), seq.rend(), std::back_inserter(this->reversedSeq), Utr3Finder::complement);
+
 	this->findPolyaMotif();
+
 }
 
 
@@ -112,7 +116,10 @@ Utr3FinderFuzzy::~Utr3FinderFuzzy() {}
  */
 void Utr3FinderFuzzy::findPolyaMotif() {
 	const std::string & seq = this->seqStruct.seq;
+	const std::string & revSeq = this->reversedSeq;
 	std::vector<size_t> candidatePositions;
+	std::vector<size_t> revCandidatePosition;
+	std::vector<size_t> authenticPas;
 	//searching for all candidates
 	BOOST_FOREACH (const Utr3FinderFuzzy::pasToDseLocMap::value_type & v, Utr3FinderFuzzy::dseLocMap) {
 		auto posIt = seq.begin();
@@ -121,12 +128,29 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 			posIt++;
 		}
 	}
+	BOOST_FOREACH (const Utr3FinderFuzzy::pasToDseLocMap::value_type & v, Utr3FinderFuzzy::dseLocMap) {
+		auto posIt = revSeq.begin();
+		while ((posIt = std::search(posIt, revSeq.end(), v.first.begin(), v.first.end())) != seq.end()) {
+			candidatePositions.push_back(std::distance(seq.begin(), posIt));
+			posIt++;
+		}
+	}
 
-	std::vector<size_t> authenticPas;
 	BOOST_FOREACH(const size_t & candPos, candidatePositions) {
 		std::string motif(seq.begin() + candPos, seq.begin() + candPos + 6);
-		double combDseTValue = calcCombinedDseTvalue(candPos);
-		double useTvalue = calcUseTvalue(candPos);
+		double combDseTValue = calcCombinedDseTvalue(candPos, seq);
+		double useTvalue = calcUseTvalue(candPos, seq);
+
+		double finalTvalue = combDseTValue + useTvalue;
+		
+		if (finalTvalue > thresholdMap.find(motif)->second) {
+			authenticPas.push_back(candPos);
+		}
+	}
+	BOOST_FOREACH(const size_t & candPos, candidatePositions) {
+		std::string motif(revSeq.begin() + candPos, revSeq.begin() + candPos + 6);
+		double combDseTValue = calcCombinedDseTvalue(candPos, revSeq);
+		double useTvalue = calcUseTvalue(candPos, revSeq);
 
 		double finalTvalue = combDseTValue + useTvalue;
 		
@@ -143,8 +167,8 @@ void Utr3FinderFuzzy::findPolyaMotif() {
  * Returns the combined truth value of uracil content and location for a certain window.
  * 
  */
-double Utr3FinderFuzzy::calcCombinedDseTvalue(const size_t & pos) {		
-	const std::string & seq = this->seqStruct.seq;
+
+double Utr3FinderFuzzy::calcCombinedDseTvalue(const size_t & pos, const std::string & seq) {		
 	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
 	DseLocation & dseLoc = Utr3FinderFuzzy::dseLocMap.find(motif)->second;
 		
@@ -190,10 +214,9 @@ double Utr3FinderFuzzy::calcCombinedDseTvalue(const size_t & pos) {
  * Scans upstream of a potential PAS for a uracil-rich region.
  * Returns the max truth value.
  */
-double Utr3FinderFuzzy::calcUseTvalue(const size_t & pos) {
+double Utr3FinderFuzzy::calcUseTvalue(const size_t & pos, const std::string & seq) {
 	size_t searchRange = 20;
 	size_t sWindowSize = 9;
-	const std::string & seq = this->seqStruct.seq;
 	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
 	std::string::const_reverse_iterator start = seq.rend() - pos;
 
@@ -274,8 +297,8 @@ void Utr3FinderFuzzy::writeInfo() const {
 	for (auto it = this->polyaPosVector.begin(); it != polyaPosVector.end(); it++) {
 		ss << *it << " ";
 	}
-	if (this->seqStruct.genomicPos) ss << " , gPos: " << *(this->seqStruct.genomicPos);
-	if (this->seqStruct.chrom) ss << " , chrom: " << *(this->seqStruct.chrom);
+	if (this->seqStruct.genomicPos) ss << ", gPos: " << *(this->seqStruct.genomicPos) << " ";
+	if (this->seqStruct.chrom) ss << ", chrom: " << *(this->seqStruct.chrom) << " ";
 	
 	std::cerr << ss.str() << std::endl;
 }
