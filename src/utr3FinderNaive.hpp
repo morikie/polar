@@ -17,8 +17,8 @@ public:
 
 	virtual bool isMutationInMotif() const override;
 	virtual std::string getSequence() const override;
-	virtual std::string getMotifSequence(const size_t & pos) const override;
-	virtual std::vector<size_t> getPolyaMotifPos() const override;
+	virtual std::string getMotifSequence(const Utr3FinderResult & result) const override;
+	virtual std::vector<Utr3FinderResult> getPolyaMotifPos() const override;
 	virtual void writeInfo() const override;
 
 protected:

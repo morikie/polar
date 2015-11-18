@@ -398,7 +398,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	};
 	size_t utr3MotifPos = 86;
 	Utr3FinderNaive utr3MutFi_test1 (txTest1);
-	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test1.getPolyaMotifPos()[0].pos, utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.getMotifSequence(utr3MutFi_test1.getPolyaMotifPos()[0]), std::string ("aataaa"));	
 	BOOST_CHECK_EQUAL(utr3MutFi_test1.isMutationInMotif(), true);		
 
@@ -418,7 +418,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	};
 	utr3MotifPos = 21;
 	Utr3FinderNaive utr3MutFi_test2 (txTest2);
-	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test2.getPolyaMotifPos()[0].pos, utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.getMotifSequence(utr3MutFi_test2.getPolyaMotifPos()[0]), std::string ("aataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test2.isMutationInMotif(), true);	
 
@@ -438,7 +438,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	};
 	utr3MotifPos = 75;
 	Utr3FinderNaive utr3MutFi_test3 (txTest3);
-	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test3.getPolyaMotifPos()[0].pos, utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.getMotifSequence(utr3MutFi_test3.getPolyaMotifPos()[0]), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test3.isMutationInMotif(), true);	
 
@@ -458,7 +458,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	};
 	utr3MotifPos = 25;
 	Utr3FinderNaive utr3MutFi_test4 (txTest4);
-	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL(utr3MutFi_test4.getPolyaMotifPos()[0].pos, utr3MotifPos);
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.getMotifSequence(utr3MutFi_test4.getPolyaMotifPos()[0]), std::string ("tataaa"));
 	BOOST_CHECK_EQUAL(utr3MutFi_test4.isMutationInMotif(), true);	
 
@@ -478,7 +478,7 @@ gcccagagcacagtataccaagagagaataaaccaaaaaaaaaaaaaaaaaaaa");
 	};
 	utr3MotifPos = Utr3FinderNaive::noHitPos;
 	Utr3FinderNaive utr3MutFi_test5 (txTest5);
-	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos()[0], utr3MotifPos);
+	BOOST_CHECK_EQUAL (utr3MutFi_test5.getPolyaMotifPos()[0].pos, utr3MotifPos);
 	BOOST_CHECK (utr3MutFi_test5.getMotifSequence(utr3MutFi_test5.getPolyaMotifPos()[0]) == "");
 	BOOST_CHECK_EQUAL (utr3MutFi_test5.isMutationInMotif(), false);	
 }
@@ -521,7 +521,7 @@ BOOST_AUTO_TEST_CASE ( utr3FinderFuzzy ) {
 	BOOST_CHECK(almost_equal(pairLeft2.second, interceptLeft2, 2));
 	BOOST_CHECK(almost_equal(pairRight2.first, slopeRight2, 2));
 	BOOST_CHECK(almost_equal(pairRight2.second, interceptRight2, 2));
-	BOOST_CHECK_EQUAL(utr3MotifPos, utr3FinderFuz_test1.getPolyaMotifPos()[0]);
+	BOOST_CHECK_EQUAL(utr3MotifPos, utr3FinderFuz_test1.getPolyaMotifPos()[0].pos);
 //	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.getPolyaMotifPos()[0], utr3MotifPos);
 //	BOOST_CHECK (utr3FinderFuz_test1.getMotifSequence(utr3FinderFuz_test1.getPolyaMotifPos()[0]) == "aataaa");
 //	BOOST_CHECK_EQUAL (utr3FinderFuz_test1.isMutationInMotif(), true);	

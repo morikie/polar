@@ -38,7 +38,7 @@ int main (int argc, char * argv[]) {
 	size_t correctPredict = 0;
 	size_t total = u3F.size();
 	for (size_t i = 0; i < u3F.size(); i++) {
-		size_t predictedPos = u3F[i]->getPolyaMotifPos()[0];
+		size_t predictedPos = u3F[i]->getPolyaMotifPos()[0].pos;
 		for (size_t j = 0; j < kPolyAvec[i].polyApos.size(); j++) {
 			if (predictedPos == kPolyAvec[i].polyApos[j]) {
 				correctPredict++;
@@ -54,5 +54,5 @@ int main (int argc, char * argv[]) {
 	std::cerr << "total: "<< total << ", correct predictions: " << correctPredict << std::endl;
 	double corrPerc = static_cast<double>(correctPredict) / static_cast<double>(total);
 	std::cerr << "relative correctness: " << corrPerc << std::endl;
-
 }
+

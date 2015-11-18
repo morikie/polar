@@ -17,8 +17,8 @@ public:
 
 	virtual bool isMutationInMotif() const override;
 	virtual std::string getSequence() const override;
-	virtual std::string getMotifSequence(const size_t & pos) const override;
-	virtual std::vector<size_t> getPolyaMotifPos() const override;
+	virtual std::string getMotifSequence(const Utr3FinderResult & result) const override;
+	virtual std::vector<Utr3FinderResult> getPolyaMotifPos() const override;
 	virtual void writeInfo() const override;
 
 protected:
@@ -31,7 +31,6 @@ protected:
 	double calcCombinedDseTvalue(const size_t & pos, const std::string & seq);
 	double calcUseTvalue(const size_t & pos, const std::string & seq);
 
-	void reverseComplement();
 public:
 	/**
 	 * Class that holds values to calculate the truth value for a certain DSE location.

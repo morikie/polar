@@ -63,7 +63,7 @@ int main (int args, char * argv[]) {
 
 		size_t undetectedUtr3Motifs = 0;
 		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3MutFi, utr3FinderVector) {
-			if (utr3MutFi->getPolyaMotifPos()[0] == Utr3Finder::noHitPos) {
+			if (utr3MutFi->getPolyaMotifPos()[0].pos == Utr3Finder::noHitPos) {
 				//tr3MutFi.writeInfo();
 				//std::cerr << utr3MutFi.getSequence() << std::endl;
 				//std::cerr << "couldn't find motif: " << utr3MutFi.writeInfo() << std::endl;
@@ -85,10 +85,6 @@ int main (int args, char * argv[]) {
 		if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
 			std::cerr << "could not open index file for " << referenceGenome << std::endl;
 		}
-		
-		seqan::CharString test;
-		seqan::readRegion(test, faiIndex, 22, 49106919 - 150, 49106919 + 150);
-		std::cerr << test << std::endl;
 
 		buildSeqStructFromGenome(seqStructVector, variants, faiIndex); 
 		
@@ -101,14 +97,16 @@ int main (int args, char * argv[]) {
 		}
 
 		BOOST_FOREACH (std::shared_ptr<Utr3Finder> utr3Fuzzy, utr3FinderVector) {
-				if (! utr3Fuzzy->getPolyaMotifPos().empty()) { 
-					std::vector<size_t> positions = utr3Fuzzy->getPolyaMotifPos();
-					BOOST_FOREACH(size_t pos, positions) {
-						if (pos >= 144 && pos <= 150) {
-							utr3Fuzzy->writeInfo();
-						}
+			size_t seqLength = utr3Fuzzy->getSequence().size();
+			if (! utr3Fuzzy->getPolyaMotifPos().empty()) { 
+				std::vector<Utr3Finder::Utr3FinderResult> positions = utr3Fuzzy->getPolyaMotifPos();
+				BOOST_FOREACH(const Utr3Finder::Utr3FinderResult & result, positions) {
+				
+					if (result.pos >= 144 && result.pos <= 150) {
+						utr3Fuzzy->writeInfo();
 					}
 				}
+			}
 		}
 	}
 

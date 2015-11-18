@@ -13,17 +13,23 @@ public:
 
 	static const size_t noHitPos = -1;
 
+	struct Utr3FinderResult {
+		size_t pos;
+		double truthValue;
+		std::string strand;
+	};
+
 protected:
 	const SeqStruct & seqStruct;
-	std::vector<size_t> polyaPosVector = std::vector<size_t>(1, noHitPos);
+	std::vector<Utr3FinderResult> polyaPosVector;
 	
 public:
 	Utr3Finder(const SeqStruct & sSt);
 	virtual ~Utr3Finder() = 0;
 
-	virtual std::vector<size_t> getPolyaMotifPos() const  = 0;
+	virtual std::vector<Utr3FinderResult> getPolyaMotifPos() const  = 0;
 	virtual std::string getSequence() const = 0;
-	virtual std::string getMotifSequence(const size_t & pos) const = 0;
+	virtual std::string getMotifSequence(const Utr3FinderResult & result) const = 0;
 	virtual bool isMutationInMotif() const = 0;
 	virtual void writeInfo() const  = 0;
 	
