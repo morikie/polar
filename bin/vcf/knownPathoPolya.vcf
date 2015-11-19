@@ -1,0 +1,31 @@
+##fileformat=VCFv4.1
+##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities">
+##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP Membership">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered">
+##INFO=<ID=DS,Number=0,Type=Flag,Description="Were any of the samples downsampled?">
+##INFO=<ID=Dels,Number=1,Type=Float,Description="Fraction of Reads Containing Spanning Deletions">
+##INFO=<ID=FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias">
+##INFO=<ID=HRun,Number=1,Type=Integer,Description="Largest Contiguous Homopolymer Run of Variant Allele In Either Direction">
+##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with at most two segregating haplotypes">
+##INFO=<ID=InbreedingCoeff,Number=1,Type=Float,Description="Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation">
+##INFO=<ID=MQ,Number=1,Type=Float,Description="RMS Mapping Quality">
+##INFO=<ID=MQ0,Number=1,Type=Integer,Description="Total Mapping Quality Zero Reads">
+##INFO=<ID=MQRankSum,Number=1,Type=Float,Description="Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities">
+##INFO=<ID=QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth">
+##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
+##INFO=<ID=set,Number=1,Type=String,Description="Source VCF for the merged record in CombineVariants">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	manuel
+X	70327278	.	A	G	100	PASS	GENE=IL2RG;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+11	5246718	.	T	C	100	PASS	GENE=HBB;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+16	223693	.	A	G	100	PASS	GENE=HBA2;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+X	49106919	.	A	G	100	PASS	GENE=FOXP3;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+22	51063477	.	A	G	100	PASS	GENE=ARSA;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+17	7571751	.	A	C	100	PASS	GENE=TP53;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04

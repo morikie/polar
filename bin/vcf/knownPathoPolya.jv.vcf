@@ -1,0 +1,34 @@
+##fileformat=VCFv4.1
+##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=ANN,Number=1,Type=String,Description="Functional annotations:'Allele|Annotation|Annotation_Impact|Gene_Name|Gene_ID|Feature_Type|Feature_ID|Transcript_BioType|Rank|HGVS.c|HGVS.p|cDNA.pos / cDNA.length|CDS.pos / CDS.length|AA.pos / AA.length|Distance|ERRORS / WARNINGS / INFO'">
+##INFO=<ID=BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities">
+##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP Membership">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered">
+##INFO=<ID=DS,Number=0,Type=Flag,Description="Were any of the samples downsampled?">
+##INFO=<ID=Dels,Number=1,Type=Float,Description="Fraction of Reads Containing Spanning Deletions">
+##INFO=<ID=FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias">
+##INFO=<ID=HRun,Number=1,Type=Integer,Description="Largest Contiguous Homopolymer Run of Variant Allele In Either Direction">
+##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with at most two segregating haplotypes">
+##INFO=<ID=InbreedingCoeff,Number=1,Type=Float,Description="Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation">
+##INFO=<ID=MQ,Number=1,Type=Float,Description="RMS Mapping Quality">
+##INFO=<ID=MQ0,Number=1,Type=Integer,Description="Total Mapping Quality Zero Reads">
+##INFO=<ID=MQRankSum,Number=1,Type=Float,Description="Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities">
+##INFO=<ID=QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth">
+##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
+##INFO=<ID=set,Number=1,Type=String,Description="Source VCF for the merged record in CombineVariants">
+##jannovarCommand=annotate data/hg19_ucsc.ser knownPathoPolya.vcf -showall
+##jannovarVersion=0.14
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	manuel
+X	70327278	.	A	G	100	PASS	ANN=G|3_prime_utr_variant|LOW|IL2RG|ENTREZ3561|transcript|uc004dyv.2|Coding|3/3|c.*308T>C|p.%3D|727/1987|298/297|100/99||,G|3_prime_utr_variant|LOW|IL2RG|ENTREZ3561|transcript|uc004dyw.2|Coding|8/8|c.*308T>C|p.%3D|1510/4228|1111/1110|371/370||,G|3_prime_utr_variant|LOW|IL2RG|ENTREZ3561|transcript|uc004dyx.2|Coding|5/5|c.*308T>C|p.%3D|1031/4228|541/540|181/180||;GENE=IL2RG;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+11	5246718	.	T	C	100	PASS	ANN=C|3_prime_utr_variant|LOW|HBB|ENTREZ3043|transcript|uc001mae.1|Coding|3/3|c.*110A>G|p.%3D|604/1606|445/444|149/148||;GENE=HBB;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+16	223693	.	A	G	100	PASS	ANN=G|3_prime_utr_variant|LOW|HBA2|ENTREZ3040|transcript|uc002cfv.4|Coding|3/3|c.*94A>G|p.%3D|589/864|430/429|144/143||;GENE=HBA2;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+X	49106919	.	A	G	100	PASS	ANN=G|3_prime_utr_variant|LOW|CCDC22|ENTREZ28952|transcript|uc004dnd.2|Coding|17/17|c.*197A>G|p.%3D|2251/15061|1885/1884|629/628||,G|3_prime_utr_variant|LOW|FOXP3|ENTREZ50943|transcript|uc004dne.4|Coding|11/11|c.*876T>C|p.%3D|2255/14392|1192/1191|398/397||,G|3_prime_utr_variant|LOW|FOXP3|ENTREZ50943|transcript|uc004dnf.4|Coding|12/12|c.*876T>C|p.%3D|2360/14392|1297/1296|433/432||,G|3_prime_utr_variant|LOW|FOXP3|ENTREZ50943|transcript|uc011mnb.2|Coding|10/10|c.*876T>C|p.%3D|2263/8088|1366/1365|456/455||,G|3_prime_utr_variant|LOW|FOXP3|ENTREZ50943|transcript|uc011mnc.2|Coding|10/10|c.*876T>C|p.%3D|2113/8088|1216/1215|406/405||;GENE=FOXP3;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+22	51063477	.	A	G	100	PASS	ANN=G|3_prime_utr_variant|LOW|ARSA|ENTREZ410|transcript|uc003bmz.5|Coding|9/9|c.*96T>C|p.%3D|1915/5420|1531/1530|511/510||,G|3_prime_utr_variant|LOW|ARSA|ENTREZ410|transcript|uc003bna.4|Coding|8/8|c.*96T>C|p.%3D|1630/5420|1273/1272|425/424||,G|3_prime_utr_variant|LOW|ARSA|ENTREZ410|transcript|uc021wsd.1|Coding|9/9|c.*96T>C|p.%3D|1867/5420|1531/1530|511/510||,G|3_prime_utr_variant|LOW|ARSA|ENTREZ410|transcript|uc021wse.1|Coding|8/8|c.*96T>C|p.%3D|2020/5420|1531/1530|511/510||,G|3_prime_utr_variant|LOW|ARSA|ENTREZ410|transcript|uc021wsf.1|Coding|9/9|c.*96T>C|p.%3D|1822/5420|1531/1530|511/510||;GENE=ARSA;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
+17	7571751	.	A	C	100	PASS	ANN=C|coding_transcript_intron_variant|LOW|TP53|ENTREZ7157|transcript|uc002gig.1|Coding|6/6|c.782+5748T>G|p.%3D|808/14841|783/858|261/286||,C|coding_transcript_intron_variant|LOW|TP53|ENTREZ7157|transcript|uc002gih.3|Coding|8/8|c.994-2189T>G|p.%3D|1019/10534|994/1032|332/344||,C|non_coding_transcript_exon_variant|LOW|TP53|ENTREZ7157|transcript|uc010cne.1|Noncoding|2/2|n.1332T>G||1332/5207||||,C|non_coding_transcript_exon_variant|LOW|TP53|ENTREZ7157|transcript|uc031qyp.1|Noncoding|10/10|n.2388T>G||2388/8218||||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc002gii.2|Coding|7/7|c.*1176T>G|p.%3D|2240/7092|706/705|236/235||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc002gij.3|Coding|11/11|c.*1176T>G|p.%3D|2560/19149|1066/1065|356/355||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc002gim.3|Coding|11/11|c.*1176T>G|p.%3D|2557/19149|1183/1182|395/394||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc010cnf.2|Coding|8/8|c.*1377T>G|p.%3D|2300/7092|565/564|189/188||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc010cng.2|Coding|8/8|c.*1465T>G|p.%3D|2373/7092|550/549|184/183||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc010cnh.2|Coding|12/12|c.*1377T>G|p.%3D|2620/19149|1042/1041|348/347||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc010cni.2|Coding|12/12|c.*1465T>G|p.%3D|2693/19149|1027/1026|343/342||,C|3_prime_utr_variant|LOW|TP53|ENTREZ7157|transcript|uc031qyq.1|Coding|10/10|c.*1176T>G|p.%3D|2677/19149|1066/1065|356/355||;GENE=TP53;INHERITANCE=AD;MIM=101600	GT:DS:GL	1|0:2.000:-5.00,-1.10,-0.04
