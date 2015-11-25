@@ -142,7 +142,8 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		double useTvalue = calcUseTvalue(candPos, seq);
 
 		double finalTvalue = combDseTValue + useTvalue;
-		
+		std::cerr << motif << " TV=" << finalTvalue << " useTV=" << useTvalue << " dseTV=" << combDseTValue << " at pos: " << candPos << std::endl;
+		std::cerr << seq << std::endl;
 		if (finalTvalue > thresholdMap.find(motif)->second) {
 			authenticPas.push_back(Utr3FinderResult{
 				candPos, 
