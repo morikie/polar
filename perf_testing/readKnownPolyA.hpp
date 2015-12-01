@@ -14,9 +14,17 @@ struct KnownPolyA {
 	size_t len = 1;
 };
 
+/*
+ * Takes a file and writes content in a std::vector of KnownPolyA.
+ */
 void readKnownPolyA (const fs::path & f, std::vector<KnownPolyA> & knownPolyAvec);
 
+
+/*
+ * Builds the SeqStruct objects from a std::vector of KnownPolyA.
+ */
 void buildSeqStruct (std::vector<SeqStruct> & seqStt, const std::vector<KnownPolyA> & knownPolyAvec);
+
 
 #endif /* __READKNOWNPOLYA_HPP__ */
 

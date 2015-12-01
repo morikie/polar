@@ -23,7 +23,7 @@ OBJS		= $(TPATH)buildIndexFile.o \
 
 
 .PHONY : all
-all : $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test
+all : $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test $(TPATH)perf_fuzzy
 
 $(TPATH)polar : $(TPATH)polar.o $(OBJS) 
 	@echo "[Link] polar"
@@ -114,6 +114,27 @@ $(TPATH)acc_test.o : perf_testing/acc_test.hpp perf_testing/acc_test.cpp perf_te
 $(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnownPolyA.cpp 
 	@echo "[Compile] readKnownPolyA"
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/readKnownPolyA.cpp -o $(TPATH)readKnownPolyA.o
+
+$(TPATH)perf_fuzzy : $(TPATH)perf_fuzzy.o \
+	$(TPATH)readKnownPolyA.o \
+	$(TPATH)hgvsParser.o \
+	$(TPATH)refGeneParser.o \
+	$(TPATH)utr3Finder.o \
+	$(TPATH)utr3FinderFuzzy.o \
+	$(TPATH)utr3FinderNaive.o \
+	$(TPATH)seqStruct.o
+	@echo "[Link] perf_fuzzy"
+	@$(CC) $(BOOST) $(SEQAN) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)perf_fuzzy
+
+$(TPATH)perf_fuzzy.o : perf_testing/perf_fuzzy.hpp perf_testing/perf_fuzzy.cpp
+	@echo "[Compile] perf_fuzzy"
+	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/perf_fuzzy.cpp -o $(TPATH)perf_fuzzy.o
+
+$(TPATH)refGeneParser.o : src/refGeneParser.hpp src/refGeneParser.cpp
+	@echo "[Compile] RefGeneParser"
+	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) src/refGeneParser.cpp -o $(TPATH)refGeneParser.o
+
+
 
 .PHONY : clean
 clean :

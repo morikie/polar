@@ -50,7 +50,7 @@ struct knownGeneGrammar :
 				>> intVector
 				>> intVector
 				>> qi::omit[*~qi::char_('\n')]
-				;
+		;
 	
 	//BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(seqName)(intValue)(intVector)(txProps))
 	}

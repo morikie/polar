@@ -118,7 +118,6 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 	const std::string & revSeq = this->reversedSeq;
 	std::vector<size_t> candidatePositions;
 	std::vector<size_t> revCandidatePositions;
-	std::vector<Utr3FinderResult> authenticPas;
 	//searching forward strand
 	BOOST_FOREACH (const Utr3FinderFuzzy::pasToDseLocMap::value_type & v, Utr3FinderFuzzy::dseLocMap) {
 		auto posIt = seq.begin();
@@ -145,10 +144,11 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		std::cerr << motif << " TV=" << finalTvalue << " useTV=" << useTvalue << " dseTV=" << combDseTValue << " at pos: " << candPos << std::endl;
 		std::cerr << seq << std::endl;
 		if (finalTvalue > thresholdMap.find(motif)->second) {
-			authenticPas.push_back(Utr3FinderResult{
+			polyaPosVector.push_back(Utr3FinderResult{
 				candPos, 
 				finalTvalue,
-				"+"});
+				"+"
+				});
 		}
 	}
 	//verifying backward candidates
@@ -160,13 +160,13 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		double finalTvalue = combDseTValue + useTvalue;
 		
 		if (finalTvalue > thresholdMap.find(motif)->second) {
-			authenticPas.push_back(Utr3FinderResult{
+			polyaPosVector.push_back(Utr3FinderResult{
 				candPos,
 				finalTvalue,
-				"-"});
+				"-"
+				});
 		}
 	}
-	this->polyaPosVector = authenticPas;
 }
 
 
@@ -175,7 +175,6 @@ void Utr3FinderFuzzy::findPolyaMotif() {
  * Returns the combined truth value of uracil content and location for a certain window.
  * 
  */
-
 double Utr3FinderFuzzy::calcCombinedDseTvalue(const size_t & pos, const std::string & seq) {		
 	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
 	DseLocation & dseLoc = Utr3FinderFuzzy::dseLocMap.find(motif)->second;
