@@ -20,6 +20,10 @@ struct RefGeneProperties {
 		if (left.cdsEnd != right.cdsEnd) return false;
 		if (left.exonStarts != right.exonStarts) return false;
 		if (left.exonEnds != right.exonEnds) return false;
+		if (left.score != right.score) return false;
+		if (left.name2 != right.name2) return false;
+		if (left.cdsStartStat != right.cdsStartStat) return false;
+		if (left.cdsEndStat != right.cdsEndStat) return false;
 		return true;
 	}
 	
@@ -47,6 +51,8 @@ public:
 private:
 	/* file path */
 	fs::path file;
+	/* parsed data */
+	txPropMap data;
 	
 	/* empty RefGeneProperies struct for return values */
 	RefGeneProperties emptyRefGeneProperties = RefGeneProperties { 
@@ -64,9 +70,6 @@ private:
 		std::string()
 	};
 
-	/* parsed data */
-	txPropMap data;
-	
 public:
 	RefGeneParser(const fs::path & f);
 	~RefGeneParser();

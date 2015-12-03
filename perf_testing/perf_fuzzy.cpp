@@ -1,5 +1,8 @@
 #include <iostream>
+#include <map>
 #include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/spirit/include/qi.hpp>
 #include "../src/hgvsParser.hpp"
 #include "../src/refGeneParser.hpp"
 #include "../src/utr3Finder.hpp"
@@ -9,20 +12,41 @@
 #include "perf_fuzzy.hpp"
 
 namespace fs = boost::filesystem;
+namespace qi = boost::spirit::qi;
 
 
 int main (int argc, char * argv[]) {
 	fs::path refGeneFile = "ucsc_data/refGene.txt";
-	RefGeneParser test(refGeneFile);
+	fs::path knownPolyA = "../perf_testing/knownPolyAtranscript.txt";
+	std::vector<KnownPolyA> knownPolyAvec;
+	std::map<std::string, std::vector<size_t> > truePositives;
+	RefGeneParser refGene(refGeneFile);
+	
+	readKnownPolyA(knownPolyA, knownPolyAvec);
 
-	RefGeneProperties testProp = test.getValueByKey("NM_001012993");
+	BOOST_FOREACH (KnownPolyA & knownPolyA, knownPolyAvec) {
+		std::string baseSeqId;
+		qi::parse(knownPolyA.id.begin(), knownPolyA.id.end(), *~qi::char_('.'), baseSeqId);
+		size_t txLength = knownPolyA.seq.size();
+		RefGeneProperties refGeneProp = refGene.getValueByKey(baseSeqId);
+		if (knownPolyA.seq == std::string()) continue;
+		BOOST_FOREACH (size_t & pos, knownPolyA.polyApos) {
+			size_t geneticPos;
+			if (refGeneProp.strand == "+") {
+				geneticPos = refGeneProp.txEnd - (txLength - pos);
+			} else {
+				geneticPos = refGeneProp.txStart - (txLength - pos);
+			}
+			truePositives[refGeneProp.chr].push_back(geneticPos);
+		}
+	}
 
-	if (testProp.chr != "chr9") std::cerr << "bad chromosome" << std::endl;
-	if (testProp.txStart != 112961845) std::cerr << "bad tx start" << std::endl;
-	if (testProp.name2 != "C9orf152") std::cerr << "bad name2" << std::endl;
-	if (testProp.cdsEndStat != "cmpl") std::cerr << "bad status" << std::endl;
-
-	std::cerr << "test done." << std::endl;
-
+	for (auto iter = truePositives.begin(); iter != truePositives.end(); iter++) {
+		std::cerr << iter->first << ": ";
+		for (auto it = iter->second.begin(); it != iter->second.end(); it++) {
+			std::cerr << *it << ", ";
+		}
+		std::cerr << std::endl;
+	}
 }
 

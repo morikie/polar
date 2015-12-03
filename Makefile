@@ -126,7 +126,7 @@ $(TPATH)perf_fuzzy : $(TPATH)perf_fuzzy.o \
 	@echo "[Link] perf_fuzzy"
 	@$(CC) $(BOOST) $(SEQAN) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)perf_fuzzy
 
-$(TPATH)perf_fuzzy.o : perf_testing/perf_fuzzy.hpp perf_testing/perf_fuzzy.cpp
+$(TPATH)perf_fuzzy.o : perf_testing/perf_fuzzy.hpp perf_testing/perf_fuzzy.cpp src/refGeneParser.hpp 
 	@echo "[Compile] perf_fuzzy"
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/perf_fuzzy.cpp -o $(TPATH)perf_fuzzy.o
 

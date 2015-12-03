@@ -19,7 +19,7 @@ void readKnownPolyA (const fs::path & f, std::vector<KnownPolyA> & knownPolyAvec
 		switch ( lineCount ) {
 		case 0:
 		{
-			temp.id = line;
+			temp.id = std::string(line.begin() + 1, line.end());
 			lineCount++;
 			break;
 		}
