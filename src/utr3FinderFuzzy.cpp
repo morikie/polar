@@ -36,18 +36,18 @@ Utr3FinderFuzzy::pasToDseLocMap Utr3FinderFuzzy::dseLocMap = {
  * Taken from the original paper ("Prediction of non-canonical polyadenylation signals..."; doi: 10.1016/j.jbiosc.2009.01.001)
  */
 Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseUracilMap = {
-	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)},
-	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.33, 0.777, 1.0)}
+	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)},
+	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.33, 0.78, 1.0)}
 };
 
 
@@ -56,17 +56,17 @@ Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseUracilMap = {
  * Taken from the original paper ("Prediction of non-canonical polyadenylation signals..."; doi: 10.1016/j.jbiosc.2009.01.001)
  */
 Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::useUracilMap = {
-	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.777, 0.4)},
-	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.777, 0.4)},
+	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
+	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
 	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.5)},
 	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.2)},
 	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.4)},
-	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.56, 0.777, 0.4)},
-	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.66, 0.777, 0.4)},
-	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.777, 0.2)},
-	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.777, 0.2)},
-	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.777, 0.2)},
-	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.777, 0.4)},
+	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.56, 0.78, 0.4)},
+	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
+	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
+	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
+	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
+	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
 	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.4)}
 };
 

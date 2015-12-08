@@ -48,12 +48,6 @@ public:
 	typedef std::string transcriptName;
 	typedef std::unordered_map<transcriptName, RefGeneProperties> txPropMap;
 
-private:
-	/* file path */
-	fs::path file;
-	/* parsed data */
-	txPropMap data;
-	
 	/* empty RefGeneProperies struct for return values */
 	RefGeneProperties emptyRefGeneProperties = RefGeneProperties { 
 		std::string(),
@@ -70,11 +64,18 @@ private:
 		std::string()
 	};
 
+private:
+	/* file path */
+	fs::path file;
+	/* parsed data */
+	txPropMap data;
+	
 public:
 	RefGeneParser(const fs::path & f);
 	~RefGeneParser();
 
 	const RefGeneProperties & getValueByKey(const std::string & k) const;
+	std::vector<std::string> getKeys() const;
 
 private:
 	void parse();

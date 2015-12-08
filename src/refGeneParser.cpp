@@ -97,6 +97,17 @@ const RefGeneProperties & RefGeneParser::getValueByKey(const std::string & k) co
 }
 
 
+std::vector<std::string> RefGeneParser::getKeys() const {
+	std::vector<std::string> keyVector;
+	auto it = this->data.begin();
+	
+	for (; it != this->data.end(); it++) {
+		keyVector.push_back(it->first);
+	}
+	return keyVector;
+}
+
+
 void RefGeneParser::parse() {
 	if (! boost::filesystem::exists(this->file)) {
 		std::cerr << "Could not find " << this->file.string() << std::endl;
@@ -107,13 +118,8 @@ void RefGeneParser::parse() {
 	typedef char const* base_iterator_type;
 	base_iterator_type first(in.data());
 	base_iterator_type last(in.end());
-	//typedef spirit::multi_pass<base_iterator_type> forward_iterator;
-	//forward_iterator first = spirit::make_default_multi_pass(base_iterator_type(in));
-	//forward_iterator last = spirit::make_default_multi_pass(base_iterator_type());
-	
 	refGeneGrammar<base_iterator_type> grammar;
 
-	bool result = qi::parse(first, last, grammar, this->data);
-
+	qi::parse(first, last, grammar, this->data);
 }
 
