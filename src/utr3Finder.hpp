@@ -33,7 +33,6 @@ public:
 	virtual bool isMutationInMotif() const = 0;
 	virtual void writeInfo() const  = 0;
 	
-	static char complement(const char c);
 protected:
 	virtual void findPolyaMotif() = 0;
 

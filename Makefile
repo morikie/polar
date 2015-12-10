@@ -15,7 +15,7 @@ OBJS		= $(TPATH)buildIndexFile.o \
 	$(TPATH)hgvsParser.o \
 	$(TPATH)jannovarVcfParser.o \
 	$(TPATH)knownGeneParser.o \
-	$(TPATH)polarUtility.o \
+	lib/polarUtility.o \
 	$(TPATH)readTranscripts.o \
 	$(TPATH)seqStruct.o \
 	$(TPATH)utr3Finder.o \
@@ -26,9 +26,9 @@ OBJS		= $(TPATH)buildIndexFile.o \
 .PHONY : all
 all : $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test $(TPATH)perf_fuzzy
 
-$(TPATH)polarUtility.o : src/polarUtility.hpp src/polarUtility.cpp 
+lib/polarUtility.o : src/polarUtility.hpp src/polarUtility.cpp 
 	@echo "[Compile] polar utility functions"
-	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) src/polarUtility.cpp -o $(TPATH)polarUtility.o
+	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) src/polarUtility.cpp -o lib/polarUtility.o
 
 $(TPATH)polar : $(TPATH)polar.o $(OBJS) 
 	@echo "[Link] polar"
@@ -105,7 +105,7 @@ $(TPATH)utr3FinderFuzzy.o : src/utr3FinderFuzzy.hpp src/utr3FinderFuzzy.cpp src/
 #targets for the performance tests
 $(TPATH)acc_test : $(TPATH)acc_test.o \
 	$(TPATH)hgvsParser.o \
-	$(TPATH)polarUtility.o \
+	lib/polarUtility.o \
 	$(TPATH)readKnownPolyA.o \
 	$(TPATH)utr3Finder.o \
 	$(TPATH)utr3FinderFuzzy.o \
@@ -124,13 +124,13 @@ $(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnow
 
 $(TPATH)perf_fuzzy : $(TPATH)perf_fuzzy.o \
 	$(TPATH)hgvsParser.o \
-	$(TPATH)polarUtility.o \
+	lib/polarUtility.o \
 	$(TPATH)readKnownPolyA.o \
 	$(TPATH)refGeneParser.o \
 	$(TPATH)utr3Finder.o \
 	$(TPATH)utr3FinderFuzzy.o \
 	$(TPATH)utr3FinderNaive.o \
-	$(TPATH)seqStruct.o
+	$(TPATH)seqStruct.o 
 	@echo "[Link] perf_fuzzy"
 	@$(CC) $(BOOST) $(SEQAN) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)perf_fuzzy
 

@@ -1,11 +1,10 @@
-#include <climits>
-#include <exception>
 #include <sstream>
 #include <string>
 #include <boost/optional.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <seqan/seq_io.h>
 #include "buildSeqStruct.hpp"
+#include "polarUtility.hpp"
 #include "hgvsParser.hpp"
 
 namespace qi = boost::spirit::qi;
@@ -127,18 +126,7 @@ bool buildSeqStructFromGenome (std::vector<SeqStruct> & transMutVector,
 				auto & genePos = (itBegin->first).second;
 				
 				std::string chr = chrom;
-				unsigned idx = UINT_MAX;
-				if (chr == "X") {
-					idx = 22;
-				} else if (chr == "Y") {
-					idx = 23;
-				} else {
-					if (! qi::parse(chr.begin(), chr.end(), qi::uint_, idx)) {
-						throw std::invalid_argument("error parsing chromosome value from vcf");
-					}
-					//adjusting idx to 0-starting map
-					idx--;
-				}
+				size_t  idx = polar::utility::getFastaIndex(chr);
 
 				seqan::String<char> seq;	
 				size_t startRange;

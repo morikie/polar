@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <boost/foreach.hpp>
+#include "polarUtility.hpp"
 #include "seqStruct.hpp"
 #include "utr3FinderFuzzy.hpp"
 
@@ -98,7 +99,7 @@ Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt):
 	Utr3Finder(sSt)
 {	
 	const std::string & seq = this->seqStruct.seq;
-	std::transform(seq.rbegin(), seq.rend(), std::back_inserter(this->reversedSeq), Utr3Finder::complement);
+	std::transform(seq.rbegin(), seq.rend(), std::back_inserter(this->reversedSeq), polar::utility::complement);
 	this->findPolyaMotif();
 
 }
@@ -254,6 +255,14 @@ double Utr3FinderFuzzy::calcUseTvalue(const size_t & pos, const std::string & se
 		if (useUcontentTvalue > maxTvalue) maxTvalue = useUcontentTvalue;
 	}
 	return maxTvalue;
+}
+
+
+/**
+ * Set the threshold map to determine a correct prediction.
+ */
+void Utr3FinderFuzzy::setThresholdMap(std::unordered_map<std::string, double> & map) {
+	this->thresholdMap = map;
 }
 
 
