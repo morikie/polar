@@ -144,7 +144,7 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		double finalTvalue = combDseTValue + useTvalue;
 		//std::cerr << motif << " TV=" << finalTvalue << " useTV=" << useTvalue << " dseTV=" << combDseTValue << " at pos: " << candPos << std::endl;
 		//std::cerr << seq << std::endl;
-		if (finalTvalue > thresholdMap.find(motif)->second) {
+		if (finalTvalue >= thresholdMap.find(motif)->second) {
 			polyaPosVector.push_back(Utr3FinderResult{
 				candPos, 
 				finalTvalue,
@@ -160,7 +160,7 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 
 		double finalTvalue = combDseTValue + useTvalue;
 		
-		if (finalTvalue > thresholdMap.find(motif)->second) {
+		if (finalTvalue >= thresholdMap.find(motif)->second) {
 			polyaPosVector.push_back(Utr3FinderResult{
 				candPos,
 				finalTvalue,
