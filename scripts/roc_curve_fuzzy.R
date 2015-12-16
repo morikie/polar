@@ -1,0 +1,5 @@
+temp = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/bin/fuzzyOut.txt", header=TRUE)
+temp[,1] = sort(temp[,1])
+temp[,2] = sort(temp[,2])
+plot(temp[, 1],1- temp[,2], xlab="1 - specificity", ylab="sensitivity", type='l')
+abline(0,1)

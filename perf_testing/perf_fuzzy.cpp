@@ -24,6 +24,7 @@ int main (int argc, char * argv[]) {
 	typedef std::string strand;
 	typedef size_t position;
 	typedef std::pair<position, strand> posStrandPair;
+	typedef std::pair<size_t, size_t> range;
 	//map that stores the several position and strand of a match sorted by chromosome (key)
 	std::map<key, std::vector<posStrandPair> > truePositives;
 	fs::path refGeneFile = "ucsc_data/refGene.txt";
@@ -55,7 +56,7 @@ int main (int argc, char * argv[]) {
 	size_t numFalsePositives = 0; //"matches" found around a true positives/negatives  (not further analyzed atm)
 	size_t totalTrueNegatives = 0; //total number of true positives
 	std::vector<double> sensitivityVec;
-	std::vector<double> specifityVec;
+	std::vector<double> specificityVec;
 	seqan::FaiIndex faiIndex;
 	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
 		std::cerr << "could not open index file for " << referenceGenome << std::endl;
@@ -90,11 +91,20 @@ int main (int argc, char * argv[]) {
 		}
 	}
 	//creating true negative data set
+	std::map<key, std::vector<range> > utrRangeVec;
 	std::vector<std::string> transcriptVector = refGene.getKeys();
 	std::map<key, std::vector<posStrandPair> > trueNegatives;
 	
+	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
+		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
+		utrRangeVec[refGeneProp.chr].push_back(std::make_pair(refGeneProp.txStart, refGeneProp.cdsStart));
+		utrRangeVec[refGeneProp.chr].push_back(std::make_pair(refGeneProp.cdsEnd, refGeneProp.cdsEnd));
+	}
+
 	size_t hitCounter = 0;
 	const size_t maxMatches = 30000;
+	size_t inUtrCounter = 0;
+	std::vector<size_t> motifFrequencies(13, 0);
 	//iterating over every available transcript from refGene.txt
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
@@ -126,17 +136,43 @@ int main (int argc, char * argv[]) {
 					} else {
 						geneticPos = end - std::distance(exonSequence.begin(), match);
 					}
+					
+					bool inUtr = false;
+					for (auto it = utrRangeVec[refGeneProp.chr].begin(); 
+						it != utrRangeVec[refGeneProp.chr].end(); 
+						it++) {
 
-					trueNegatives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
+						if (geneticPos >= it->first && geneticPos <= it->second)
+							inUtr = true;
+							inUtrCounter++;
+							break;
+
+					}
+					bool duplicate = false;
+					for (auto it = trueNegatives[refGeneProp.chr].begin(); 
+						it != trueNegatives[refGeneProp.chr].end(); 
+						it++) {
+						if (it->first == geneticPos) {
+							duplicate = true;
+							break;
+						}
+					}
+
+					//std::string temp = ss.seq.substr(100, 6);
+					//motifFrequencies[polar::utility::motifToIndex(temp)]++;
+					if (! inUtr && ! duplicate) {
+						trueNegatives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
+						hitCounter++;
+					}
 					match++;
-					hitCounter++;
 					if (hitCounter >= maxMatches) goto stopLoop;
 				}
 			}
 		}
 	}
 	stopLoop:
-	for (size_t i = 0; i < 32; i++) {
+	std::cerr << "inUtrCounter: " << inUtrCounter << std::endl;
+	for (size_t i = 0; i < 1; i++) {
 		numTruePositives = 0; //found true positives/negatives
 		unknMotives = 0; //motives that aren't searched for or refGene.txt contains faulty mappings
 		totalTruePositives = 0; //total number of true positives
@@ -200,7 +236,6 @@ int main (int argc, char * argv[]) {
 		double sensitivity = static_cast<double>(numTruePositives) / (totalTruePositives - unknMotives);
 		sensitivityVec.push_back(sensitivity);
 
-		//std::vector<size_t> motifFrequencies(13, 0);
 		//evaluating every true negative
 		for (auto it = trueNegatives.begin(); it != trueNegatives.end(); it++) {
 			//iterating over every putative PAS
@@ -229,47 +264,53 @@ int main (int argc, char * argv[]) {
 				//analyzing the results
 				for (auto resultIt = u3FuzzyResVector.begin(); resultIt != u3FuzzyResVector.end(); resultIt++) {
 					if (resultIt->pos == 100 && resultIt->strand == "+" && strand == "+") {
-						
 						numFalsePositives++;
 						foundMatch = true;
-						//std::string temp = ss.seq.substr(100, 6);
-						//motifFrequencies[polar::utility::motifToIndex(temp)]++;
-
 					} else if (resultIt->pos == 105 && resultIt->strand == "-" && strand == "-") {
 						numFalsePositives++;
 						foundMatch = true;	
-						//std::string temp = ss.seq.substr(100, 6);
-						//motifFrequencies[polar::utility::motifToIndex(temp)]++;
 					}
 				}
 				if (! foundMatch) {
 					//std::cerr << ss.seq << std::endl;
 					numTrueNegatives++;
+				} else {
+					std::cerr << ">" << pos << "|" << strand << "|" << it->first << std::endl;
+					std::cerr << ss.seq << std::endl;
 				}
 				totalTrueNegatives++;
 			}
 		}
-//		for (auto it = motifFrequencies.begin(); it != motifFrequencies.end(); it++) {
-//			std::cerr << *it << " ";
-//		}
+		for (auto it = motifFrequencies.begin(); it != motifFrequencies.end(); it++) {
+			std::cerr << *it << " ";
+		}
 //		std::cerr << "-------Specifity test-------" << std::endl;
 //		std::cerr << "correct predictions (found true negatives): " << numTrueNegatives << std::endl;
 //		std::cerr << "incorrect predictions (false positives): " << numFalsePositives << std::endl;
 //		std::cerr << "total sequences analyzed (total true positives): " << totalTrueNegatives << std::endl; 
 		//std::cerr << "incorrect predictions: " << numFalsePositives << std::endl;
-		double specifity = static_cast<double>(numTrueNegatives) / totalTrueNegatives;
-		specifityVec.push_back(specifity);
-		Utr3FinderFuzzy tempObj(SeqStruct{std::string("acgt")});	
+		double specificity = static_cast<double>(numTrueNegatives) / totalTrueNegatives;
+		specificityVec.push_back(specificity);
+		Utr3FinderFuzzy tempObj(SeqStruct{
+			std::string("acgt"),
+			boost::none,
+			boost::none,
+			boost::none,
+			boost::none,
+			boost::none,
+			boost::none,
+			boost::none
+			});	
 		tempObj.setThresholdMap(thresholdMap);
-		for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
-			mapIter->second += 0.05;
-		}
+//		for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
+//			mapIter->second += 0.05;
+//		}
 
 
 	}
-	std::cerr << "sensitivity,specifity" << std::endl;
-	for (unsigned int i = 0; i < specifityVec.size(); i++) {
-		std::cerr << sensitivityVec[i] << "," << specifityVec[i] << std::endl;
+	std::cerr << "sensitivity,specificity" << std::endl;
+	for (unsigned int i = 0; i < specificityVec.size(); i++) {
+		std::cerr << sensitivityVec[i] << "," << specificityVec[i] << std::endl;
 	}
 }
 
