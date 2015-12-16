@@ -168,16 +168,15 @@ int main (int argc, char * argv[]) {
 				//evaluating the sequence
 				Utr3FinderFuzzy u3Fuzzy(ss);
 				std::vector<Utr3Finder::Utr3FinderResult> u3FuzzyResVector = u3Fuzzy.getPolyaMotifPos();
-				
+
 				//analyzing the results
 				for (auto resultIt = u3FuzzyResVector.begin(); resultIt != u3FuzzyResVector.end(); resultIt++) {
 					if (resultIt->pos == 100 && resultIt->strand == "+" && strand == "+") {
 						numTruePositives++;
-					} else if (resultIt->pos == 94 && resultIt->strand == "-" && strand == "-") {
+					} else if (resultIt->pos == 105 && resultIt->strand == "-" && strand == "-") {
 						numTruePositives++;
 					}
 				}
-				
 				std::string motif = ss.seq.substr(100, 6);
 				if (strand == "-") {
 					std::string temp;
@@ -236,7 +235,7 @@ int main (int argc, char * argv[]) {
 						//std::string temp = ss.seq.substr(100, 6);
 						//motifFrequencies[polar::utility::motifToIndex(temp)]++;
 
-					} else if (resultIt->pos == 94 && resultIt->strand == "-" && strand == "-") {
+					} else if (resultIt->pos == 105 && resultIt->strand == "-" && strand == "-") {
 						numFalsePositives++;
 						foundMatch = true;	
 						//std::string temp = ss.seq.substr(100, 6);

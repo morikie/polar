@@ -127,23 +127,26 @@ bool buildSeqStructFromGenome (std::vector<SeqStruct> & transMutVector,
 				
 				std::string chr = chrom;
 				size_t  idx = polar::utility::getFastaIndex(chr);
-
+				if (idx == UINT_MAX) {
+					std::cerr << chr << std::endl;
+					continue;
+				}
 				seqan::String<char> seq;	
 				size_t startRange;
 				size_t endRange;
-				if (genePos < 150) {
+				if (genePos < 100) {
 					startRange = 0;
 				} else {
-					startRange = genePos - 150;
+					startRange = genePos - 100;
 				}
-				if (genePos + 150 > seqan::sequenceLength(fai, idx)) {
+				if (genePos + 100 > seqan::sequenceLength(fai, idx)) {
 					endRange = seqan::sequenceLength(fai, idx);
 				} else {
-					endRange = genePos + 150;
+					endRange = genePos + 100;
 				}
 				seqan::readRegion(seq, fai, idx, startRange, endRange);
 				std::string sequence(seqan::toCString(seq));
-				if (sequence.empty() || sequence.size() < 300) {
+				if (sequence.empty() || sequence.size() < 200) {
 					std::cerr << "warning: very small sequence" << std::endl;
 				}
 

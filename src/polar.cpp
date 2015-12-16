@@ -25,13 +25,12 @@ int main (int args, char * argv[]) {
 	fs::path transcripts = "ucsc_data/knownGeneTxMrna.txt";
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
 	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
-	fs::path vcfFile = "vcf/sensitivity.jv.vcf";
-	//fs::path vcfFile = "vcf/vcf-example.jv.vcf";
+	//fs::path vcfFile = "vcf/sensitivity.jv.vcf";
+	fs::path vcfFile = "vcf/vcf-example.jv.vcf";
 	//fs::path vcfFile = "vcf/1000Genomes/ALL.chr17.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
 	//fs::path vcfFile = "vcf/ALL.wgs.phase3_shapeit2_mvncall_integrated_v5b.20130502.sites.jv.vcf";
 	//fs::path vcfFile = "vcf/1000Genomes/taddaa2.txt";
 	//fs::path vcfFile = "vcf/1000Genomes/ALL.chr1.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.jv.vcf";
-	//fs::path vcfFile = "vcf/vcf-example.jv.vcf";
 	KnownGeneParser txValues(knownGene);
 	ReadTranscripts tx(transcripts);
 	JannovarVcfParser variants(vcfFile);
@@ -102,12 +101,13 @@ int main (int args, char * argv[]) {
 			if (! utr3Fuzzy->getPolyaMotifPos().empty()) { 
 				std::vector<Utr3Finder::Utr3FinderResult> positions = utr3Fuzzy->getPolyaMotifPos();
 				BOOST_FOREACH(const Utr3Finder::Utr3FinderResult & result, positions) {
-					//std::cerr << utr3Fuzzy->getSequence() << std::endl;
-					if (result.pos >= 144 && result.pos <= 150) {
-						//utr3Fuzzy->writeInfo();
+					if (result.strand == "+" && result.pos >= 94 && result.pos <= 99) {
+						utr3Fuzzy->writeInfo();
+					} else if (result.strand == "-" && result.pos >= 99 && result.pos <= 104) {
+						utr3Fuzzy->writeInfo();	
 					}
 				}
-			}
+			}	
 		}
 	}
 
