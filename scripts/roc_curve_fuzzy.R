@@ -1,5 +1,11 @@
+library(ROCR)
 temp = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/bin/fuzzyOut.txt", header=TRUE)
-temp[,1] = sort(temp[,1])
-temp[,2] = sort(temp[,2])
-plot(temp[, 1],1- temp[,2], xlab="1 - specificity", ylab="sensitivity", type='l')
-abline(0,1)
+senVec = temp[,1]
+fprVec = 1 - temp[,2]
+predVec = append(senVec, fprVec)
+labelVec = append(rep(1, length(senVec)), rep(0, length(fprVec)))
+pred = prediction(predVec, labelVec)
+roc = performance(pred, "tpr", "fpr")
+auc = performance(pred, measure="auc")
+plot(roc)
+auc@y.values

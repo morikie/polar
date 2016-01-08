@@ -63,7 +63,7 @@ struct refGeneGrammar :
 				>> qi::omit[*~qi::char_('\n')]
 		;
 	
-	//BOOST_SPIRIT_DEBUG_NODES( (query)(pair)(stringValue)(uIntValue)(uIntVector)(txProps))
+	//BOOST_SPIRIT_DEBUG_NODES((query)(pair)(stringValue)(uIntValue)(uIntVector)(txProps))
 	}
 
 	private:

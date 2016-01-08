@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <climits>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <boost/filesystem.hpp>
@@ -25,7 +26,7 @@ int main (int argc, char * argv[]) {
 	typedef size_t position;
 	typedef std::pair<position, strand> posStrandPair;
 	typedef std::pair<size_t, size_t> range;
-	//map that stores the several position and strand of a match sorted by chromosome (key)
+	//map that stores position and strand of a match sorted by chromosome (key)
 	std::map<key, std::vector<posStrandPair> > truePositives;
 	fs::path refGeneFile = "ucsc_data/refGene.txt";
 	fs::path knownPolyA = "../perf_testing/knownPolyAtranscript.txt";
@@ -108,6 +109,7 @@ int main (int argc, char * argv[]) {
 	//iterating over every available transcript from refGene.txt
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
+		if (refGeneProp.cdsStart == refGeneProp.cdsEnd) continue;
 		if (refGeneProp.chr.size() > 6 || refGeneProp.chr.empty()) continue;
 		
 		const std::vector<unsigned int> & txStartVector = refGeneProp.exonStarts;
@@ -120,16 +122,20 @@ int main (int argc, char * argv[]) {
 			size_t end = txEndVector[i];
 			if (start <= refGeneProp.cdsStart) start = refGeneProp.cdsStart;
 			if (end >= refGeneProp.cdsEnd) end = refGeneProp.cdsEnd;
-			
+			if (start >= end) continue;
+		
 			seqan::readRegion(temp, faiIndex, idx, start, end);
-			if (refGeneProp.strand == "-") seqan::reverseComplement(temp);
+			if (refGeneProp.strand == "-") {
+				seqan::reverseComplement(temp);
+				seqan::toLower(temp);
+			}
 			std::string exonSequence(seqan::toCString(temp));
 
 			auto hexamersIter = Utr3Finder::hexamers.begin();
 			for (; hexamersIter != Utr3Finder::hexamers.end(); hexamersIter++) {
 				auto match = exonSequence.begin();
-				while ((match = std::search(match, exonSequence.end(),
-					hexamersIter->begin(), hexamersIter->end())) != exonSequence.end()) {
+				while ((match = std::search(match, exonSequence.end(), hexamersIter->begin(), hexamersIter->end())) 
+					!= exonSequence.end()) {
 					size_t geneticPos;
 					if (refGeneProp.strand == "+") {
 						geneticPos = std::distance(exonSequence.begin(), match) + start;
@@ -141,27 +147,29 @@ int main (int argc, char * argv[]) {
 					for (auto it = utrRangeVec[refGeneProp.chr].begin(); 
 						it != utrRangeVec[refGeneProp.chr].end(); 
 						it++) {
-
 						if (geneticPos >= it->first && geneticPos <= it->second)
 							inUtr = true;
 							inUtrCounter++;
 							break;
 
 					}
+					//searching for duplicates (i.e. TN-PASs from overlapping transcripts)
 					bool duplicate = false;
 					for (auto it = trueNegatives[refGeneProp.chr].begin(); 
 						it != trueNegatives[refGeneProp.chr].end(); 
 						it++) {
 						if (it->first == geneticPos) {
 							duplicate = true;
-							break;
+					
+					break;
 						}
 					}
-
-					//std::string temp = ss.seq.substr(100, 6);
-					//motifFrequencies[polar::utility::motifToIndex(temp)]++;
+					//add to data set if found TN-PAS is neither in the UTR of a transcript 
+					//nor already found on another transcript (duplicate) 
 					if (! inUtr && ! duplicate) {
-						trueNegatives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
+						trueNegatives[refGeneProp.chr].push_back(
+							std::make_pair(geneticPos, refGeneProp.strand)
+						);
 						hitCounter++;
 					}
 					match++;
@@ -172,7 +180,23 @@ int main (int argc, char * argv[]) {
 	}
 	stopLoop:
 	std::cerr << "inUtrCounter: " << inUtrCounter << std::endl;
-	for (size_t i = 0; i < 1; i++) {
+	
+	std::ofstream writeTn ("trueNegatives.fa");
+	if (writeTn.is_open()) {
+		auto mapIter = trueNegatives.begin();
+		for (; mapIter != trueNegatives.end(); mapIter++) {
+			for (auto vecIter = mapIter->second.begin(); vecIter != mapIter->second.end(); vecIter++) {
+				seqan::CharString temp;
+				size_t idx = polar::utility::getFastaIndex(mapIter->first);
+				seqan::readRegion(temp, faiIndex, idx, vecIter->first - 100, vecIter->first + 100);
+				writeTn << ">" << mapIter->first << "|" << vecIter->first << "|" << vecIter->second << std::endl;
+				writeTn << temp << std::endl; 
+			}
+		}
+	}
+	writeTn.close();
+
+	for (size_t i = 0; i < 32; i++) {
 		numTruePositives = 0; //found true positives/negatives
 		unknMotives = 0; //motives that aren't searched for or refGene.txt contains faulty mappings
 		totalTruePositives = 0; //total number of true positives
@@ -216,7 +240,9 @@ int main (int argc, char * argv[]) {
 				std::string motif = ss.seq.substr(100, 6);
 				if (strand == "-") {
 					std::string temp;
-					std::transform(motif.rbegin(), motif.rend(), std::back_inserter(temp), polar::utility::complement);
+					std::transform(motif.rbegin(), motif.rend(), 
+						std::back_inserter(temp), 
+						polar::utility::complement);
 					motif = temp;
 				}
 				
@@ -247,6 +273,11 @@ int main (int argc, char * argv[]) {
 				unsigned idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 100 bases around the genomic position of the putative PAS (200nt long)
 				seqan::readRegion(temp, faiIndex, idx, pos - 100, pos + 100);
+				if (strand == "+" && thresholdMap.find(temp.substr(100, 6)) == thresholdMap.end()) {
+
+				} else if (strand == "-" && thresholdMap.find(temp.substr(100, 6)) == thresholdMap.end()) {
+				}
+
 				SeqStruct ss = {
 					std::string(seqan::toCString(temp)),
 					boost::none,
@@ -266,7 +297,7 @@ int main (int argc, char * argv[]) {
 					if (resultIt->pos == 100 && resultIt->strand == "+" && strand == "+") {
 						numFalsePositives++;
 						foundMatch = true;
-					} else if (resultIt->pos == 105 && resultIt->strand == "-" && strand == "-") {
+					} else if (resultIt->pos == 99 && resultIt->strand == "-" && strand == "-") {
 						numFalsePositives++;
 						foundMatch = true;	
 					}
@@ -275,15 +306,15 @@ int main (int argc, char * argv[]) {
 					//std::cerr << ss.seq << std::endl;
 					numTrueNegatives++;
 				} else {
-					std::cerr << ">" << pos << "|" << strand << "|" << it->first << std::endl;
-					std::cerr << ss.seq << std::endl;
+					//std::cerr << ">" << pos << "|" << strand << "|" << it->first << std::endl;
+					//std::cerr << ss.seq << std::endl;
 				}
 				totalTrueNegatives++;
 			}
 		}
-		for (auto it = motifFrequencies.begin(); it != motifFrequencies.end(); it++) {
-			std::cerr << *it << " ";
-		}
+		//for (auto it = motifFrequencies.begin(); it != motifFrequencies.end(); it++) {
+		//	std::cerr << *it << " ";
+		//}
 //		std::cerr << "-------Specifity test-------" << std::endl;
 //		std::cerr << "correct predictions (found true negatives): " << numTrueNegatives << std::endl;
 //		std::cerr << "incorrect predictions (false positives): " << numFalsePositives << std::endl;
@@ -302,9 +333,9 @@ int main (int argc, char * argv[]) {
 			boost::none
 			});	
 		tempObj.setThresholdMap(thresholdMap);
-//		for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
-//			mapIter->second += 0.05;
-//		}
+		for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
+			mapIter->second += 0.05;
+		}
 
 
 	}
