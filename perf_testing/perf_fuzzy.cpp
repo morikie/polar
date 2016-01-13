@@ -63,15 +63,16 @@ int main (int argc, char * argv[]) {
 		std::cerr << "could not open index file for " << referenceGenome << std::endl;
 	}
 	readKnownPolyA(knownPolyA, knownPolyAvec);
-	
+	std::vector<std::pair<std::string, std::string> > utrSequenceVec;
 	//creating true positive data set
 	BOOST_FOREACH (KnownPolyA & knownPolyA, knownPolyAvec) {
 		std::string baseSeqId;
 		qi::parse(knownPolyA.id.begin(), knownPolyA.id.end(), *~qi::char_('.'), baseSeqId);
 		RefGeneProperties refGeneProp = refGene.getValueByKey(baseSeqId);
+		size_t idx = polar::utility::getFastaIndex(refGeneProp.chr);
 		//ignoring empty entries
 		if (knownPolyA.seq.empty() || refGeneProp.chr.empty()) continue;
-		//ignoring entries from not processable chromosome descriptions (e.g. chr6_hash_map... or similar)
+		//ignoring entries from not processable chromosome descriptions (e.g. chr6_hash_map etc.)
 		if (refGeneProp.chr.size() > 6) continue;
 		
 		//calculate size of the transcript by using exon start/end values (using sequence length doesn't work)
@@ -80,6 +81,17 @@ int main (int argc, char * argv[]) {
 			txLength += refGeneProp.exonEnds[i] - refGeneProp.exonStarts[i];
 		}
 		
+		seqan::CharString utr;
+		if (refGeneProp.cdsEnd < refGeneProp.exonStarts.back()) {
+			if (refGeneProp.strand == "+")
+				std::cerr << "Transcript: " << knownPolyA.id << "|UTR len: " << refGeneProp.txEnd - refGeneProp.cdsEnd << std::endl;
+			else 
+				std::cerr << "Transcript: " << knownPolyA.id << "|UTR len: " << refGeneProp.cdsStart - refGeneProp.txStart << std::endl;
+			seqan::readRegion(utr, faiIndex, idx, refGeneProp.cdsEnd, refGeneProp.txEnd);
+			seqan::toLower(utr);
+			utrSequenceVec.push_back(std::make_pair(baseSeqId, seqan::toCString(utr)));
+		}
+
 		//mapping transcript position of the PAS to the genomic position (each position is a true positive)
 		BOOST_FOREACH (size_t & pos, knownPolyA.polyApos) {
 			size_t geneticPos;
@@ -87,6 +99,26 @@ int main (int argc, char * argv[]) {
 				geneticPos = refGeneProp.txEnd - (txLength - pos);
 			} else {
 				geneticPos = refGeneProp.txStart + (txLength - pos - 6);
+			}
+			
+			if (refGeneProp.strand == "+") {
+				seqan::CharString motifAtPos;
+				seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos, geneticPos + 6);
+				std::string stdMotifAtPos(seqan::toCString(motifAtPos));
+				auto findIt = thresholdMap.find(stdMotifAtPos);
+				if (findIt == thresholdMap.end()) {
+					continue;
+				}
+			} else {
+				seqan::CharString motifAtPos;
+				seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos - 6, geneticPos);
+				seqan::reverseComplement(motifAtPos);
+				seqan::toLower(motifAtPos);
+				std::string stdMotifAtPos(seqan::toCString(motifAtPos));
+				auto findIt = thresholdMap.find(stdMotifAtPos);
+				if (findIt == thresholdMap.end()) {
+					continue;
+				}
 			}
 			truePositives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
 		}
@@ -99,7 +131,7 @@ int main (int argc, char * argv[]) {
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
 		utrRangeVec[refGeneProp.chr].push_back(std::make_pair(refGeneProp.txStart, refGeneProp.cdsStart));
-		utrRangeVec[refGeneProp.chr].push_back(std::make_pair(refGeneProp.cdsEnd, refGeneProp.cdsEnd));
+		utrRangeVec[refGeneProp.chr].push_back(std::make_pair(refGeneProp.cdsEnd, refGeneProp.txEnd));
 	}
 
 	size_t hitCounter = 0;
@@ -143,6 +175,7 @@ int main (int argc, char * argv[]) {
 						geneticPos = end - std::distance(exonSequence.begin(), match);
 					}
 					
+					//making sure that matches aren't in the UTR of any other transcript
 					bool inUtr = false;
 					for (auto it = utrRangeVec[refGeneProp.chr].begin(); 
 						it != utrRangeVec[refGeneProp.chr].end(); 
@@ -153,19 +186,41 @@ int main (int argc, char * argv[]) {
 							break;
 
 					}
-					//searching for duplicates (i.e. TN-PASs from overlapping transcripts)
+					//searching for duplicates (overlapping transcripts/PAS positions)
 					bool duplicate = false;
 					for (auto it = trueNegatives[refGeneProp.chr].begin(); 
 						it != trueNegatives[refGeneProp.chr].end(); 
 						it++) {
 						if (it->first == geneticPos) {
 							duplicate = true;
-					
-					break;
+							break;
 						}
 					}
+					//check if geneticPos yields an analyzable PAS motif (correct mapping?)
+					if (refGeneProp.strand == "+") {
+						seqan::CharString motifAtPos;
+						seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos, geneticPos + 6);
+						std::string stdMotifAtPos(seqan::toCString(motifAtPos));
+						auto findIt = thresholdMap.find(stdMotifAtPos);
+						if (findIt == thresholdMap.end()) {
+							match++;
+							continue;
+						}
+					} else {
+						seqan::CharString motifAtPos;
+						seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos - 6, geneticPos);
+						seqan::reverseComplement(motifAtPos);
+						seqan::toLower(motifAtPos);
+						std::string stdMotifAtPos(seqan::toCString(motifAtPos));
+						auto findIt = thresholdMap.find(stdMotifAtPos);
+						if (findIt == thresholdMap.end()) {
+							match++;
+							continue;
+						}
+					}
+
 					//add to data set if found TN-PAS is neither in the UTR of a transcript 
-					//nor already found on another transcript (duplicate) 
+					//nor already found in another transcript (duplicate) 
 					if (! inUtr && ! duplicate) {
 						trueNegatives[refGeneProp.chr].push_back(
 							std::make_pair(geneticPos, refGeneProp.strand)
@@ -179,7 +234,7 @@ int main (int argc, char * argv[]) {
 		}
 	}
 	stopLoop:
-	std::cerr << "inUtrCounter: " << inUtrCounter << std::endl;
+	//std::cerr << "inUtrCounter: " << inUtrCounter << std::endl;
 	
 	std::ofstream writeTn ("trueNegatives.fa");
 	if (writeTn.is_open()) {
@@ -196,12 +251,23 @@ int main (int argc, char * argv[]) {
 	}
 	writeTn.close();
 
+	std::ofstream writeTp ("truePositivesUTR.fa");
+	if (writeTp.is_open()) {
+		auto vecIter = utrSequenceVec.begin();
+		for (; vecIter != utrSequenceVec.end(); vecIter++) {
+			writeTp << ">UTR of: " << vecIter->first << std::endl;
+			writeTp << vecIter->second << std::endl;
+		}
+	}
+	writeTp.close();
+	utrSequenceVec.clear();
+
 	for (size_t i = 0; i < 32; i++) {
 		numTruePositives = 0; //found true positives/negatives
 		unknMotives = 0; //motives that aren't searched for or refGene.txt contains faulty mappings
 		totalTruePositives = 0; //total number of true positives
 		numTrueNegatives = 0; //true negatives
-		numFalsePositives = 0; //"matches" found around a true positives/negatives  (not further analyzed atm)
+		numFalsePositives = 0; //"matches" found around true positives/negatives  (not further analyzed atm)
 		totalTrueNegatives = 0; //total number of true positives
 		
 		//evaluating every true positive
@@ -214,7 +280,7 @@ int main (int argc, char * argv[]) {
 				size_t idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 100 bases around the genomic position of the PAS (200nt long)
 				seqan::readRegion(temp, faiIndex, idx, pos - 100, pos + 100);
-				
+
 				SeqStruct ss = {
 					std::string(seqan::toCString(temp)),
 					boost::none,
@@ -273,10 +339,6 @@ int main (int argc, char * argv[]) {
 				unsigned idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 100 bases around the genomic position of the putative PAS (200nt long)
 				seqan::readRegion(temp, faiIndex, idx, pos - 100, pos + 100);
-				if (strand == "+" && thresholdMap.find(temp.substr(100, 6)) == thresholdMap.end()) {
-
-				} else if (strand == "-" && thresholdMap.find(temp.substr(100, 6)) == thresholdMap.end()) {
-				}
 
 				SeqStruct ss = {
 					std::string(seqan::toCString(temp)),
@@ -339,6 +401,7 @@ int main (int argc, char * argv[]) {
 
 
 	}
+	std::cerr << "totalTruePositives: " << totalTruePositives << std::endl;
 	std::cerr << "sensitivity,specificity" << std::endl;
 	for (unsigned int i = 0; i < specificityVec.size(); i++) {
 		std::cerr << sensitivityVec[i] << "," << specificityVec[i] << std::endl;
