@@ -32,9 +32,11 @@ int main (int argc, char * argv[]) {
 	fs::path knownPolyA = "../perf_testing/knownPolyAtranscript.txt";
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
 	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
+	fs::path ucscMappedTx = "ucsc_data/ucsc_txRefSeq.txt";
+	std::unordered_map<std::string, size_t> ucscTxRefSeq = polar::utility::getTxRefSeqAccessions(ucscMappedTx);
 	std::vector<KnownPolyA> knownPolyAvec;
 	RefGeneParser refGene(refGeneFile);	
-	
+	std::cerr << "#accession numbers: " << ucscTxRefSeq.size() << std::endl;
 	std::unordered_map<std::string, double> thresholdMap = {
 		{std::string("aataaa"), 0.0},
 		{std::string("attaaa"), 0.0},

@@ -1,7 +1,11 @@
 #include <climits>
+#include <fstream>
 #include <string>
 #include <stdexcept>
+#include <unordered_map>
+#include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/spirit/include/qi.hpp>
+#include <boost/filesystem.hpp>
 #include "polarUtility.hpp"
 
 
@@ -9,7 +13,7 @@ namespace polar {
 namespace utility {
 
 namespace qi = boost::spirit::qi;
-
+namespace fs = boost::filesystem;
 
 size_t motifToIndex(std::string & motif) {
 	if (motif == "aataaa") return 0;
@@ -63,6 +67,22 @@ size_t getFastaIndex(const std::string & chr) {
 		idx--;
 	}
 	return idx; 
+}
+
+std::unordered_map<std::string, size_t> getTxRefSeqAccessions(const fs::path & f) {
+	typedef std::string accession;
+	typedef size_t patch;
+	std::unordered_map<accession, patch> txRefSeq;
+	std::fstream in(f.string());
+	std::string line;
+	qi::rule<std::string::iterator, std::pair<accession, patch>() > r = *~qi::char_('\t') >> '\t' >> qi::uint_;
+	while (std::getline(in, line)) {
+		std::pair<accession, patch> temp;
+		qi::parse(line.begin(), line.end(), r, temp);
+		if (txRefSeq.find(temp.first) == txRefSeq.end()) txRefSeq[temp.first] = temp.second;
+		else std::cerr << "Different patch numbers used for the same transcript" << std::endl;
+	}
+	return txRefSeq;
 }
 
 } /* namespace utility */
