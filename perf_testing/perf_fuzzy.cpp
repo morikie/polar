@@ -5,6 +5,7 @@
 #include <map>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
+#include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <seqan/seq_io.h>
 #include "../src/hgvsParser.hpp"
@@ -65,12 +66,17 @@ int main (int argc, char * argv[]) {
 		std::cerr << "could not open index file for " << referenceGenome << std::endl;
 	}
 	readKnownPolyA(knownPolyA, knownPolyAvec);
-	std::vector<std::pair<std::string, std::string> > utrSequenceVec;
 	//creating true positive data set
 	BOOST_FOREACH (KnownPolyA & knownPolyA, knownPolyAvec) {
-		std::string baseSeqId;
-		qi::parse(knownPolyA.id.begin(), knownPolyA.id.end(), *~qi::char_('.'), baseSeqId);
-		RefGeneProperties refGeneProp = refGene.getValueByKey(baseSeqId);
+		std::pair<std::string, size_t> txAndPatchPair;
+		qi::parse(knownPolyA.id.begin(), knownPolyA.id.end(), *~qi::char_('.') >> '.' >> qi::uint_, txAndPatchPair);
+		auto mapValue = ucscTxRefSeq.find(txAndPatchPair.first);
+		if (mapValue == ucscTxRefSeq.end() || 
+			mapValue->second != txAndPatchPair.second ||
+			txAndPatchPair.first.find("NM_") == std::string::npos) {
+			continue;
+		}
+		RefGeneProperties refGeneProp = refGene.getValueByKey(txAndPatchPair.first);
 		size_t idx = polar::utility::getFastaIndex(refGeneProp.chr);
 		//ignoring empty entries
 		if (knownPolyA.seq.empty() || refGeneProp.chr.empty()) continue;
@@ -83,17 +89,6 @@ int main (int argc, char * argv[]) {
 			txLength += refGeneProp.exonEnds[i] - refGeneProp.exonStarts[i];
 		}
 		
-		seqan::CharString utr;
-		if (refGeneProp.cdsEnd < refGeneProp.exonStarts.back()) {
-			if (refGeneProp.strand == "+")
-				std::cerr << "Transcript: " << knownPolyA.id << "|UTR len: " << refGeneProp.txEnd - refGeneProp.cdsEnd << std::endl;
-			else 
-				std::cerr << "Transcript: " << knownPolyA.id << "|UTR len: " << refGeneProp.cdsStart - refGeneProp.txStart << std::endl;
-			seqan::readRegion(utr, faiIndex, idx, refGeneProp.cdsEnd, refGeneProp.txEnd);
-			seqan::toLower(utr);
-			utrSequenceVec.push_back(std::make_pair(baseSeqId, seqan::toCString(utr)));
-		}
-
 		//mapping transcript position of the PAS to the genomic position (each position is a true positive)
 		BOOST_FOREACH (size_t & pos, knownPolyA.polyApos) {
 			size_t geneticPos;
@@ -122,7 +117,17 @@ int main (int argc, char * argv[]) {
 					continue;
 				}
 			}
-			truePositives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
+			bool isDuplicate = false;
+			auto mapVecIter = truePositives[refGeneProp.chr].begin();
+			for(; mapVecIter != truePositives[refGeneProp.chr].end(); mapVecIter++) {
+				if (mapVecIter->first == geneticPos) {
+					isDuplicate = true;
+					break;
+				}
+			}
+			if (! isDuplicate) {
+				truePositives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
+			}
 		}
 	}
 	//creating true negative data set
@@ -140,7 +145,7 @@ int main (int argc, char * argv[]) {
 	const size_t maxMatches = 30000;
 	size_t inUtrCounter = 0;
 	std::vector<size_t> motifFrequencies(13, 0);
-	//iterating over every available transcript from refGene.txt
+	//iterating over every transcript from refGene.txt
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
 		if (refGeneProp.cdsStart == refGeneProp.cdsEnd) continue;
@@ -253,25 +258,14 @@ int main (int argc, char * argv[]) {
 	}
 	writeTn.close();
 
-	std::ofstream writeTp ("truePositivesUTR.fa");
-	if (writeTp.is_open()) {
-		auto vecIter = utrSequenceVec.begin();
-		for (; vecIter != utrSequenceVec.end(); vecIter++) {
-			writeTp << ">UTR of: " << vecIter->first << std::endl;
-			writeTp << vecIter->second << std::endl;
-		}
-	}
-	writeTp.close();
-	utrSequenceVec.clear();
-
-	for (size_t i = 0; i < 32; i++) {
+	std::ofstream writeTp ("notDetectedtruePositives.fa");
+	for (size_t i = 0; i <= 32; i++) {
 		numTruePositives = 0; //found true positives/negatives
 		unknMotives = 0; //motives that aren't searched for or refGene.txt contains faulty mappings
 		totalTruePositives = 0; //total number of true positives
 		numTrueNegatives = 0; //true negatives
 		numFalsePositives = 0; //"matches" found around true positives/negatives  (not further analyzed atm)
 		totalTrueNegatives = 0; //total number of true positives
-		
 		//evaluating every true positive
 		for (auto it = truePositives.begin(); it != truePositives.end(); it++) {
 			//iterating over every true PAS
@@ -281,7 +275,7 @@ int main (int argc, char * argv[]) {
 				seqan::CharString temp;
 				size_t idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 100 bases around the genomic position of the PAS (200nt long)
-				seqan::readRegion(temp, faiIndex, idx, pos - 100, pos + 100);
+				seqan::readRegion(temp, faiIndex, idx, pos - 100, pos + 250);
 
 				SeqStruct ss = {
 					std::string(seqan::toCString(temp)),
@@ -301,26 +295,21 @@ int main (int argc, char * argv[]) {
 				for (auto resultIt = u3FuzzyResVector.begin(); resultIt != u3FuzzyResVector.end(); resultIt++) {
 					if (resultIt->pos == 100 && resultIt->strand == "+" && strand == "+") {
 						numTruePositives++;
+						break;
 					} else if (resultIt->pos == 105 && resultIt->strand == "-" && strand == "-") {
 						numTruePositives++;
+						break;
+					} else if (resultIt == u3FuzzyResVector.end() - 1) {
+						if (writeTp.is_open()) {
+							writeTp << ">" << it->first << "|" << strand << "|" << pos << std::endl;
+							writeTp << u3Fuzzy.getSequence() << std::endl;
+						}
 					}
-				}
-				std::string motif = ss.seq.substr(100, 6);
-				if (strand == "-") {
-					std::string temp;
-					std::transform(motif.rbegin(), motif.rend(), 
-						std::back_inserter(temp), 
-						polar::utility::complement);
-					motif = temp;
-				}
-				
-				//std::cerr << resultIt->truthValue << "  " << motif << std::endl;
-				if (Utr3FinderFuzzy::dseLocMap.find(motif) == Utr3FinderFuzzy::dseLocMap.end()) {
-					unknMotives++;			
 				}
 				totalTruePositives++;
 			}
 		}
+		writeTp.close();
 		//std::cerr << "Threshold: " << thresholdMap.find("aataaa")->second << std::endl;
 		//std::cerr << "-------Sensitivity test-------" << std::endl;
 		//std::cerr << "correct predictions (found true positives): " << numTruePositives << std::endl;
