@@ -135,6 +135,7 @@ int main (int argc, char * argv[]) {
 	std::vector<std::string> transcriptVector = refGene.getKeys();
 	std::map<key, std::vector<posStrandPair> > trueNegatives;
 	
+	//storing all UTR ranges; used to make sure a found "TN PAS" isn't potentially a PAS in another transcript
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
 		utrRangeVec[refGeneProp.chr].push_back(std::make_pair(refGeneProp.txStart, refGeneProp.cdsStart));
@@ -173,7 +174,8 @@ int main (int argc, char * argv[]) {
 			auto hexamersIter = Utr3Finder::hexamers.begin();
 			for (; hexamersIter != Utr3Finder::hexamers.end(); hexamersIter++) {
 				auto match = exonSequence.begin();
-				while ((match = std::search(match, exonSequence.end(), hexamersIter->begin(), hexamersIter->end())) 
+				while ((match = std::search(match, exonSequence.end(), 
+					hexamersIter->begin(), hexamersIter->end()))
 					!= exonSequence.end()) {
 					size_t geneticPos;
 					if (refGeneProp.strand == "+") {
