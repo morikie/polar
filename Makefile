@@ -114,6 +114,14 @@ $(TPATH)acc_test : $(TPATH)acc_test.o \
 	@echo "[Link] acc_test"
 	@$(CC) $(BOOST) $(SEQAN) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)acc_test
 
+$(TPATH)createTPset.o : perf_testing/createTPset.hpp perf_testing/createTPset.cpp
+	@echo "[Compile] TP data set"
+	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/createTPset.cpp -o $(TPATH)createTPset.o
+
+$(TPATH)createTNset.o : perf_testing/createTNset.hpp perf_testing/createTNset.cpp
+	@echo "[Compile] TN data set"
+	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/createTNset.cpp -o $(TPATH)createTNset.o
+
 $(TPATH)acc_test.o : perf_testing/acc_test.hpp perf_testing/acc_test.cpp perf_testing/readKnownPolyA.hpp
 	@echo "[Compile] acc_test"
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/acc_test.cpp -o $(TPATH)acc_test.o
@@ -123,6 +131,8 @@ $(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnow
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/readKnownPolyA.cpp -o $(TPATH)readKnownPolyA.o
 
 $(TPATH)perf_fuzzy : $(TPATH)perf_fuzzy.o \
+	$(TPATH)createTPset.o \
+	$(TPATH)createTNset.o \
 	$(TPATH)hgvsParser.o \
 	lib/polarUtility.o \
 	$(TPATH)readKnownPolyA.o \

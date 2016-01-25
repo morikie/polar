@@ -14,6 +14,8 @@
 #include "../src/utr3Finder.hpp"
 #include "../src/utr3FinderFuzzy.hpp"
 #include "../src/utr3FinderNaive.hpp"
+#include "createTNset.hpp"
+#include "createTPset.hpp"
 #include "readKnownPolyA.hpp"
 #include "perf_fuzzy.hpp"
 
@@ -34,6 +36,8 @@ int main (int argc, char * argv[]) {
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
 	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
 	fs::path ucscMappedTx = "ucsc_data/ucsc_txRefSeq.txt";
+	fs::path tpFasta = "../perf_testing/tpSet.fa";
+	fs::path tnFasta = "../perf_testing/tpSet.fa";
 	std::unordered_map<std::string, size_t> ucscTxRefSeq = polar::utility::getTxRefSeqAccessions(ucscMappedTx);
 	std::vector<KnownPolyA> knownPolyAvec;
 	RefGeneParser refGene(refGeneFile);	
@@ -52,13 +56,14 @@ int main (int argc, char * argv[]) {
 		{std::string("actaaa"), 0.0},
 		{std::string("aataga"), 0.0}
 	};
-		
-	size_t numTruePositives = 0; //found true positives/negatives
-	size_t unknMotives = 0; //motives that aren't searched for or refGene.txt contains faulty mappings
-	size_t totalTruePositives = 0; //total number of true positives
-	size_t numTrueNegatives = 0; //true negatives
-	size_t numFalsePositives = 0; //"matches" found around a true positives/negatives  (not further analyzed atm)
-	size_t totalTrueNegatives = 0; //total number of true positives
+	
+	if (! fs::exists(tpFasta)) {
+		createTPset(tpFasta);
+	}
+	if (! fs::exists(tnFasta)) {
+		createTNset(tnFasta);
+	}
+
 	std::vector<double> sensitivityVec;
 	std::vector<double> specificityVec;
 	seqan::FaiIndex faiIndex;
@@ -168,6 +173,7 @@ int main (int argc, char * argv[]) {
 			if (refGeneProp.strand == "-") {
 				seqan::reverseComplement(temp);
 				seqan::toLower(temp);
+
 			}
 			std::string exonSequence(seqan::toCString(temp));
 
@@ -243,44 +249,32 @@ int main (int argc, char * argv[]) {
 		}
 	}
 	stopLoop:
-	//std::cerr << "inUtrCounter: " << inUtrCounter << std::endl;
-	
-	std::ofstream writeTn ("trueNegatives.fa");
-	if (writeTn.is_open()) {
-		auto mapIter = trueNegatives.begin();
-		for (; mapIter != trueNegatives.end(); mapIter++) {
-			for (auto vecIter = mapIter->second.begin(); vecIter != mapIter->second.end(); vecIter++) {
-				seqan::CharString temp;
-				size_t idx = polar::utility::getFastaIndex(mapIter->first);
-				seqan::readRegion(temp, faiIndex, idx, vecIter->first - 100, vecIter->first + 100);
-				writeTn << ">" << mapIter->first << "|" << vecIter->first << "|" << vecIter->second << std::endl;
-				writeTn << temp << std::endl; 
-			}
-		}
-	}
-	writeTn.close();
 
-	std::ofstream writeTp ("notDetectedtruePositives.fa");
-	for (size_t i = 0; i <= 32; i++) {
-		numTruePositives = 0; //found true positives/negatives
-		unknMotives = 0; //motives that aren't searched for or refGene.txt contains faulty mappings
-		totalTruePositives = 0; //total number of true positives
-		numTrueNegatives = 0; //true negatives
-		numFalsePositives = 0; //"matches" found around true positives/negatives  (not further analyzed atm)
-		totalTrueNegatives = 0; //total number of true positives
+	for (size_t i = 0; i < 33; i++) {
+		size_t numTruePositives = 0; //found true positives/negatives
+		size_t unknMotives = 0; //motives that aren't searched for or refGene.txt contains faulty mappings
+		size_t totalTruePositives = 0; //total number of true positives
+		size_t numTrueNegatives = 0; //true negatives
+		size_t numFalsePositives = 0; //"matches" found around a true positives/negatives  (not further analyzed atm)
+		size_t totalTrueNegatives = 0; //total number of true positives
 		//evaluating every true positive
-		for (auto it = truePositives.begin(); it != truePositives.end(); it++) {
-			//iterating over every true PAS
-			for (auto vecIt = it->second.begin(); vecIt != it->second.end(); vecIt++) {
-				size_t & pos = vecIt->first;
-				std::string & strand = vecIt->second;
-				seqan::CharString temp;
-				size_t idx = polar::utility::getFastaIndex(it->first);
-				//copy the genomic sequence 100 bases around the genomic position of the PAS (200nt long)
-				seqan::readRegion(temp, faiIndex, idx, pos - 100, pos + 250);
-
+		std::ifstream inTP(tpFasta.string());
+		std::string line;
+		size_t lineCount = 0;
+		while (std::getline(inTP, line)) {
+			std::string strand; 
+			switch (lineCount) {
+			case 0:
+			{	
+				qi::parse(line.begin(), line.end(), 
+					">" >> qi::omit[*~qi::char_('|')] >> "|" >> qi::omit[qi::uint_] >> "|" >> qi::char_, 
+					strand);
+				lineCount++;
+			}
+			case 1: 
+			{
 				SeqStruct ss = {
-					std::string(seqan::toCString(temp)),
+					line,
 					boost::none,
 					boost::none,
 					boost::none,
@@ -302,37 +296,26 @@ int main (int argc, char * argv[]) {
 						numTruePositives++;
 						break;
 					} else if (resultIt == u3FuzzyResVector.end() - 1) {
-						if (writeTp.is_open()) {
-							writeTp << ">" << it->first << "|" << strand << "|" << pos << std::endl;
-							writeTp << u3Fuzzy.getSequence() << std::endl;
-						}
+						//maybe write out which sequences were not correctly detected as PAS
 					}
 				}
+				lineCount = 0;
 				totalTruePositives++;
 			}
+			}
 		}
-		writeTp.close();
-		//std::cerr << "Threshold: " << thresholdMap.find("aataaa")->second << std::endl;
-		//std::cerr << "-------Sensitivity test-------" << std::endl;
-		//std::cerr << "correct predictions (found true positives): " << numTruePositives << std::endl;
-		//std::cerr << "incorrect predictions (false negatives): " << totalTruePositives - unknMotives - numTruePositives << std::endl;
-		//std::cerr << "total sequences analyzed (total true positives): " << totalTruePositives << std::endl; 
-		//std::cerr << "unknown motives: " << unknMotives << std::endl;
-		double sensitivity = static_cast<double>(numTruePositives) / (totalTruePositives - unknMotives);
+		inTP.close()
 		sensitivityVec.push_back(sensitivity);
-
+		
+		std::ifstream inTN(tnFasta.string());
 		//evaluating every true negative
-		for (auto it = trueNegatives.begin(); it != trueNegatives.end(); it++) {
-			//iterating over every putative PAS
-			for (auto vecIt = it->second.begin(); vecIt != it->second.end(); vecIt++) {
-				size_t & pos = vecIt->first;
-				std::string & strand = vecIt->second;
-				seqan::CharString temp;
-				//mapping chromosome to id number for use in the fasta index
-				unsigned idx = polar::utility::getFastaIndex(it->first);
-				//copy the genomic sequence 100 bases around the genomic position of the putative PAS (200nt long)
-				seqan::readRegion(temp, faiIndex, idx, pos - 100, pos + 100);
-
+		while(std::getline(inTN, line)) {
+			switch (lineCount) {
+			case 0: 
+			{
+			}
+			case 1: 
+			{
 				SeqStruct ss = {
 					std::string(seqan::toCString(temp)),
 					boost::none,
@@ -361,20 +344,12 @@ int main (int argc, char * argv[]) {
 					//std::cerr << ss.seq << std::endl;
 					numTrueNegatives++;
 				} else {
-					//std::cerr << ">" << pos << "|" << strand << "|" << it->first << std::endl;
 					//std::cerr << ss.seq << std::endl;
 				}
 				totalTrueNegatives++;
 			}
+			}
 		}
-		//for (auto it = motifFrequencies.begin(); it != motifFrequencies.end(); it++) {
-		//	std::cerr << *it << " ";
-		//}
-//		std::cerr << "-------Specifity test-------" << std::endl;
-//		std::cerr << "correct predictions (found true negatives): " << numTrueNegatives << std::endl;
-//		std::cerr << "incorrect predictions (false positives): " << numFalsePositives << std::endl;
-//		std::cerr << "total sequences analyzed (total true positives): " << totalTrueNegatives << std::endl; 
-		//std::cerr << "incorrect predictions: " << numFalsePositives << std::endl;
 		double specificity = static_cast<double>(numTrueNegatives) / totalTrueNegatives;
 		specificityVec.push_back(specificity);
 		Utr3FinderFuzzy tempObj(SeqStruct{
@@ -388,16 +363,21 @@ int main (int argc, char * argv[]) {
 			boost::none
 			});	
 		tempObj.setThresholdMap(thresholdMap);
-		for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
-			mapIter->second += 0.05;
+		if (i != 0) {
+			for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
+				mapIter->second += 0.05;
+			}
 		}
 
-
 	}
-	std::cerr << "totalTruePositives: " << totalTruePositives << std::endl;
 	std::cerr << "sensitivity,specificity" << std::endl;
 	for (unsigned int i = 0; i < specificityVec.size(); i++) {
-		std::cerr << sensitivityVec[i] << "," << specificityVec[i] << std::endl;
+		if (i == 0) std::cerr << 0.51;
+		else std::cerr << (i - 1) * 0.05;
+		std::cerr << ", " 
+			<< sensitivityVec[i] << "," 
+			<< specificityVec[i] 
+			<< std::endl;
 	}
 }
 
