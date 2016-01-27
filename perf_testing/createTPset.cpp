@@ -21,7 +21,7 @@ namespace fs = boost::filesystem;
 namespace qi = boost::spirit::qi;
 
 
-bool createTPset (const fs::path & out) {
+bool createTPset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) {
 	typedef std::string key;
 	typedef std::string strand;
 	typedef size_t position;
@@ -31,7 +31,6 @@ bool createTPset (const fs::path & out) {
 	fs::path refGeneFile = "ucsc_data/refGene.txt";
 	fs::path knownPolyA = "../perf_testing/knownPolyAtranscript.txt";
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
-	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
 	fs::path ucscMappedTx = "ucsc_data/ucsc_txRefSeq.txt";
 	std::unordered_map<std::string, size_t> ucscTxRefSeq = polar::utility::getTxRefSeqAccessions(ucscMappedTx);
 	std::vector<KnownPolyA> knownPolyAvec;
@@ -52,11 +51,6 @@ bool createTPset (const fs::path & out) {
 		{std::string("aataga"), 0.0}
 	};
 
-
-	seqan::FaiIndex faiIndex;
-	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
-		std::cerr << "could not open index file for " << referenceGenome << std::endl;
-	}
 	readKnownPolyA(knownPolyA, knownPolyAvec);
 	//creating true positive data set
 	BOOST_FOREACH (KnownPolyA & knownPolyA, knownPolyAvec) {
@@ -92,7 +86,7 @@ bool createTPset (const fs::path & out) {
 			
 			if (refGeneProp.strand == "+") {
 				seqan::CharString motifAtPos;
-				seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos, geneticPos + 6);
+				seqan::readRegion(motifAtPos, refGenomeIndex, idx, geneticPos, geneticPos + 6);
 				std::string stdMotifAtPos(seqan::toCString(motifAtPos));
 				auto findIt = thresholdMap.find(stdMotifAtPos);
 				if (findIt == thresholdMap.end()) {
@@ -100,7 +94,7 @@ bool createTPset (const fs::path & out) {
 				}
 			} else {
 				seqan::CharString motifAtPos;
-				seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos - 6, geneticPos);
+				seqan::readRegion(motifAtPos, refGenomeIndex, idx, geneticPos - 6, geneticPos);
 				seqan::reverseComplement(motifAtPos);
 				seqan::toLower(motifAtPos);
 				std::string stdMotifAtPos(seqan::toCString(motifAtPos));
@@ -121,7 +115,9 @@ bool createTPset (const fs::path & out) {
 				truePositives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
 			}
 		}
-		std::ofstream output(out.string());
+	}
+	std::ofstream output(out.string());
+	if (output.is_open()) {
 		for (auto it = truePositives.begin(); it != truePositives.end(); it++) {
 			for (auto vecIt = it->second.begin(); vecIt != it->second.end(); vecIt++) {
 				size_t & pos = vecIt->first;
@@ -129,14 +125,15 @@ bool createTPset (const fs::path & out) {
 				seqan::CharString temp;
 				size_t idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 100 bases around the genomic position of the PAS (200nt long)
-				seqan::readRegion(temp, faiIndex, idx, pos - 250, pos + 250);
+				seqan::readRegion(temp, refGenomeIndex, idx, pos - 250, pos + 250);
 				std::string seq(seqan::toCString(temp));
-				if ( output.is_open() ) {
-					output << ">" << it->first << "|" << pos << "|" << strand << std::endl;
-					output << seq << std::endl;
-				}
+				
+				output << ">" << it->first << "|" << pos << "|" << strand << std::endl;
+				output << seq << std::endl;
+				
 			}
 		}
 	}
+	output.close();
 	return true;
 }

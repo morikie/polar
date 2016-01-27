@@ -14,30 +14,36 @@
 #include "../src/utr3Finder.hpp"
 #include "../src/utr3FinderFuzzy.hpp"
 #include "../src/utr3FinderNaive.hpp"
-#include "readKnownPolyA.hpp"
-#include "perf_fuzzy.hpp"
+#include "createTNset.hpp"
 
 namespace fs = boost::filesystem;
 namespace qi = boost::spirit::qi;
 
 
-bool createTNset (const fs::path & out) {
+bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) {
 	typedef std::string key;
 	typedef std::string strand;
 	typedef size_t position;
-	typedef std::pair<position, strand> posStrandPair;
 	typedef std::pair<size_t, size_t> range;
-	//map that stores position and strand of a match sorted by chromosome (key)
-	std::map<key, std::vector<posStrandPair> > truePositives;
+	typedef std::pair<position, strand> posStrandPair;
+	
 	fs::path refGeneFile = "ucsc_data/refGene.txt";
-	fs::path knownPolyA = "../perf_testing/knownPolyAtranscript.txt";
-	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
-	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
 	fs::path ucscMappedTx = "ucsc_data/ucsc_txRefSeq.txt";
-	std::unordered_map<std::string, size_t> ucscTxRefSeq = polar::utility::getTxRefSeqAccessions(ucscMappedTx);
-	std::vector<KnownPolyA> knownPolyAvec;
+	if (! fs::exists(refGeneFile)) {
+		std::cerr << "createTNset: " << refGeneFile.string() << " not found" << std::endl; 
+		return false;
+	}
+	if (! fs::exists(ucscMappedTx)) {
+		std::cerr << "createTNset: " << ucscMappedTx.string() << " not found" << std::endl; 
+		return false;
+	}
+
 	RefGeneParser refGene(refGeneFile);	
-	std::cerr << "#accession numbers: " << ucscTxRefSeq.size() << std::endl;
+	std::map<key, std::vector<range> > utrRangeVec;
+	std::vector<std::string> transcriptVector = refGene.getKeys();
+	//map that stores position and strand of a match sorted by chromosome (key)
+	std::map<key, std::vector<posStrandPair> > trueNegatives;
+	std::unordered_map<std::string, size_t> ucscTxRefSeq = polar::utility::getTxRefSeqAccessions(ucscMappedTx);
 	std::unordered_map<std::string, double> thresholdMap = {
 		{std::string("aataaa"), 0.0},
 		{std::string("attaaa"), 0.0},
@@ -52,15 +58,7 @@ bool createTNset (const fs::path & out) {
 		{std::string("actaaa"), 0.0},
 		{std::string("aataga"), 0.0}
 	};
-	seqan::FaiIndex faiIndex;
-	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
-		std::cerr << "could not open index file for " << referenceGenome << std::endl;
-	}
-	//creating true negative data set
-	std::map<key, std::vector<range> > utrRangeVec;
-	std::vector<std::string> transcriptVector = refGene.getKeys();
-	std::map<key, std::vector<posStrandPair> > trueNegatives;
-	
+
 	//storing all UTR ranges; used to make sure a found "TN PAS" isn't potentially a PAS in another transcript
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
@@ -71,7 +69,6 @@ bool createTNset (const fs::path & out) {
 	size_t hitCounter = 0;
 	const size_t maxMatches = 30000;
 	size_t inUtrCounter = 0;
-	std::vector<size_t> motifFrequencies(13, 0);
 	//iterating over every transcript from refGene.txt
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
@@ -90,7 +87,7 @@ bool createTNset (const fs::path & out) {
 			if (end >= refGeneProp.cdsEnd) end = refGeneProp.cdsEnd;
 			if (start >= end) continue;
 		
-			seqan::readRegion(temp, faiIndex, idx, start, end);
+			seqan::readRegion(temp, refGenomeIndex, idx, start, end);
 			if (refGeneProp.strand == "-") {
 				seqan::reverseComplement(temp);
 				seqan::toLower(temp);
@@ -135,7 +132,7 @@ bool createTNset (const fs::path & out) {
 					//check if geneticPos yields an analyzable PAS motif (correct mapping?)
 					if (refGeneProp.strand == "+") {
 						seqan::CharString motifAtPos;
-						seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos, geneticPos + 6);
+						seqan::readRegion(motifAtPos, refGenomeIndex, idx, geneticPos, geneticPos + 6);
 						std::string stdMotifAtPos(seqan::toCString(motifAtPos));
 						auto findIt = thresholdMap.find(stdMotifAtPos);
 						if (findIt == thresholdMap.end()) {
@@ -144,7 +141,7 @@ bool createTNset (const fs::path & out) {
 						}
 					} else {
 						seqan::CharString motifAtPos;
-						seqan::readRegion(motifAtPos, faiIndex, idx, geneticPos - 6, geneticPos);
+						seqan::readRegion(motifAtPos, refGenomeIndex, idx, geneticPos - 6, geneticPos);
 						seqan::reverseComplement(motifAtPos);
 						seqan::toLower(motifAtPos);
 						std::string stdMotifAtPos(seqan::toCString(motifAtPos));
@@ -173,21 +170,22 @@ bool createTNset (const fs::path & out) {
 	
 	std::ofstream output (out.string());
 	//evaluating every true negative
-	for (auto it = trueNegatives.begin(); it != trueNegatives.end(); it++) {
-		//iterating over every putative PAS
-		for (auto vecIt = it->second.begin(); vecIt != it->second.end(); vecIt++) {
-			size_t & pos = vecIt->first;
-			std::string & strand = vecIt->second;
-			seqan::CharString temp;
-			//mapping chromosome to id number for use in the fasta index
-			unsigned idx = polar::utility::getFastaIndex(it->first);
-			//copy the genomic sequence 100 bases around the genomic position of the putative PAS (200nt long)
-			seqan::readRegion(temp, faiIndex, idx, pos - 250, pos + 250);
-			std::string seq(seqan::toCString(temp));
-			if (output.is_open()) {
+	if (output.is_open()) {
+		for (auto it = trueNegatives.begin(); it != trueNegatives.end(); it++) {
+			//iterating over every putative PAS
+			for (auto vecIt = it->second.begin(); vecIt != it->second.end(); vecIt++) {
+				size_t & pos = vecIt->first;
+				std::string & strand = vecIt->second;
+				seqan::CharString temp;
+				//mapping chromosome to id number for use in the fasta index
+				unsigned idx = polar::utility::getFastaIndex(it->first);
+				//copy the genomic sequence 100 bases around the genomic position of the putative PAS (200nt long)
+				seqan::readRegion(temp, refGenomeIndex, idx, pos - 250, pos + 250);
+				std::string seq(seqan::toCString(temp));
+			
 				output << ">" << it->first << "|" << pos << "|" << strand << std::endl;
 				output << seq << std::endl;
-			}		
+			}
 		}
 	}
 	output.close();
