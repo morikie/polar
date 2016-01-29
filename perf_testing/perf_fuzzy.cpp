@@ -21,6 +21,7 @@
 namespace fs = boost::filesystem;
 namespace qi = boost::spirit::qi;
 
+//structure needed for parsing the data sets
 struct PasPosition {
 	std::string chr;
 	size_t pos;
@@ -33,6 +34,7 @@ struct PasPosition {
 	}
 };
 
+//used by boost::spirit to parse into a PasPosition object
 BOOST_FUSION_ADAPT_STRUCT (
 	PasPosition,
 	(std::string, chr)
@@ -41,7 +43,6 @@ BOOST_FUSION_ADAPT_STRUCT (
 )
 
 int main (int argc, char * argv[]) {
-
 	//map that stores position and strand of a match sorted by chromosome (key)
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
 	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
@@ -77,7 +78,8 @@ int main (int argc, char * argv[]) {
 		createTNset(tnFasta, faiIndex);
 	}
 	
-	//reading in the TP data set
+	//data structures used to store the TP/TN data sets; stores chromosome, position, strand (PasPosition) and 
+	//a 2x 250nt long sequence around the position (500 in total)
 	std::vector<std::pair<PasPosition, SeqStruct> > pasPosAndSeqTP;
 	std::vector<std::pair<PasPosition, SeqStruct> > pasPosAndSeqTN;	
 	PasPosition pasPos;
@@ -157,11 +159,11 @@ int main (int argc, char * argv[]) {
 	}
 	inTN.close();
 
-
+	//running the prediction 33 times with different thresholds (0 to 1.6 in 0.05 steps and one more for the default thresholds)
 	for (size_t i = 0; i < 33; i++) {
 		size_t numTruePositives = 0; //found true positives/negatives
 		size_t numTrueNegatives = 0; //true negatives
-		size_t numFalsePositives = 0; //"matches" found around a true positives/negatives  (not further analyzed atm)
+		size_t numFalsePositives = 0; //"matches" found around a true positive/negative
 		double sensitivity = 0.0;
 		double specificity = 0.0;
 		
@@ -216,6 +218,7 @@ int main (int argc, char * argv[]) {
 		specificity = static_cast<double>(numTrueNegatives) / totalTrueNegatives;
 		specificityVec.push_back(specificity);
 
+		//temporary object to alter the static threshold map
 		Utr3FinderFuzzy tempObj(SeqStruct{
 			std::string("acgt"),
 			boost::none,
@@ -225,7 +228,7 @@ int main (int argc, char * argv[]) {
 			boost::none,
 			boost::none,
 			boost::none
-		});	
+		});
 		tempObj.setThresholdMap(thresholdMap);
 		if (i != 0) {
 			for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
@@ -234,12 +237,12 @@ int main (int argc, char * argv[]) {
 		}
 	}
 	
-	std::cerr << "sensitivity,specificity" << std::endl;
+	std::cerr << "threshold,sensitivity,specificity" << std::endl;
 	for (unsigned int i = 0; i < specificityVec.size(); i++) {
 		if (i == 0) std::cerr << 0.51;
 		else std::cerr << (i - 1) * 0.05;
-		std::cerr << ", " 
-			<< sensitivityVec[i] << ", " 
+		std::cerr << "," 
+			<< sensitivityVec[i] << "," 
 			<< specificityVec[i] 
 			<< std::endl;
 	}
