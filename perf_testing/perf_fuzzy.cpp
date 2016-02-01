@@ -176,16 +176,14 @@ int main (int argc, char * argv[]) {
 			//analyzing the results
 			for (auto resultIt = u3FuzzyResVector.begin(); resultIt != u3FuzzyResVector.end(); resultIt++) {
 				//std::cerr << resultIt->pos << "(" << resultIt->strand << "|" << strand << "), ";
-				if (resultIt->pos == 250 && resultIt->strand == "+" && strand == "+") {
+				if (resultIt->pos == 250 && resultIt->strand == strand) {
 					numTruePositives++;
 					break;
-				} else if (resultIt->pos == 255 && resultIt->strand == "-" && strand == "-") {
-					numTruePositives++;
-					break;
-				} else if (resultIt == u3FuzzyResVector.end() - 1) {
+				} else {
 					//maybe write out which sequences were not correctly detected as PAS
 				}
 			}
+			//std::cerr << std::endl;
 		}
 		sensitivity = static_cast<double>(numTruePositives) / totalTruePositives;
 		sensitivityVec.push_back(sensitivity);
@@ -199,14 +197,13 @@ int main (int argc, char * argv[]) {
 			
 			//analyzing the results
 			for (auto resultIt = u3FuzzyResVector.begin(); resultIt != u3FuzzyResVector.end(); resultIt++) {
-				if (resultIt->pos == 250 && resultIt->strand == "+" && strand == "+") {
+				//std::cerr << resultIt->pos << "(" << resultIt->strand << "|" << strand << "), ";
+				if (resultIt->pos == 250 && resultIt->strand == strand) {
 					numFalsePositives++;
 					foundMatch = true;
-				} else if (resultIt->pos == 249 && resultIt->strand == "-" && strand == "-") {
-					numFalsePositives++;
-					foundMatch = true;	
 				}
 			}
+			//std::cerr << std::endl;
 			if (! foundMatch) {
 				//std::cerr << ss.seq << std::endl;
 				numTrueNegatives++;
@@ -214,6 +211,7 @@ int main (int argc, char * argv[]) {
 				//std::cerr << ss.seq << std::endl;
 			}
 		}
+
 		
 		specificity = static_cast<double>(numTrueNegatives) / totalTrueNegatives;
 		specificityVec.push_back(specificity);

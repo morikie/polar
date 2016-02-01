@@ -125,7 +125,11 @@ bool createTPset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 				seqan::CharString temp;
 				size_t idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 100 bases around the genomic position of the PAS (200nt long)
-				seqan::readRegion(temp, refGenomeIndex, idx, pos - 250, pos + 250);
+				if (strand == "+") {
+					seqan::readRegion(temp, refGenomeIndex, idx, pos - 250, pos + 250);
+				} else {
+					seqan::readRegion(temp, refGenomeIndex, idx, pos - 251, pos + 249);
+				}
 				std::string seq(seqan::toCString(temp));
 				
 				output << ">" << it->first << "|" << pos << "|" << strand << std::endl;

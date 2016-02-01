@@ -13,7 +13,6 @@ tpSet = "../perf_testing/tpSet.fa"
 resultCsvTN = "resultUcontentTN.csv"
 resultCsvTP = "resultUcontentTP.csv"
 
-#TODO need fix: positions are no longer corresponding if the sequence is reverse complemented
 
 with open(resultCsvTN, "a") as fResultTN, open(resultCsvTP, "a") as fResultTP:
 	with open(tnSet, "r") as fTn:
@@ -21,17 +20,18 @@ with open(resultCsvTN, "a") as fResultTN, open(resultCsvTP, "a") as fResultTP:
 		negativeStrand = False
 		for line in fTn:
 			if lineCounter == 0:
-				if line[len(line)-1] == "-":
+				if line[len(line)-2] == "-":
 					negativeStrand = True
 				lineCounter += 1	
 			elif lineCounter == 1:
 				if negativeStrand:
 					revComp = Seq(line, generic_dna)
 					revComp = revComp.reverse_complement()
-					uContentList = countUracil(str(revComp))
+					uContentList = countUracil(str(revComp)[0:-1])
 					negativeStrand = False
 				else:
-					uContentList = countUracil(line)
+					uContentList = countUracil(line[1:])
+
 				fResultTN.write(str(uContentList)[1:-1])
 				fResultTN.write("\n")
 				lineCounter = 0
