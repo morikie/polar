@@ -19,7 +19,7 @@
 namespace fs = boost::filesystem;
 namespace qi = boost::spirit::qi;
 
-
+//writes the sequence around a putative PAS to a file (FASTA like)
 bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) {
 	typedef std::string key;
 	typedef std::string strand;
@@ -179,7 +179,7 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 				seqan::CharString temp;
 				//mapping chromosome to id number for use in the fasta index
 				unsigned idx = polar::utility::getFastaIndex(it->first);
-				//copy the genomic sequence 100 bases around the genomic position of the putative PAS (200nt long)
+				//copy the genomic sequence 250 bases around the genomic position of the putative PAS (500nt long)
 				if (strand == "+") {
 					seqan::readRegion(temp, refGenomeIndex, idx, pos - 250, pos + 250);
 				} else {
@@ -187,8 +187,8 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 				}
 				std::string seq(seqan::toCString(temp));
 			
-				output << ">" << it->first << "|" << pos << "|" << strand << std::endl;
-				output << seq << std::endl;
+				output << ">" << it->first << "|" << pos << "|" << strand << std::endl
+					<< seq << std::endl;
 			}
 		}
 	}

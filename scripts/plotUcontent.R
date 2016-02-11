@@ -12,5 +12,5 @@ for (i in 1:length(yTP)) {
 }
 
 par(mfrow=c(1,2))
-plot(xTP[240:260], yTP[240:260], main="TP data set", type="h")
-plot(xTN[240:260], yTN[240:260], main="TN data set", type="h")
+plot(xTP[240:340], yTP[240:340], main="TP data set", type="h", ylim=c(0, 4))
+plot(xTN[240:340], yTN[240:340], main="TN data set", type="h", ylim=c(0, 4))
