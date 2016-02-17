@@ -12,7 +12,7 @@ def countUracil(seq):
 #writes the Uracil content per sequence and position in a CSV file (overwrites the ouput file)
 def writeCSV(fasta, outCSV, onlyCanonical):
 	canonical = ["aataaa", "attaaa"]
-	with open(outCSV, "w") as out:
+	with open(outCSV, "w") as out, open("uContentBig.txt", "w") as bigOut:
 		with open(fasta, "r") as f:
 			lineCounter = 0
 			negativeStrand = False
@@ -30,14 +30,21 @@ def writeCSV(fasta, outCSV, onlyCanonical):
 							continue
 						uContentList = countUracil(str(revComp)[:-1])
 						negativeStrand = False
+						
+						bigOut.write(str(revComp[260:300].count("t")))
+						bigOut.write("\n")
 					else:
 						if onlyCanonical and line[250:256] not in canonical:
 							lineCounter = 0
 							continue
 						uContentList = countUracil(line[1:])
+						
+						bigOut.write(str(line[260:300].count("t")))
+						bigOut.write("\n")
 
 					out.write(str(uContentList)[1:-1])
 					out.write("\n")
+
 					lineCounter = 0
 		
 if __name__ == "__main__":
@@ -47,4 +54,4 @@ if __name__ == "__main__":
 	resultCsvTP = "resultUcontentTP.csv"
 	
 	writeCSV(tnSet, resultCsvTN, False)
-	writeCSV(tpSet, resultCsvTP, False)
+	#writeCSV(tpSet, resultCsvTP, False)

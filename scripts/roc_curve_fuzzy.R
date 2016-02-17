@@ -7,5 +7,6 @@ labelVec = append(rep(1, length(senVec)), rep(0, length(fprVec)))
 pred = prediction(predVec, labelVec)
 roc = performance(pred, "tpr", "fpr")
 auc = performance(pred, measure="auc")
+par(mfrow=c(1,1))
 plot(roc)
 auc@y.values

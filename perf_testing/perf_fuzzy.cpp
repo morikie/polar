@@ -181,6 +181,8 @@ int main (int argc, char * argv[]) {
 					break;
 				} else {
 					//maybe write out which sequences were not correctly detected as PAS
+				//	std::cerr << ">" <<  vecIt->first.chr << "|" << vecIt->first.pos << "|" << strand << std::endl
+				//		<< u3Fuzzy.getSequence() << std::endl;
 				}
 			}
 			//std::cerr << std::endl;
