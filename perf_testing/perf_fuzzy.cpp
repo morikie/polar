@@ -52,16 +52,16 @@ int main (int argc, char * argv[]) {
 	std::unordered_map<std::string, double> thresholdMap = {
 		{std::string("aataaa"), 0.0},
 		{std::string("attaaa"), 0.0},
-		{std::string("tataaa"), 0.0},
+		{std::string("tataaa"), 0.2},
 		{std::string("agtaaa"), 0.0},
 		{std::string("aagaaa"), 0.0},
-		{std::string("aatata"), 0.0},
+		{std::string("aatata"), 0.2},
 		{std::string("aataca"), 0.0},
 		{std::string("cataaa"), 0.0},
 		{std::string("gataaa"), 0.0},
 		{std::string("aatgaa"), 0.0},
 		{std::string("actaaa"), 0.0},
-		{std::string("aataga"), 0.0}
+		{std::string("aataga"), 0.2}
 	};
 	std::vector<double> sensitivityVec;
 	std::vector<double> specificityVec;
@@ -203,6 +203,7 @@ int main (int argc, char * argv[]) {
 				if (resultIt->pos == 250 && resultIt->strand == strand) {
 					numFalsePositives++;
 					foundMatch = true;
+					break;
 				}
 			}
 			//std::cerr << std::endl;
@@ -210,7 +211,9 @@ int main (int argc, char * argv[]) {
 				//std::cerr << ss.seq << std::endl;
 				numTrueNegatives++;
 			} else {
-				//std::cerr << ss.seq << std::endl;
+				//maybe write out which sequences were not correctly detected as TN
+				//std::cerr << ">" <<  vecIt->first.chr << "|" << vecIt->first.pos << "|" << strand << std::endl
+				//	<< u3Fuzzy.getSequence() << std::endl;
 			}
 		}
 

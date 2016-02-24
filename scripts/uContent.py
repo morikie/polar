@@ -10,9 +10,9 @@ def countUracil(seq):
 	return uContentAtPos
 
 #writes the Uracil content per sequence and position in a CSV file (overwrites the ouput file)
-def writeCSV(fasta, outCSV, onlyCanonical):
+def writeCSV(fasta, outCSV, bigU, smallU, onlyCanonical):
 	canonical = ["aataaa", "attaaa"]
-	with open(outCSV, "w") as out, open("uContentBig.txt", "w") as bigOut:
+	with open(outCSV, "w") as out, open(bigU, "w") as bigOut, open(smallU, "w") as smallOut:
 		with open(fasta, "r") as f:
 			lineCounter = 0
 			negativeStrand = False
@@ -31,6 +31,8 @@ def writeCSV(fasta, outCSV, onlyCanonical):
 						uContentList = countUracil(str(revComp)[:-1])
 						negativeStrand = False
 						
+						smallOut.write(str(revComp[256:265].count("t")))
+						smallOut.write("\n")
 						bigOut.write(str(revComp[260:300].count("t")))
 						bigOut.write("\n")
 					else:
@@ -39,6 +41,8 @@ def writeCSV(fasta, outCSV, onlyCanonical):
 							continue
 						uContentList = countUracil(line[1:])
 						
+						smallOut.write(str(line[256:265].count("t")))
+						smallOut.write("\n")
 						bigOut.write(str(line[260:300].count("t")))
 						bigOut.write("\n")
 
@@ -52,6 +56,10 @@ if __name__ == "__main__":
 	tpSet = "../perf_testing/tpSet.fa"
 	resultCsvTN = "resultUcontentTN.csv"
 	resultCsvTP = "resultUcontentTP.csv"
+	uContentBigTN = "uContentBigTN.txt"
+	uContentBigTP = "uContentBigTP.txt"
+	uContentSmallTN = "uContentSmallTN.txt"
+	uContentSmallTP = "uContentSmallTP.txt"
 	
-	writeCSV(tnSet, resultCsvTN, False)
-	#writeCSV(tpSet, resultCsvTP, False)
+	writeCSV(tnSet, resultCsvTN, uContentBigTN, uContentSmallTN, False)
+	writeCSV(tpSet, resultCsvTP, uContentBigTP, uContentSmallTP, False)

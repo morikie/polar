@@ -10,7 +10,7 @@
 class Utr3FinderFuzzy : public Utr3Finder {
 protected:
 	std::string reversedSeq;
-	size_t windowSize = 10;
+	size_t windowSize = 9;
 public: 
 	Utr3FinderFuzzy(const SeqStruct & sSt);
 	virtual ~Utr3FinderFuzzy();
@@ -27,9 +27,11 @@ protected:
 
 	double getDseLocationTvalue(const std::string & pas, const size_t & pos) const;
 	double getDseUcontentTvalue(const std::string & pas, const double & uContent) const;
+	double getDseShortUcontentTvalue(const std::string & pas, const double & uContent) const;
 	double getUseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	
 	double calcCombinedDseTvalue(const size_t & pos, const std::string & seq);
+	double calcDseShortTvalue(const size_t & pos, const std::string & seq);
 	double calcUseTvalue(const size_t & pos, const std::string & seq);
 
 public:
@@ -106,6 +108,7 @@ public:
 public:
 	static pasToDseLocMap dseLocMap;
 	static pasToUcontentMap dseUracilMap;
+	static pasToUcontentMap dseShortUracilMap;
 	static pasToUcontentMap useUracilMap;
 	static std::unordered_map<motifSequence, double> thresholdMap;
 };      
