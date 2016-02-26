@@ -52,14 +52,31 @@ def writeCSV(fasta, outCSV, bigU, smallU, onlyCanonical):
 					lineCounter = 0
 		
 if __name__ == "__main__":
-	tnSet = "../perf_testing/tnSet.fa"
-	tpSet = "../perf_testing/tpSet.fa"
+	tnSet = "../bin/TNdataSet.fa"
+	tpSet = "../bin/TPdataSet.fa"
+	fnSet = "../bin/FNdataSet.fa"
+	fpSet = "../bin/FPdataSet.fa"
+	negativeSet = "../perf_testing/negativeSet.fa"
+	positiveSet = "../perf_testing/positiveSet.fa"
+
+	resultCsvNeg = "resultUcontentNegative.csv"
+	resultCsvPos = "resultUcontentPositive.csv"
 	resultCsvTN = "resultUcontentTN.csv"
 	resultCsvTP = "resultUcontentTP.csv"
+	resultCsvFN = "resultUcontentFN.csv"
+	resultCsvFP = "resultUcontentFP.csv"
+	
 	uContentBigTN = "uContentBigTN.txt"
 	uContentBigTP = "uContentBigTP.txt"
 	uContentSmallTN = "uContentSmallTN.txt"
 	uContentSmallTP = "uContentSmallTP.txt"
 	
+	writeCSV(negativeSet, resultCsvNeg, uContentBigTN, uContentSmallTN, False)
+	writeCSV(positiveSet, resultCsvPos, uContentBigTP, uContentSmallTP, False)
 	writeCSV(tnSet, resultCsvTN, uContentBigTN, uContentSmallTN, False)
-	writeCSV(tpSet, resultCsvTP, uContentBigTP, uContentSmallTP, False)
+	writeCSV(tpSet, resultCsvTP, uContentBigTN, uContentSmallTN, False)
+	writeCSV(fnSet, resultCsvFN, uContentBigTP, uContentSmallTP, False)
+	writeCSV(fpSet, resultCsvFP, uContentBigTP, uContentSmallTP, False)
+
+
+

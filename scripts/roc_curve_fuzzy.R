@@ -5,7 +5,7 @@ fprVec = 1 - temp[,3]
 predVec = append(senVec, fprVec)
 labelVec = append(rep(1, length(senVec)), rep(0, length(fprVec)))
 pred = prediction(predVec, labelVec)
-roc = performance(pred, "tpr", "fpr")
+roc = performance(pred, "sens", "fpr")
 auc = performance(pred, measure="auc")
 par(mfrow=c(1,1))
 plot(roc)

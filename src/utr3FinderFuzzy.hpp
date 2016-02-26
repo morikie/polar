@@ -10,7 +10,7 @@
 class Utr3FinderFuzzy : public Utr3Finder {
 protected:
 	std::string reversedSeq;
-	size_t windowSize = 9;
+	size_t windowSize = 6;
 public: 
 	Utr3FinderFuzzy(const SeqStruct & sSt);
 	virtual ~Utr3FinderFuzzy();

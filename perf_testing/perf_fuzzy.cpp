@@ -47,21 +47,27 @@ int main (int argc, char * argv[]) {
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
 	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
 	fs::path ucscMappedTx = "ucsc_data/ucsc_txRefSeq.txt";
-	fs::path tpFasta = "../perf_testing/tpSet.fa";
-	fs::path tnFasta = "../perf_testing/tnSet.fa";
+	fs::path canonicalTpFasta = "../scripts/polyadq_test/canonicalTpSet.fa";
+	fs::path canonicalTnFasta = "../scripts/polyadq_test/canonicalTnSet.fa";
+	fs::path positiveFasta = "../perf_testing/positiveSet.fa";
+	fs::path negativeFasta = "../perf_testing/negativeSet.fa";
+	fs::path tpFasta = "TPdataSet.fa";
+	fs::path fnFasta = "FNdataSet.fa";
+	fs::path tnFasta = "TNdataSet.fa";
+	fs::path fpFasta = "FPdataSet.fa";
 	std::unordered_map<std::string, double> thresholdMap = {
 		{std::string("aataaa"), 0.0},
 		{std::string("attaaa"), 0.0},
-		{std::string("tataaa"), 0.2},
+		{std::string("tataaa"), 0.0},
 		{std::string("agtaaa"), 0.0},
 		{std::string("aagaaa"), 0.0},
-		{std::string("aatata"), 0.2},
+		{std::string("aatata"), 0.0},
 		{std::string("aataca"), 0.0},
 		{std::string("cataaa"), 0.0},
 		{std::string("gataaa"), 0.0},
 		{std::string("aatgaa"), 0.0},
 		{std::string("actaaa"), 0.0},
-		{std::string("aataga"), 0.2}
+		{std::string("aataga"), 0.0}
 	};
 	std::vector<double> sensitivityVec;
 	std::vector<double> specificityVec;
@@ -83,7 +89,7 @@ int main (int argc, char * argv[]) {
 	std::vector<std::pair<PasPosition, SeqStruct> > pasPosAndSeqTP;
 	std::vector<std::pair<PasPosition, SeqStruct> > pasPosAndSeqTN;	
 	PasPosition pasPos;
-	std::ifstream inTP(tpFasta.string());
+	std::ifstream inTP(positiveFasta.string());
 	std::string line;
 	size_t lineCount = 0;
 	while (std::getline(inTP, line)) {
@@ -121,7 +127,7 @@ int main (int argc, char * argv[]) {
 	inTP.close();
 	
 	//reading in the TN data set
-	std::ifstream inTN(tnFasta.string());
+	std::ifstream inTN(negativeFasta.string());
 	lineCount = 0;
 	line.clear();
 	pasPos.reset();
@@ -158,7 +164,11 @@ int main (int argc, char * argv[]) {
 		}
 	}
 	inTN.close();
-
+	bool writeDataSets = false;
+	std::ofstream outTP(tpFasta.string(), std::ofstream::out);
+	std::ofstream outFN(fnFasta.string(), std::ofstream::out);
+	std::ofstream outTN(tnFasta.string(), std::ofstream::out);
+	std::ofstream outFP(fpFasta.string(), std::ofstream::out);
 	//running the prediction 33 times with different thresholds (0 to 1.6 in 0.05 steps and one more for the default thresholds)
 	for (size_t i = 0; i < 33; i++) {
 		size_t numTruePositives = 0; //found true positives/negatives
@@ -172,20 +182,34 @@ int main (int argc, char * argv[]) {
 			Utr3FinderFuzzy u3Fuzzy(vecIt->second);		
 			std::vector<Utr3Finder::Utr3FinderResult> u3FuzzyResVector = u3Fuzzy.getPolyaMotifPos();
 			std::string & strand = vecIt->first.strand;
+			bool foundMatch = false;
 
 			//analyzing the results
 			for (auto resultIt = u3FuzzyResVector.begin(); resultIt != u3FuzzyResVector.end(); resultIt++) {
 				//std::cerr << resultIt->pos << "(" << resultIt->strand << "|" << strand << "), ";
 				if (resultIt->pos == 250 && resultIt->strand == strand) {
+					//TruePositives
+					if (writeDataSets) {
+						outTP << ">" <<  vecIt->first.chr << "|" 
+							<< vecIt->first.pos << "|" 
+							<< strand << std::endl
+							<< u3Fuzzy.getSequence() << std::endl;
+					}
+					foundMatch = true;
 					numTruePositives++;
 					break;
-				} else {
-					//maybe write out which sequences were not correctly detected as PAS
-				//	std::cerr << ">" <<  vecIt->first.chr << "|" << vecIt->first.pos << "|" << strand << std::endl
-				//		<< u3Fuzzy.getSequence() << std::endl;
 				}
 			}
 			//std::cerr << std::endl;
+			if (! foundMatch) {
+				//FalseNegatives
+				if (writeDataSets) {
+					outFN << ">" <<  vecIt->first.chr << "|" 
+						<< vecIt->first.pos << "|" 
+						<< strand << std::endl
+						<< u3Fuzzy.getSequence() << std::endl;
+				}
+			}
 		}
 		sensitivity = static_cast<double>(numTruePositives) / totalTruePositives;
 		sensitivityVec.push_back(sensitivity);
@@ -201,6 +225,13 @@ int main (int argc, char * argv[]) {
 			for (auto resultIt = u3FuzzyResVector.begin(); resultIt != u3FuzzyResVector.end(); resultIt++) {
 				//std::cerr << resultIt->pos << "(" << resultIt->strand << "|" << strand << "), ";
 				if (resultIt->pos == 250 && resultIt->strand == strand) {
+					//FalsePositives
+					if (writeDataSets) {
+						outFP << ">" <<  vecIt->first.chr << "|" 
+							<< vecIt->first.pos << "|" 
+							<< strand << std::endl
+							<< u3Fuzzy.getSequence() << std::endl;
+					}
 					numFalsePositives++;
 					foundMatch = true;
 					break;
@@ -208,12 +239,14 @@ int main (int argc, char * argv[]) {
 			}
 			//std::cerr << std::endl;
 			if (! foundMatch) {
-				//std::cerr << ss.seq << std::endl;
+				//TrueNegatives
+				if (writeDataSets) {
+					outTN << ">" <<  vecIt->first.chr << "|" 
+						<< vecIt->first.pos << "|" 
+						<< strand << std::endl
+						<< u3Fuzzy.getSequence() << std::endl;
+				}
 				numTrueNegatives++;
-			} else {
-				//maybe write out which sequences were not correctly detected as TN
-				//std::cerr << ">" <<  vecIt->first.chr << "|" << vecIt->first.pos << "|" << strand << std::endl
-				//	<< u3Fuzzy.getSequence() << std::endl;
 			}
 		}
 
@@ -239,7 +272,10 @@ int main (int argc, char * argv[]) {
 			}
 		}
 	}
-	
+	outTN.close();
+	outTP.close();
+	outFN.close();
+	outFP.close();
 	std::cerr << "threshold,sensitivity,specificity" << std::endl;
 	for (unsigned int i = 0; i < specificityVec.size(); i++) {
 		if (i == 0) std::cerr << 0.51;
