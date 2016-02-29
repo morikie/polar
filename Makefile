@@ -1,6 +1,6 @@
 CC 		= g++
-CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2 -g -pg
-LFLAGS		= -Wall -pg
+CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2 -fopenmp
+LFLAGS		= -Wall -fopenmp
 BOOST		= -I $(HOME)/boost_1_58_0 
 SEQAN		= -I $(HOME)/seqan-library-2.0.0/include
 LIBPATH		= -Llib/

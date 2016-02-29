@@ -28,10 +28,12 @@ protected:
 	double getDseLocationTvalue(const std::string & pas, const size_t & pos) const;
 	double getDseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	double getDseShortUcontentTvalue(const std::string & pas, const double & uContent) const;
+	double getDseAcontentTvalue(const std::string & pas, const double & uContent) const;
 	double getUseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	
 	double calcCombinedDseTvalue(const size_t & pos, const std::string & seq);
 	double calcDseShortTvalue(const size_t & pos, const std::string & seq);
+	double calcAdseTvalue(const size_t &pos, const std::string & seq);
 	double calcUseTvalue(const size_t & pos, const std::string & seq);
 
 public:
@@ -109,6 +111,7 @@ public:
 	static pasToDseLocMap dseLocMap;
 	static pasToUcontentMap dseUracilMap;
 	static pasToUcontentMap dseShortUracilMap;
+	static pasToUcontentMap aDseAdeninMap;
 	static pasToUcontentMap useUracilMap;
 	static std::unordered_map<motifSequence, double> thresholdMap;
 };      

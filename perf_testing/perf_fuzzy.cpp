@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <omp.h>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
@@ -170,7 +171,8 @@ int main (int argc, char * argv[]) {
 	std::ofstream outTN(tnFasta.string(), std::ofstream::out);
 	std::ofstream outFP(fpFasta.string(), std::ofstream::out);
 	//running the prediction 33 times with different thresholds (0 to 1.6 in 0.05 steps and one more for the default thresholds)
-	for (size_t i = 0; i < 33; i++) {
+	double step = 0.05;
+	for (size_t i = 0; i < 45; i++) {
 		size_t numTruePositives = 0; //found true positives/negatives
 		size_t numTrueNegatives = 0; //true negatives
 		size_t numFalsePositives = 0; //"matches" found around a true positive/negative
@@ -213,7 +215,6 @@ int main (int argc, char * argv[]) {
 		}
 		sensitivity = static_cast<double>(numTruePositives) / totalTruePositives;
 		sensitivityVec.push_back(sensitivity);
-		
 		//evaluating every true negative
 		for (auto vecIt = pasPosAndSeqTN.begin(); vecIt != pasPosAndSeqTN.end(); vecIt++) {
 			Utr3FinderFuzzy u3Fuzzy(vecIt->second);
@@ -253,7 +254,6 @@ int main (int argc, char * argv[]) {
 		
 		specificity = static_cast<double>(numTrueNegatives) / totalTrueNegatives;
 		specificityVec.push_back(specificity);
-
 		//temporary object to alter the static threshold map
 		Utr3FinderFuzzy tempObj(SeqStruct{
 			std::string("acgt"),
@@ -268,7 +268,7 @@ int main (int argc, char * argv[]) {
 		tempObj.setThresholdMap(thresholdMap);
 		if (i != 0) {
 			for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {
-				mapIter->second += 0.05;
+				mapIter->second += step;
 			}
 		}
 	}
@@ -278,8 +278,8 @@ int main (int argc, char * argv[]) {
 	outFP.close();
 	std::cerr << "threshold,sensitivity,specificity" << std::endl;
 	for (unsigned int i = 0; i < specificityVec.size(); i++) {
-		if (i == 0) std::cerr << 0.51;
-		else std::cerr << (i - 1) * 0.05;
+		if (i == 0) std::cerr << "default";
+		else std::cerr << (i - 1) * step;
 		std::cerr << "," 
 			<< sensitivityVec[i] << "," 
 			<< specificityVec[i] 
