@@ -17,6 +17,7 @@ public:
 
 	virtual bool isMutationInMotif() const override;
 	virtual std::string getSequence() const override;
+	std::string getRevComplementSeq() const;
 	virtual std::string getMotifSequence(const Utr3FinderResult & result) const override;
 	virtual std::vector<Utr3FinderResult> getPolyaMotifPos() const override;
 	void setThresholdMap(std::unordered_map<std::string, double> & map);

@@ -59,6 +59,21 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 		{std::string("aataga"), 0.0}
 	};
 
+	std::unordered_map<std::string, size_t> pasCountMap = {
+		{std::string("aataaa"), 0},
+		{std::string("attaaa"), 0},
+		{std::string("tataaa"), 0},
+		{std::string("agtaaa"), 0},
+		{std::string("aagaaa"), 0},
+		{std::string("aatata"), 0},
+		{std::string("aataca"), 0},
+		{std::string("cataaa"), 0},
+		{std::string("gataaa"), 0},
+		{std::string("aatgaa"), 0},
+		{std::string("actaaa"), 0},
+		{std::string("aataga"), 0}
+	};
+
 	//storing all UTR ranges; used to make sure a found "TN PAS" isn't potentially a PAS in another transcript
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
 		RefGeneProperties refGeneProp = refGene.getValueByKey(*txIter);
@@ -67,7 +82,8 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 	}
 
 	size_t hitCounter = 0;
-	const size_t maxMatches = 30000;
+	const size_t maxMatches = 21600;
+	const size_t maxSinglePAScount = 1800; 
 	size_t inUtrCounter = 0;
 	//iterating over every transcript from refGene.txt
 	for (auto txIter = transcriptVector.begin(); txIter != transcriptVector.end(); txIter++) {
@@ -91,7 +107,6 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 			if (refGeneProp.strand == "-") {
 				seqan::reverseComplement(temp);
 				seqan::toLower(temp);
-
 			}
 			std::string exonSequence(seqan::toCString(temp));
 
@@ -102,6 +117,7 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 					hexamersIter->begin(), hexamersIter->end()))
 					!= exonSequence.end()) {
 					size_t geneticPos;
+					std::string stdMotifAtPos;
 					if (refGeneProp.strand == "+") {
 						geneticPos = std::distance(exonSequence.begin(), match) + start;
 					} else {
@@ -133,8 +149,10 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 					if (refGeneProp.strand == "+") {
 						seqan::CharString motifAtPos;
 						seqan::readRegion(motifAtPos, refGenomeIndex, idx, geneticPos, geneticPos + 6);
-						std::string stdMotifAtPos(seqan::toCString(motifAtPos));
+						stdMotifAtPos = std::string(seqan::toCString(motifAtPos));
 						auto findIt = thresholdMap.find(stdMotifAtPos);
+						size_t numSinglePas = pasCountMap.find(stdMotifAtPos)->second;
+						if (numSinglePas >= maxSinglePAScount) break;
 						if (findIt == thresholdMap.end()) {
 							match++;
 							continue;
@@ -144,8 +162,10 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 						seqan::readRegion(motifAtPos, refGenomeIndex, idx, geneticPos - 6, geneticPos);
 						seqan::reverseComplement(motifAtPos);
 						seqan::toLower(motifAtPos);
-						std::string stdMotifAtPos(seqan::toCString(motifAtPos));
+						stdMotifAtPos = std::string(seqan::toCString(motifAtPos));
 						auto findIt = thresholdMap.find(stdMotifAtPos);
+						size_t numSinglePas = pasCountMap.find(stdMotifAtPos)->second;
+						if (numSinglePas >= maxSinglePAScount) break;
 						if (findIt == thresholdMap.end()) {
 							match++;
 							continue;
@@ -159,6 +179,7 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 							std::make_pair(geneticPos, refGeneProp.strand)
 						);
 						hitCounter++;
+						pasCountMap[stdMotifAtPos]++;
 					}
 					match++;
 					if (hitCounter >= maxMatches) goto stopLoop;

@@ -21,10 +21,6 @@ const std::vector<std::string> Utr3Finder::hexamers = {
 	"aatgaa",
 	"actaaa",
 	"aataga"
-//	"tttaaa",
-//	"aaaaag",
-//	"aaaaca",
-//	"ggggct"
 };
 
 

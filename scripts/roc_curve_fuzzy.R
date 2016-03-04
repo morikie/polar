@@ -9,4 +9,5 @@ roc = performance(pred, "sens", "fpr")
 auc = performance(pred, measure="auc")
 par(mfrow=c(1,1))
 plot(roc)
+abline(0,1)
 auc@y.values

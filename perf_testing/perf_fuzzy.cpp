@@ -44,6 +44,7 @@ BOOST_FUSION_ADAPT_STRUCT (
 )
 
 int main (int argc, char * argv[]) {
+	typedef std::unordered_map<std::string, size_t> map;
 	//map that stores position and strand of a match sorted by chromosome (key)
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
 	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
@@ -70,6 +71,48 @@ int main (int argc, char * argv[]) {
 		{std::string("actaaa"), 0.0},
 		{std::string("aataga"), 0.0}
 	};
+	std::unordered_map<std::string, size_t> pasDistributionTN = {
+		{std::string("aataaa"), 0},
+		{std::string("attaaa"), 0},
+		{std::string("tataaa"), 0},
+		{std::string("agtaaa"), 0},
+		{std::string("aagaaa"), 0},
+		{std::string("aatata"), 0},
+		{std::string("aataca"), 0},
+		{std::string("cataaa"), 0},
+		{std::string("gataaa"), 0},
+		{std::string("aatgaa"), 0},
+		{std::string("actaaa"), 0},
+		{std::string("aataga"), 0}
+	};
+	std::unordered_map<std::string, size_t> pasDistributionTP = {
+		{std::string("aataaa"), 0},
+		{std::string("attaaa"), 0},
+		{std::string("tataaa"), 0},
+		{std::string("agtaaa"), 0},
+		{std::string("aagaaa"), 0},
+		{std::string("aatata"), 0},
+		{std::string("aataca"), 0},
+		{std::string("cataaa"), 0},
+		{std::string("gataaa"), 0},
+		{std::string("aatgaa"), 0},
+		{std::string("actaaa"), 0},
+		{std::string("aataga"), 0}
+	};
+	std::unordered_map<std::string, std::ofstream*> pasFileMap = {
+		{std::string("aataaa"), new std::ofstream("aataaa.fa")},
+		{std::string("attaaa"), new std::ofstream("attaaa.fa")},
+		{std::string("tataaa"), new std::ofstream("tataaa.fa")},
+		{std::string("agtaaa"), new std::ofstream("agtaaa.fa")},
+		{std::string("aagaaa"), new std::ofstream("aagaaa.fa")},
+		{std::string("aatata"), new std::ofstream("aatata.fa")},
+		{std::string("aataca"), new std::ofstream("aataca.fa")},
+		{std::string("cataaa"), new std::ofstream("cataaa.fa")},
+		{std::string("gataaa"), new std::ofstream("gataaa.fa")},
+		{std::string("aatgaa"), new std::ofstream("aatgaa.fa")},
+		{std::string("actaaa"), new std::ofstream("actaaa.fa")},
+		{std::string("aataga"), new std::ofstream("aataga.fa")}
+	};
 	std::vector<double> sensitivityVec;
 	std::vector<double> specificityVec;
 	size_t totalTrueNegatives = 0; //total number of true negatives
@@ -78,11 +121,11 @@ int main (int argc, char * argv[]) {
 	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
 		std::cerr << "could not open index file for " << referenceGenome << std::endl;
 	}
-	if (! fs::exists(tpFasta)) {
-		createTPset(tpFasta, faiIndex);
+	if (! fs::exists(positiveFasta)) {
+		createTPset(positiveFasta, faiIndex);
 	} 
-	if (! fs::exists(tnFasta)) {
-		createTNset(tnFasta, faiIndex);
+	if (! fs::exists(negativeFasta)) {
+		createTNset(negativeFasta, faiIndex);
 	}
 	
 	//data structures used to store the TP/TN data sets; stores chromosome, position, strand (PasPosition) and 
@@ -117,7 +160,24 @@ int main (int argc, char * argv[]) {
 			};
 			//storing position, chromosome and strand of the TP and the sequence around the TP
 			pasPosAndSeqTP.push_back(std::make_pair(pasPos, ss));
-
+			
+			std::string pas;
+			if (pasPos.strand == "-") {
+				std::transform(line.rbegin() + 249, line.rbegin() + 255, 
+					std::back_inserter(pas), 
+					polar::utility::complement);
+			} else {
+				pas = std::string(line.begin() + 250, line.begin() + 256);
+			}
+			if (pasDistributionTP.find(pas) != pasDistributionTP.end()) {
+				pasDistributionTP[pas]++;
+			} else {
+				std::cerr << pas << " was not found in TP set!" << std::endl;		
+			}
+			*(pasFileMap.find(pas)->second) << ">" <<  pasPos.chr << "|" 
+				<< pasPos.pos << "|" 
+				<< pasPos.strand << std::endl
+				<< line << std::endl;
 			pasPos.reset();
 			lineCount = 0;
 			totalTruePositives++;
@@ -155,14 +215,38 @@ int main (int argc, char * argv[]) {
 				boost::none
 			};
 			//storing position, chromosome and strand of the TN and the sequence around the TN
-			pasPosAndSeqTN.push_back(std::make_pair(pasPos, ss));
+			pasPosAndSeqTN.push_back(std::make_pair(pasPos, ss));	
 			
+			std::string pas;
+			if (pasPos.strand == "-") {
+				std::transform(line.rbegin() + 249, line.rbegin() + 255, 
+					std::back_inserter(pas), 
+					polar::utility::complement);
+			} else {
+				pas = std::string(line.begin() + 250, line.begin() + 256);
+			}
+			
+			if (pasDistributionTN.find(pas) != pasDistributionTN.end()) {
+				pasDistributionTN[pas]++;
+			} else {
+				std::cerr << pas << " was not found in TN set!" << std::endl;		
+			}
+
 			totalTrueNegatives++;
 			pasPos.reset();
 			lineCount = 0;
 			break;
 		}
 		}
+	}
+	std::cerr << "TP pas distribution" << std::endl;
+	BOOST_FOREACH(map::value_type & pair, pasDistributionTP) {
+		std::cerr << pair.first << ": " << pair.second << std::endl;
+	}
+
+	std::cerr << "TN pas distribution" << std::endl;
+	BOOST_FOREACH(map::value_type & pair, pasDistributionTN) {
+		std::cerr << pair.first << ": " << pair.second << std::endl;
 	}
 	inTN.close();
 	bool writeDataSets = false;
@@ -172,13 +256,14 @@ int main (int argc, char * argv[]) {
 	std::ofstream outFP(fpFasta.string(), std::ofstream::out);
 	//running the prediction 33 times with different thresholds (0 to 1.6 in 0.05 steps and one more for the default thresholds)
 	double step = 0.05;
-	for (size_t i = 0; i < 45; i++) {
+	for (size_t i = 0; i < 1; i++) {
 		size_t numTruePositives = 0; //found true positives/negatives
 		size_t numTrueNegatives = 0; //true negatives
 		size_t numFalsePositives = 0; //"matches" found around a true positive/negative
 		double sensitivity = 0.0;
 		double specificity = 0.0;
 		
+
 		//evaluating every true positive
 		for (auto vecIt = pasPosAndSeqTP.begin(); vecIt != pasPosAndSeqTP.end(); vecIt++) { 
 			Utr3FinderFuzzy u3Fuzzy(vecIt->second);		
