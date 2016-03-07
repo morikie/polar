@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <random>
+#include <chrono>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
@@ -201,13 +203,27 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 				//mapping chromosome to id number for use in the fasta index
 				unsigned idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 250 bases around the genomic position of the putative PAS (500nt long)
+				std::string motifSequence;
 				if (strand == "+") {
+					std::stringstream ss;
 					seqan::readRegion(temp, refGenomeIndex, idx, pos - 250, pos + 250);
+					ss << seqan::infix(temp, 250, 256);
+					motifSequence = ss.str();
+					seqan::erase(temp, 250,256);
 				} else {
+					std::stringstream ss;
 					seqan::readRegion(temp, refGenomeIndex, idx, pos - 251, pos + 249);
+					ss << seqan::infix(temp, 245, 251);
+					motifSequence = ss.str();
+					seqan::erase(temp, 245,251);
 				}
 				std::string seq(seqan::toCString(temp));
-			
+				unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+				std::shuffle(seq.begin(), seq.end(), std::default_random_engine(seed));
+				if (strand == "+") seq.insert(250, motifSequence);
+				else seq.insert(245, motifSequence);
+
 				output << ">" << it->first << "|" << pos << "|" << strand << std::endl
 					<< seq << std::endl;
 			}

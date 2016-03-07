@@ -37,18 +37,18 @@
  * Different TV for the dse location map.
  */
 Utr3FinderFuzzy::pasToDseLocMap Utr3FinderFuzzy::dseLocMap = { 
-	{std::string("aataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("attaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("tataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("agtaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("aagaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("aatata"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("aataca"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("cataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("gataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("aatgaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("actaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))},
-	{std::string("aataga"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 45))}
+	{std::string("aataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("attaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("tataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("agtaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aagaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aatata"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aataca"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("cataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("gataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aatgaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("actaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aataga"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))}
 };
 
 
@@ -111,34 +111,34 @@ Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::aDseAdeninMap = {
  * Map with uracil content TV scoring for the short region after the PAS.
  */
 Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseShortUracilMap = {
-	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)},
-	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.4)}
+	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)}
 };
 
 
 Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::useUracilMap = {
-	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)},
-	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.6)}
+	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
+	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)}
 };
 
 
@@ -163,18 +163,18 @@ Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::useUracilMap = {
 
 
 std::unordered_map<Utr3FinderFuzzy::motifSequence, double> Utr3FinderFuzzy::thresholdMap = {
-	{std::string("aataaa"), 1.20},
-	{std::string("attaaa"), 1.20},
-	{std::string("tataaa"), 1.20},
-	{std::string("agtaaa"), 1.20},
-	{std::string("aagaaa"), 1.20},
-	{std::string("aatata"), 1.20},
-	{std::string("aataca"), 1.20},
-	{std::string("cataaa"), 1.20},
-	{std::string("gataaa"), 1.20},
-	{std::string("aatgaa"), 1.20},
-	{std::string("actaaa"), 1.20},
-	{std::string("aataga"), 1.20}
+	{std::string("aataaa"), 1.45},
+	{std::string("attaaa"), 1.45},
+	{std::string("tataaa"), 1.45},
+	{std::string("agtaaa"), 1.45},
+	{std::string("aagaaa"), 1.45},
+	{std::string("aatata"), 1.45},
+	{std::string("aataca"), 1.45},
+	{std::string("cataaa"), 1.45},
+	{std::string("gataaa"), 1.45},
+	{std::string("aatgaa"), 1.45},
+	{std::string("actaaa"), 1.45},
+	{std::string("aataga"), 1.45}
 };
 /**
  * Initialization of static member that holds values for the threshold to determine an authentic PAS.
