@@ -26,9 +26,15 @@ knownPolyA = 0
 for record in SeqIO.parse(input_handle, "genbank"):
 	total += 1
 	polyApos = []
-
+	
 	for feat in record.features:
 		regulatoryList = feat.qualifiers.get("regulatory_class")
+		if record.id[0:3] == "NM_" and feat.type == "CDS":
+			if feat.location and feat.location.end + 1 < len(record.seq):
+				startPos = feat.location.start
+				endPos = feat.location.end
+				print (">" + record.id + "|UTR")
+				print ((record.seq[endPos:]).lower())
 		if regulatoryList != None:
 			for item in regulatoryList:
 				if item == "polyA_signal_sequence":
@@ -36,6 +42,7 @@ for record in SeqIO.parse(input_handle, "genbank"):
 					knownPolyA += 1
 	if polyApos:
 		writeToFile(output_handle, record.id, record.seq, polyApos)
+	
 
 
 

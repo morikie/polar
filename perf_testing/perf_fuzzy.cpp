@@ -169,6 +169,7 @@ int main (int argc, char * argv[]) {
 			} else {
 				pas = std::string(line.begin() + 250, line.begin() + 256);
 			}
+			
 			if (pasDistributionTP.find(pas) != pasDistributionTP.end()) {
 				pasDistributionTP[pas]++;
 			} else {
