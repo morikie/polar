@@ -33,8 +33,13 @@ for record in SeqIO.parse(input_handle, "genbank"):
 			if feat.location and feat.location.end + 1 < len(record.seq):
 				startPos = feat.location.start
 				endPos = feat.location.end
+				utr3 = record.seq[endPos:].lower()
+				for i, base in enumerate(reversed(utr3)):
+					if base != "a" and i != 0:
+						utr3 = utr3[:-i]
+						break
 				print (">" + record.id + "|UTR")
-				print ((record.seq[endPos:]).lower())
+				print (utr3)
 		if regulatoryList != None:
 			for item in regulatoryList:
 				if item == "polyA_signal_sequence":

@@ -3,9 +3,10 @@ CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2 -fopenmp
 LFLAGS		= -Wall -fopenmp
 BOOST		= -I $(HOME)/boost_1_58_0 
 SEQAN		= -I $(HOME)/seqan-library-2.0.0/include
+OPENCV		= -I $(HOME)/opencv-3.1.0/release/lib
 LIBPATH		= -Llib/
 CXX		= /usr/bin/gcc
-LIBS		= -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams
+LIBS		= -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams -lopencv_ml
 LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system -lboost_iostreams
 TPATH		= bin/
 
