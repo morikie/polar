@@ -29,12 +29,11 @@ protected:
 	double getDseLocationTvalue(const std::string & pas, const size_t & pos) const;
 	double getDseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	double getDseShortUcontentTvalue(const std::string & pas, const double & uContent) const;
-	double getDseAcontentTvalue(const std::string & pas, const double & uContent) const;
 	double getUseUcontentTvalue(const std::string & pas, const double & uContent) const;
 	
 	double calcCombinedDseTvalue(const size_t & pos, const std::string & seq);
+	double calcCombinedDinucleoDseTvalue( const size_t & pos, const std::string & seq);
 	double calcDseShortTvalue(const size_t & pos, const std::string & seq);
-	double calcAdseTvalue(const size_t &pos, const std::string & seq);
 	double calcUseTvalue(const size_t & pos, const std::string & seq);
 
 public:
@@ -52,7 +51,7 @@ public:
 	private:
 		//range where TV is something between 0 and 1; positive slope of the (acute) trapezoid side ("left" side)
 		range positiveIntermediate;
-		//range where TV is something between 0 and 1; negative slope of the (acute) trapzoid side ("right" side)
+		//range where TV is something between 0 and 1; negative slope of the (acute) trapezoid side ("right" side)
 		range negativeIntermediate; 
 
 		straight positiveStraight;
@@ -110,9 +109,10 @@ public:
 
 public:
 	static pasToDseLocMap dseLocMap;
+	static pasToDseLocMap dseDinucleoLocMap;
 	static pasToUcontentMap dseUracilMap;
+	static pasToUcontentMap dseDinucleoMap;
 	static pasToUcontentMap dseShortUracilMap;
-	static pasToUcontentMap aDseAdeninMap;
 	static pasToUcontentMap useUracilMap;
 	static std::unordered_map<motifSequence, double> thresholdMap;
 };      

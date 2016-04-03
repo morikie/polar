@@ -3,7 +3,7 @@ from Bio.Alphabet import generic_dna
 import os
 
 def countUracil(seq):
-	windowSize = 9
+	windowSize = 10
 	uContentAtPos = []
 	for i in range(0, len(seq) - windowSize):
 		uContentAtPos.append(seq.count("t", i, i + windowSize))
@@ -59,17 +59,17 @@ if __name__ == "__main__":
 	negativeSet = "../perf_testing/negativeSet.fa"
 	positiveSet = "../perf_testing/positiveSet.fa"
 
-	resultCsvNeg = "resultUcontentNegative.csv"
-	resultCsvPos = "resultUcontentPositive.csv"
-	resultCsvTN = "resultUcontentTN.csv"
-	resultCsvTP = "resultUcontentTP.csv"
-	resultCsvFN = "resultUcontentFN.csv"
-	resultCsvFP = "resultUcontentFP.csv"
+	resultCsvNeg = "u-content/resultUcontentNegative.csv"
+	resultCsvPos = "u-content/resultUcontentPositive.csv"
+	resultCsvTN = "u-content/resultUcontentTN.csv"
+	resultCsvTP = "u-content/resultUcontentTP.csv"
+	resultCsvFN = "u-content/resultUcontentFN.csv"
+	resultCsvFP = "u-content/resultUcontentFP.csv"
 	
-	uContentBigTN = "uContentBigTN.txt"
-	uContentBigTP = "uContentBigTP.txt"
-	uContentSmallTN = "uContentSmallTN.txt"
-	uContentSmallTP = "uContentSmallTP.txt"
+	uContentBigTN = "u-content/uContentBigTN.txt"
+	uContentBigTP = "u-content/uContentBigTP.txt"
+	uContentSmallTN = "u-content/uContentSmallTN.txt"
+	uContentSmallTP = "u-content/uContentSmallTP.txt"
 	
 	writeCSV(negativeSet, resultCsvNeg, uContentBigTN, uContentSmallTN, False)
 	writeCSV(positiveSet, resultCsvPos, uContentBigTP, uContentSmallTP, False)

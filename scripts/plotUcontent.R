@@ -1,9 +1,9 @@
-tempPos = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/resultUcontentPositive.csv", header=FALSE)
-tempNeg = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/resultUcontentNegative.csv", header=FALSE)
-tempFN = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/resultUcontentFN.csv", header=FALSE)
-tempFP = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/resultUcontentFP.csv", header=FALSE)
-tempTP = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/resultUcontentTP.csv", header=FALSE)
-tempTN = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/resultUcontentTN.csv", header=FALSE)
+tempPos = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/resultUcontentPositive.csv", header=FALSE)
+tempNeg = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/resultUcontentNegative.csv", header=FALSE)
+tempFN = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/resultUcontentFN.csv", header=FALSE)
+tempFP = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/resultUcontentFP.csv", header=FALSE)
+tempTP = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/resultUcontentTP.csv", header=FALSE)
+tempTN = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/resultUcontentTN.csv", header=FALSE)
 
 xPos = seq(0, 491)
 yPos = rep(0, 492)
@@ -27,7 +27,7 @@ for (i in 1:(length(yTP) - 1)) {
   yFP[i] = mean(tempFP[, i])
 }
 
-par(mfrow=c(3,2))
+par(mfrow=c(3,2), oma=c(0,0,4,0))
 plot(xTP[200:300], yTP[200:300], main="TP data set", type="h", ylim=c(0,5))
 axis(side=1, at=seq(200, 300, by=10))
 plot(xTN[200:300], yTN[200:300], main="TN data set", type="h", ylim=c(0,5))
@@ -40,3 +40,4 @@ plot(xPos[200:300], yPos[200:300], main="Positive data set", type="h", ylim=c(0,
 axis(side=1, at=seq(200, 300, by=10))
 plot(xNeg[200:300], yNeg[200:300], main="Negative data set", type="h", ylim=c(0,5))
 axis(side=1, at=seq(200, 300, by=10))
+mtext("U content distribution", outer = TRUE, cex = 1.5)

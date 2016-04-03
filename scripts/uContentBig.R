@@ -1,7 +1,7 @@
-bigUContentTN = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/uContentBigTN.txt", header=FALSE)
-bigUContentTP = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/uContentBigTP.txt", header=FALSE)
-smallUContentTN = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/uContentSmallTN.txt", header=FALSE)
-smallUContentTP = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/uContentSmallTP.txt", header=FALSE)
+bigUContentTN = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/uContentBigTN.txt", header=FALSE)
+bigUContentTP = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/uContentBigTP.txt", header=FALSE)
+smallUContentTN = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/uContentSmallTN.txt", header=FALSE)
+smallUContentTP = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/scripts/u-content/uContentSmallTP.txt", header=FALSE)
 
 bigTNdistribution = sort(bigUContentTN[, 1])
 bigTPdistribution = sort(bigUContentTP[, 1])

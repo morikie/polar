@@ -33,6 +33,62 @@
 //};
 
 
+//Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseUracilMap = {
+//	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
+//	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)}
+//};
+
+
+/**
+ * Initialization of static member that holds values for the lower/upper bound of the USE uracil content.
+ * Taken from the original paper ("Prediction of non-canonical polyadenylation signals..."; doi: 10.1016/j.jbiosc.2009.01.001)
+ */
+//Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::useUracilMap = {
+//	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
+//	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
+//	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.5)},
+//	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.2)},
+//	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.4)},
+//	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.56, 0.78, 0.4)},
+//	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
+//	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
+//	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
+//	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
+//	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
+//	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.4)}
+//};
+
+
+/**
+ * Initialization of static member that holds values for the threshold to determine an authentic PAS.
+ * Taken from the original paper ("Prediction of non-canonical polyadenylation signals..."; doi: 10.1016/j.jbiosc.2009.01.001)
+ */
+//std::unordered_map<Utr3FinderFuzzy::motifSequence, double> Utr3FinderFuzzy::thresholdMap = {
+//	{std::string("aataaa"), 0.51},
+//	{std::string("attaaa"), 0.51},
+//	{std::string("tataaa"), 0.74},
+//	{std::string("agtaaa"), 0.51},
+//	{std::string("aagaaa"), 0.51},
+//	{std::string("aatata"), 0.74},
+//	{std::string("aataca"), 0.55},
+//	{std::string("cataaa"), 0.51},
+//	{std::string("gataaa"), 0.51},
+//	{std::string("aatgaa"), 0.51},
+//	{std::string("actaaa"), 0.51},
+//	{std::string("aataga"), 0.74}
+//};
+
+
 /**
  * Different TV for the dse location map.
  */
@@ -52,20 +108,39 @@ Utr3FinderFuzzy::pasToDseLocMap Utr3FinderFuzzy::dseLocMap = {
 };
 
 
-//Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseUracilMap = {
-//	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)},
-//	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.30, 0.80, 1.0)}
-//};
+/**
+ * Different TV for the dse location map.
+ */
+Utr3FinderFuzzy::pasToDseLocMap Utr3FinderFuzzy::dseDinucleoLocMap = { 
+	{std::string("aataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("attaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("tataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("agtaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aagaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aatata"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aataca"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("cataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("gataaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aatgaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("actaaa"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))},
+	{std::string("aataga"), Utr3FinderFuzzy::DseLocation(std::make_pair(13, 25), std::make_pair(35, 50))}
+};
+
+
+Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseDincleoMap = {
+	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)},
+	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 1.0)}
+};
 
 
 /**
@@ -89,25 +164,6 @@ Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseUracilMap = {
 
 
 /**
- * Map with adenin content TV scoring for the short region after the PAS.
- */
-Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::aDseAdeninMap = {
-	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
-	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)}
-};
-
-
-/**
  * Map with uracil content TV scoring for the short region after the PAS.
  */
 Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseShortUracilMap = {
@@ -126,6 +182,9 @@ Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::dseShortUracilMap = {
 };
 
 
+/**
+ *
+ */
 Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::useUracilMap = {
 	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
 	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.40, 0.70, 0.3)},
@@ -143,57 +202,22 @@ Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::useUracilMap = {
 
 
 /**
- * Initialization of static member that holds values for the lower/upper bound of the USE uracil content.
- * Taken from the original paper ("Prediction of non-canonical polyadenylation signals..."; doi: 10.1016/j.jbiosc.2009.01.001)
+ *
  */
-//Utr3FinderFuzzy::pasToUcontentMap Utr3FinderFuzzy::useUracilMap = {
-//	{std::string("aataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
-//	{std::string("attaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
-//	{std::string("tataaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.5)},
-//	{std::string("agtaaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.2)},
-//	{std::string("aagaaa"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.4)},
-//	{std::string("aatata"), Utr3FinderFuzzy::UracilContent(0.56, 0.78, 0.4)},
-//	{std::string("aataca"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
-//	{std::string("cataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
-//	{std::string("gataaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
-//	{std::string("aatgaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.2)},
-//	{std::string("actaaa"), Utr3FinderFuzzy::UracilContent(0.66, 0.78, 0.4)},
-//	{std::string("aataga"), Utr3FinderFuzzy::UracilContent(0.56, 0.66, 0.4)}
-//};
-
-
 std::unordered_map<Utr3FinderFuzzy::motifSequence, double> Utr3FinderFuzzy::thresholdMap = {
-	{std::string("aataaa"), 1.45},
-	{std::string("attaaa"), 1.45},
-	{std::string("tataaa"), 1.45},
-	{std::string("agtaaa"), 1.45},
-	{std::string("aagaaa"), 1.45},
-	{std::string("aatata"), 1.45},
-	{std::string("aataca"), 1.45},
-	{std::string("cataaa"), 1.45},
-	{std::string("gataaa"), 1.45},
-	{std::string("aatgaa"), 1.45},
-	{std::string("actaaa"), 1.45},
-	{std::string("aataga"), 1.45}
+	{std::string("aataaa"), 1.15},
+	{std::string("attaaa"), 1.15},
+	{std::string("tataaa"), 1.15},
+	{std::string("agtaaa"), 1.15},
+	{std::string("aagaaa"), 1.15},
+	{std::string("aatata"), 1.15},
+	{std::string("aataca"), 1.15},
+	{std::string("cataaa"), 1.15},
+	{std::string("gataaa"), 1.15},
+	{std::string("aatgaa"), 1.15},
+	{std::string("actaaa"), 1.15},
+	{std::string("aataga"), 1.15}
 };
-/**
- * Initialization of static member that holds values for the threshold to determine an authentic PAS.
- * Taken from the original paper ("Prediction of non-canonical polyadenylation signals..."; doi: 10.1016/j.jbiosc.2009.01.001)
- */
-//std::unordered_map<Utr3FinderFuzzy::motifSequence, double> Utr3FinderFuzzy::thresholdMap = {
-//	{std::string("aataaa"), 0.51},
-//	{std::string("attaaa"), 0.51},
-//	{std::string("tataaa"), 0.74},
-//	{std::string("agtaaa"), 0.51},
-//	{std::string("aagaaa"), 0.51},
-//	{std::string("aatata"), 0.74},
-//	{std::string("aataca"), 0.55},
-//	{std::string("cataaa"), 0.51},
-//	{std::string("gataaa"), 0.51},
-//	{std::string("aatgaa"), 0.51},
-//	{std::string("actaaa"), 0.51},
-//	{std::string("aataga"), 0.74}
-//};
 
 
 /**
@@ -223,8 +247,7 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 	const std::string & revSeq = this->reversedSeq;
 	std::vector<size_t> candidatePositions;
 	std::vector<size_t> revCandidatePositions;
-	omp_set_num_threads(4);
-	#pragma omp parallel sections
+	#pragma omp parallel sections num_threads(2)
 	{
 	#pragma omp section
 	{
@@ -251,19 +274,32 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 	}
 	}
 	}
-	
-	#pragma omp parallel sections
+
+	#pragma omp parallel sections num_threads(2)
 	{
 	#pragma omp section
 	{
 	//verifying forward candidates
 	BOOST_FOREACH(const size_t & candPos, candidatePositions) {
 		std::string motif(seq.begin() + candPos, seq.begin() + candPos + 6);
-		double combDseTValue = calcCombinedDseTvalue(candPos, seq);
-		double dseShortTValue = calcDseShortTvalue(candPos, seq);
-		double useTvalue = calcUseTvalue(candPos, seq);
-		double aDseTvalue = calcAdseTvalue(candPos,seq);
-		
+		double combDseTValue;
+		double dseShortTValue;
+		double useTvalue;
+		#pragma omp parallel sections num_threads(3)
+		{
+		#pragma omp section
+		{
+		combDseTValue = calcCombinedDseTvalue(candPos, seq);
+		}
+		#pragma omp section
+		{
+		dseShortTValue = calcDseShortTvalue(candPos, seq);
+		}
+		#pragma omp section
+		{
+		useTvalue = calcUseTvalue(candPos, seq);
+		}
+		}
 		double finalTvalue = combDseTValue + useTvalue + dseShortTValue;
 		if (finalTvalue >= thresholdMap.find(motif)->second) {
 			#pragma omp critical
@@ -274,14 +310,30 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 				});
 		}
 	}
+	}
+	#pragma omp section
+	{
 	//verifying backward candidates
 	BOOST_FOREACH(const size_t & candPos, revCandidatePositions) {
 		std::string motif(revSeq.begin() + candPos, revSeq.begin() + candPos + 6);
-		double combDseTValue = calcCombinedDseTvalue(candPos, revSeq);
-		double dseShortTValue = calcDseShortTvalue(candPos, revSeq);
-		double useTvalue = calcUseTvalue(candPos, revSeq);
-		double aDseTvalue = calcAdseTvalue(candPos, revSeq);
-
+		double combDseTValue;
+		double dseShortTValue;
+		double useTvalue;
+		#pragma omp parallel sections num_threads(3)
+		{
+		#pragma omp section
+		{
+		combDseTValue = calcCombinedDseTvalue(candPos, revSeq);
+		}
+		#pragma omp section
+		{
+		dseShortTValue = calcDseShortTvalue(candPos, revSeq);
+		}
+		#pragma omp section
+		{
+		useTvalue = calcUseTvalue(candPos, revSeq);
+		}
+		}	
 		double finalTvalue = combDseTValue + useTvalue + dseShortTValue;
 		if (finalTvalue >= thresholdMap.find(motif)->second) {
 			#pragma omp critical
@@ -386,44 +438,6 @@ double Utr3FinderFuzzy::calcDseShortTvalue(const size_t & pos, const std::string
  * Scans upstream of a potential PAS for a uracil-rich region.
  * Returns the max truth value.
  */
-double Utr3FinderFuzzy::calcAdseTvalue(const size_t & pos, const std::string & seq) {
-	size_t searchRange = 10;
-	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
-	std::string::const_iterator start = seq.begin() + pos + 10;
-
-	std::list<std::string::value_type> slidingWindow(start, start + this->windowSize);
-	
-	double aDseAcontentTvalue = 0.0;
-	double maxTvalue = 0.0;
-	size_t adeninCounter = std::count(slidingWindow.begin(), slidingWindow.end(), 'a');
-	double aContent = static_cast<double>(adeninCounter) / this->windowSize;
-
-	if (static_cast<size_t>(std::distance(start, seq.end())) < this->windowSize + 1) return 0.0;
-	
-	std::string::const_iterator end;
-	if (static_cast<size_t>(std::distance(start, seq.end())) < searchRange) {
-		end = seq.end() - (this->windowSize - 1);
-	} else {
-		end = start + searchRange;
-	}
-	for (auto posIt = start; posIt != end; posIt++) {
-		if (slidingWindow.front() == 'a') adeninCounter--;
-		slidingWindow.pop_front();
-		slidingWindow.push_back(*(posIt + this->windowSize));
-		if (slidingWindow.back() == 'a') adeninCounter++;
-		
-		aContent = static_cast<double>(adeninCounter) / this->windowSize;
-		aDseAcontentTvalue = getDseAcontentTvalue(motif, aContent);
-		if (aDseAcontentTvalue > maxTvalue) maxTvalue = aDseAcontentTvalue;
-	}
-	return maxTvalue;
-}
-
-
-/**
- * Scans upstream of a potential PAS for a uracil-rich region.
- * Returns the max truth value.
- */
 double Utr3FinderFuzzy::calcUseTvalue(const size_t & pos, const std::string & seq) {
 	size_t searchRange = 25;
 	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
@@ -459,7 +473,48 @@ double Utr3FinderFuzzy::calcUseTvalue(const size_t & pos, const std::string & se
 }
 
 
+double Utr3FinderFuzzy::calcCombinedDinucleoDseTvalue(const size_t & pos, const std::string & seq) {
+	size_t windowSize = 10;
+	std::string dinucleotide("tg");
+	std::string motif(seq.begin() + pos, seq.begin() + pos + 6);
+	DseLocation & dseLoc = Utr3FinderFuzzy::dseDinucleoLocMap.find(motif)->second;
+	auto start = seq.begin() + pos + 6 + dseLoc.getLeftRange().first;
+	
+	double dseLocTvalue = 0.0;
+	double dseUcontentTvalue = 0.0;
+	double truthValue = 0.0;
+	double maxTruthValue = 0.0;
+	size_t uracilCounter = 0;
+	while ((size_t found = seq.find(dinucleotide, start, windowSize)) != std::string::npos) ++found, ++uracilCounter;
+	double uContent = static_cast<double>(uracilCounter) / windowSize;
+	
+	std::string::const_iterator end;
+	if (static_cast<size_t>(std::distance(start, seq.end())) < this->windowSize + 1) return 0.0;
+	
+	if (dseLoc.getRightRange().second - dseLoc.getLeftRange().first < static_cast<size_t>(std::distance(start, seq.end()))) {
+		end = start + dseLoc.getRightRange().second - dseLoc.getLeftRange().first;
+	} else {
+		end = seq.end() - (windowSize - 1);
+	}
 
+	for (auto posIt = start; posIt != end; posIt++) {
+		//check if dinucleotide leaves the window (decrement)
+		if (seq.compare(std::distance(seq.begin(), posIt), 2, dinucleotide) == 0)
+			--uracilCounter;
+		//check if dinucleotide enters the window (increment)
+		if (seq.compare(std::distance(seq.begin(), posIt) + windowSize - 1, 2, dinucleotide) == 0)
+			++uracilCounter;
+
+		uContent = static_cast<double>(uracilCounter) / this->windowSize;
+		size_t distanceToPas = std::distance(start - dseLoc.getLeftRange().first, posIt);
+		//TODO: implementing the two functions below!
+		dseLocTvalue = getDinucleoDseLocationTvalue(motif, distanceToPas);
+		dseUcontentTvalue = getDinucleoDseUcontentTvalue(motif, uContent);
+		truthValue = std::min(dseLocTvalue, dseUcontentTvalue);
+		if (truthValue > maxTruthValue) maxTruthValue = truthValue;
+	}
+	return maxTruthValue;
+}
 
 
 /**
@@ -560,27 +615,6 @@ double Utr3FinderFuzzy::getDseLocationTvalue(const std::string & pas, const size
 		return leftStraight.first * static_cast<double>(pos) + leftStraight.second;
 	} else {
 		return rightStraight.first * static_cast<double>(pos) + rightStraight.second;
-	}
-}
-
-
-/**
- * Returns the truth value for a given uracil content for a DSE.
- */
-double Utr3FinderFuzzy::getDseAcontentTvalue(const std::string & pas, const double & aContent) const {
-	if (Utr3FinderFuzzy::aDseAdeninMap.find(pas) == Utr3FinderFuzzy::aDseAdeninMap.end()) return 0;
-	
-	UracilContent & adeninContent = Utr3FinderFuzzy::aDseAdeninMap.find(pas)->second;
-	Utr3FinderFuzzy::UracilContent::straight interStraight = adeninContent.getStraight();
-	double uB = adeninContent.getUpperBound();
-	double lB = adeninContent.getLowerBound();
-	double maxTv = adeninContent.getMaxTruthValue();
-	if (aContent >= uB) {
-		return maxTv;
-	} else if (aContent <= lB) {
-		return 0.0;
-	} else {
-		return interStraight.first * aContent + interStraight.second;
 	}
 }
 

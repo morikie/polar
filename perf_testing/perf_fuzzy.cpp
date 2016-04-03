@@ -250,14 +250,14 @@ int main (int argc, char * argv[]) {
 		std::cerr << pair.first << ": " << pair.second << std::endl;
 	}
 	inTN.close();
-	bool writeDataSets = false;
+	bool writeDataSets = true;
 	std::ofstream outTP(tpFasta.string(), std::ofstream::out);
 	std::ofstream outFN(fnFasta.string(), std::ofstream::out);
 	std::ofstream outTN(tnFasta.string(), std::ofstream::out);
 	std::ofstream outFP(fpFasta.string(), std::ofstream::out);
 	//running the prediction 33 times with different thresholds (0 to 1.6 in 0.05 steps and one more for the default thresholds)
 	double step = 0.05;
-	for (size_t i = 0; i < 45; i++) {
+	for (size_t i = 0; i < 1; i++) {
 		size_t numTruePositives = 0; //found true positives/negatives
 		size_t numTrueNegatives = 0; //true negatives
 		size_t numFalsePositives = 0; //"matches" found around a true positive/negative
