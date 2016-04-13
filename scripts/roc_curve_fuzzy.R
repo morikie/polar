@@ -1,5 +1,5 @@
 library(ROCR)
-temp = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/bin/perfOut_newFeature.txt", header=TRUE)
+temp = read.csv("/home/alphons/Uni/Forschungspraktikum/polar/bin/perfOut_newFeature.txt", header=TRUE)
 senVec = temp[,2]
 fprVec = 1 - temp[,3]
 predVec = append(senVec, fprVec)

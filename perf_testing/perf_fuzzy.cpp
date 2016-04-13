@@ -256,7 +256,7 @@ int main (int argc, char * argv[]) {
 	std::ofstream outTN(tnFasta.string(), std::ofstream::out);
 	std::ofstream outFP(fpFasta.string(), std::ofstream::out);
 	//running the prediction 33 times with different thresholds (0 to 1.6 in 0.05 steps and one more for the default thresholds)
-	double step = 0.05;
+	double step = 0.03;
 	for (size_t i = 0; i < 1; i++) {
 		size_t numTruePositives = 0; //found true positives/negatives
 		size_t numTrueNegatives = 0; //true negatives

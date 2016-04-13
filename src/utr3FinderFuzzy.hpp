@@ -8,34 +8,6 @@
 
 
 class Utr3FinderFuzzy : public Utr3Finder {
-protected:
-	std::string reversedSeq;
-	size_t windowSize = 6;
-public: 
-	Utr3FinderFuzzy(const SeqStruct & sSt);
-	virtual ~Utr3FinderFuzzy();
-
-	virtual bool isMutationInMotif() const override;
-	virtual std::string getSequence() const override;
-	std::string getRevComplementSeq() const;
-	virtual std::string getMotifSequence(const Utr3FinderResult & result) const override;
-	virtual std::vector<Utr3FinderResult> getPolyaMotifPos() const override;
-	void setThresholdMap(std::unordered_map<std::string, double> & map);
-	virtual void writeInfo() const override;
-
-protected:
-	virtual void findPolyaMotif() override;
-
-	double getDseLocationTvalue(const std::string & pas, const size_t & pos) const;
-	double getDseUcontentTvalue(const std::string & pas, const double & uContent) const;
-	double getDseShortUcontentTvalue(const std::string & pas, const double & uContent) const;
-	double getUseUcontentTvalue(const std::string & pas, const double & uContent) const;
-	
-	double calcCombinedDseTvalue(const size_t & pos, const std::string & seq);
-	double calcCombinedDinucleoDseTvalue( const size_t & pos, const std::string & seq);
-	double calcDseShortTvalue(const size_t & pos, const std::string & seq);
-	double calcUseTvalue(const size_t & pos, const std::string & seq);
-
 public:
 	/**
 	 * Class that holds values to calculate the truth value for a certain DSE location.
@@ -115,6 +87,34 @@ public:
 	static pasToUcontentMap dseShortUracilMap;
 	static pasToUcontentMap useUracilMap;
 	static std::unordered_map<motifSequence, double> thresholdMap;
+
+protected:
+	std::string reversedSeq;
+	size_t windowSize = 10;
+
+public: 
+	Utr3FinderFuzzy(const SeqStruct & sSt);
+	virtual ~Utr3FinderFuzzy();
+
+	virtual bool isMutationInMotif() const override;
+	virtual std::string getSequence() const override;
+	std::string getRevComplementSeq() const;
+	virtual std::string getMotifSequence(const Utr3FinderResult & result) const override;
+	virtual std::vector<Utr3FinderResult> getPolyaMotifPos() const override;
+	void setThresholdMap(std::unordered_map<std::string, double> & map);
+	virtual void writeInfo() const override;
+
+protected:
+	virtual void findPolyaMotif() override;
+
+	double locationTvalue(const std::string & pas, const size_t & pos, const pasToDseLocMap & map) const;
+	double nucleotideContentTvalue(const std::string & pas, const double & uContent, const pasToUcontentMap & map) const;
+	
+	double calcCombinedDseTvalue(const size_t & pos, const std::string & seq);
+	double calcCombinedDinucleoDseTvalue( const size_t & pos, const std::string & seq);
+	double calcDseShortTvalue(const size_t & pos, const std::string & seq);
+	double calcUseTvalue(const size_t & pos, const std::string & seq);
+
 };      
 
 
