@@ -275,7 +275,7 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		dseShortTValue = calcDseShortTvalue(candPos, seq);
 		useTvalue = calcUseTvalue(candPos, seq);
 		combDseDinucleoTValue = calcCombinedDinucleoDseTvalue(candPos, seq);
-		double finalTvalue = combDseTValue + combDseDinucleoTValue + dseShortTValue + useTvalue;
+		double finalTvalue = combDseTValue + combDseDinucleoTValue + useTvalue + dseShortTValue;
 		if (finalTvalue >= thresholdMap.find(motif)->second) {
 			polyaPosVector.push_back(Utr3FinderResult{
 				candPos, 
@@ -295,7 +295,7 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		dseShortTValue = calcDseShortTvalue(candPos, revSeq);
 		useTvalue = calcUseTvalue(candPos, revSeq);
 		combDseDinucleoTValue = calcCombinedDinucleoDseTvalue(candPos, revSeq);
-		double finalTvalue = combDseTValue + combDseDinucleoTValue + dseShortTValue + useTvalue;
+		double finalTvalue = combDseTValue + combDseDinucleoTValue + useTvalue + dseShortTValue;
 		if (finalTvalue >= thresholdMap.find(motif)->second) {
 			polyaPosVector.push_back(Utr3FinderResult{
 				seq.size() - 1 - candPos,
