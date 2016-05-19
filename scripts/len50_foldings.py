@@ -6,9 +6,9 @@ from Bio.SeqRecord import SeqRecord
 
 
 iput = open("../perf_testing/positiveSet.fa", "r")
-oput = open("foldings_l200_o250.faf", "a")
-seqLen = 200
-offset = 250
+seqLen = 50
+offset = 260
+oput = open("foldings_l" + str(seqLen) + "_o" + str(offset) + ".faf", "a")
 
 def writeOutput(ipt, opt, length, off):
 	faRecords = SeqIO.parse(ipt, "fasta")

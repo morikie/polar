@@ -1,0 +1,87 @@
+\documentclass[11pt, a4paper, english]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+%
+\usepackage{fancyref}
+\usepackage{fancyhdr} 
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{makeidx}
+\usepackage{listings}
+%
+% PDF settings
+\usepackage[pdftex]{graphicx}
+\usepackage[pdfstartview=FitH,pdftitle={<Titel>},pdfauthor={<Name>}, colorlinks=true, linktocpage]{hyperref}
+% colorlinks=false, pdfborder={0 0 0} = keine farbigen Links
+%
+% Header and Footer Style
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[R]{\slshape <Name>}
+\fancyhead[L]{\slshape\nouppercase{\rightmark}}
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}} 
+%
+% No identation
+\setlength\headheight{15pt}
+\setlength\parindent{0pt} 
+%
+% Custom commands
+\newcommand\zb{z.\,B.\ }
+\renewcommand\dh{d.\,h.\ }
+\newcommand\parbig{\par\bigskip}
+\newcommand\parmed{\par\medskip}
+\newcommand{\mailto}[1]{\href{mailto:#1}{#1}}
+%
+% Java Code Listing Style
+\definecolor{darkblue}{rgb}{0,0,.6}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkred}{rgb}{0.5,0,0}
+\lstset{language=Java, basicstyle=\ttfamily\small\upshape, commentstyle=\color{darkgreen}\sffamily, keywordstyle=\color{darkblue}\rmfamily\bfseries, breaklines=true,tabsize=2,xleftmargin=3mm, xrightmargin=3mm,numbers=none,frame=single,stringstyle=\color{darkred},
+showstringspaces=false}
+%
+% Titel and author 
+\title{\includegraphics[width=0.6\textwidth]{pictures/logo}\\
+{\normalsize Final report}\\[6ex]
+Detection of mutations affecting polyadenylation motives}
+
+\author{Moritz Kiekeben\\
+{\normalsize Matrikelnummer: 4179384}\\
+{\normalsize \mailto{moritz.k@fu-berlin.de}}\\\\
+{\normalsize Betreuer: Prof. Dr. Peter N. Robinson}\\
+{\normalsize Eingereicht bei: }}
+
+\date{Berlin, \today}
+
+
+\begin{document}
+
+\begin{titlepage}
+
+\pagenumbering{alph}
+\maketitle
+\thispagestyle{empty}
+
+\end{titlepage}
+
+\pagestyle{empty}
+\clearpage\pagenumbering{roman}
+
+\tableofcontents
+
+\clearpage\pagenumbering{arabic}
+\pagestyle{fancy}
+\setcounter{page}{1}
+\include{1_introduction}      
+\include{2_fundamentals}      
+\include{3_main}            
+\include{4_conclusion}
+\include{5_appendix}      
+
+\bibliographystyle{alpha}
+\bibliography{bibliography}
+
+\end{document}

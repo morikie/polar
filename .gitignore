@@ -1,3 +1,4 @@
+*.ps
 *.swp
 *.[oa]
 UTR3_sequences_large.txt
