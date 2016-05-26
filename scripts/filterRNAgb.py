@@ -38,7 +38,7 @@ for record in SeqIO.parse(input_handle, "genbank"):
 					if base != "a" and i != 0:
 						utr3 = utr3[:-i]
 						break
-				print (">" + record.id + "|UTR")
+				print (">" + record.id + "|UTR|start:" + str(endPos))
 				print (utr3)
 		if regulatoryList != None:
 			for item in regulatoryList:
