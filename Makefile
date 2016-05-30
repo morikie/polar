@@ -3,7 +3,7 @@ CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2 -fopenmp -g
 LFLAGS		= -Wall -fopenmp
 BOOST		= -I $(HOME)/boost_1_58_0 
 SEQAN		= -I $(HOME)/seqan-library-2.0.0/include
-OPENCV		= -I $(HOME)/opencv-3.1.0/release/lib
+VIENNA		= -I $(HOME)/ViennaRNA/include
 LIBPATH		= -Llib/
 CXX		= /usr/bin/gcc
 LIBS		= -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams
@@ -33,7 +33,7 @@ lib/polarUtility.o : src/polarUtility.hpp src/polarUtility.cpp
 
 $(TPATH)polar : $(TPATH)polar.o $(OBJS) 
 	@echo "[Link] polar"
-	@$(CC) $(BOOST) $(SEQAN) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)polar 
+	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)polar 
 
 #unit testing
 $(TPATH)uTests : $(TPATH)uTests.o $(OBJS) 
@@ -57,7 +57,7 @@ $(TPATH)polar.o : src/polar.hpp \
 	src/utr3FinderFuzzy.hpp \
 	src/utr3FinderNaive.hpp 
 	@echo "[Compile] polar"
-	@$(CC) $(BOOST) $(SEQAN) $(CFLAGS) src/polar.cpp -o $(TPATH)polar.o
+	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $(CFLAGS) src/polar.cpp -o $(TPATH)polar.o
 
 $(TPATH)buildIndexFile.o : src/buildIndexFile.hpp src/buildIndexFile.cpp
 	@echo "[Compile] BuildIndexFile"
@@ -78,7 +78,6 @@ $(TPATH)jannovarVcfParser.o : src/jannovarVcfParser.hpp src/jannovarVcfParser.cp
 $(TPATH)knownGeneParser.o : src/knownGeneParser.hpp src/knownGeneParser.cpp
 	@echo "[Compile] KnownGeneParser"
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) src/knownGeneParser.cpp -o $(TPATH)knownGeneParser.o
-
 $(TPATH)buildSeqStruct.o : src/buildSeqStruct.hpp src/buildSeqStruct.cpp
 	@echo "[Compile] buildSeqStruct"
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) src/buildSeqStruct.cpp -o $(TPATH)buildSeqStruct.o
@@ -117,7 +116,7 @@ $(TPATH)acc_test : $(TPATH)acc_test.o \
 
 $(TPATH)createTPset.o : perf_testing/createTPset.hpp perf_testing/createTPset.cpp
 	@echo "[Compile] TP data set"
-	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/createTPset.cpp -o $(TPATH)createTPset.o
+	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/createTPset.cpp -o $(TPATH)createTPset.o
 
 $(TPATH)createTNset.o : perf_testing/createTNset.hpp perf_testing/createTNset.cpp
 	@echo "[Compile] TN data set"

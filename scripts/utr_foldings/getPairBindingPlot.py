@@ -62,12 +62,15 @@ def readPolyaPosPerId(fileObj):
 			continue
 	return ppDict
 
+#writes the highest base pair probability per position to a file
 def createCsvOutput(fileObj, bppDict, pos, length):
-	bppSize = len(bppDict)
 	outputList = []
-	start = pos - length + 6
-	print(str(pos) + ", " + str(start))
-	for i in range(start, start + 100):
+	posAfterPAS = 25 
+	start = pos - length + posAfterPAS
+	if start < 0:
+		return	
+	#print(str(pos) + ", " + str(start))
+	for i in range(start, start + length):
 		if i in bppDict:
 			outputList.append(max(bppDict[i].probList))
 		else:
@@ -78,7 +81,7 @@ def createCsvOutput(fileObj, bppDict, pos, length):
 if __name__ == "__main__":
 	polyaF = open("../knownPolya.txt", "r")
 	polyAPosDict = readPolyaPosPerId(polyaF)
-	outputCsv = open("basePairProbAtPAS.csv", "a")
+	outputCsv = open("basePairProbAtPAS.csv", "w")
 
 	for psFile in os.listdir("."):
 		if psFile.endswith(".ps"):
@@ -90,11 +93,12 @@ if __name__ == "__main__":
 					next(psF)
 					basePairProbDict = readBasePairProb(psF)
 			headerSplit = psFile.split("|")
-			seqId = headerSplit 
-			offset = psFile.split("|")[2]
-			offset = int(offset[7:-6])
+			seqId = headerSplit[0] 
+			offset = headerSplit[2]
+			offset = int(offset[6:-6])
 		if seqId in polyAPosDict:	
 			for pasPos in polyAPosDict[seqId]:
-				sys.stdout.write(seqId + ", ")
+				#sys.stdout.write(seqId + ", " + str(offset) + ", ")
+				
 				createCsvOutput(outputCsv, basePairProbDict, pasPos - offset, 100)	
 

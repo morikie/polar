@@ -5,6 +5,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <seqan/seq_io.h>
+#include <ViennaRNA/fold.h>
 #include "buildIndexFile.hpp"
 #include "knownGeneParser.hpp"
 #include "jannovarVcfParser.hpp"
@@ -16,10 +17,17 @@
 #include "utr3FinderFuzzy.hpp"
 #include "polar.hpp"
 
+extern "C" {
+float vrna_fold(const char *string, char *structure);
+}
+
+
 namespace fs = boost::filesystem;
 
-
 int main (int args, char * argv[]) {
+	const char * test = "cgtgtgattg";
+	char * struc;
+	vrna_fold(test, struc);
 	std::cerr << __FUNCTION__ << std::endl;
 	fs::path knownGene = "ucsc_data/knownGene.txt";
 	fs::path transcripts = "ucsc_data/knownGeneTxMrna.txt";
