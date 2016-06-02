@@ -6,7 +6,7 @@ SEQAN		= -I $(HOME)/seqan-library-2.0.0/include
 VIENNA		= -I $(HOME)/ViennaRNA/include
 LIBPATH		= -Llib/
 CXX		= /usr/bin/gcc
-LIBS		= -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams
+LIBS		= -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams -lRNA
 LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system -lboost_iostreams
 TPATH		= bin/
 

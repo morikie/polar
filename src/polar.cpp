@@ -5,7 +5,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <seqan/seq_io.h>
-#include <ViennaRNA/fold.h>
+
 #include "buildIndexFile.hpp"
 #include "knownGeneParser.hpp"
 #include "jannovarVcfParser.hpp"
@@ -18,16 +18,29 @@
 #include "polar.hpp"
 
 extern "C" {
-float vrna_fold(const char *string, char *structure);
+#include <ViennaRNA/data_structures.h>
+#include <ViennaRNA/part_func.h>
+#include <ViennaRNA/mfe.h>
+#include <ViennaRNA/structure_utils.h>
+#include <ViennaRNA/utils.h>
 }
 
 
 namespace fs = boost::filesystem;
 
 int main (int args, char * argv[]) {
-	const char * test = "cgtgtgattg";
-	char * struc;
-	vrna_fold(test, struc);
+	const char * test = "cgtgtgattgcacg";
+	char *mfe_structure = static_cast<char*>(vrna_alloc(sizeof(char) * (strlen(test) + 1)));
+	vrna_fold_compound_t * test_fold = vrna_fold_compound (test, NULL, VRNA_OPTION_PF | VRNA_OPTION_MFE);
+	vrna_mfe(test_fold, mfe_structure);
+	std::cerr << test << std::endl << mfe_structure << std::endl;
+	vrna_pf(test_fold, NULL);
+	std::cerr << "exp_matrices->length: " <<  test_fold->exp_matrices->length << std::endl;
+	vrna_plist_t * pl = vrna_plist_from_probs(test_fold, 1e-5);
+
+	for (size_t k = 0; pl[k].i>0 || pl[k].j>0; k++) {
+		std::cerr << pl[k].i << ", " << pl[k].j << ": " << pl[k].p << std::endl;
+	}
 	std::cerr << __FUNCTION__ << std::endl;
 	fs::path knownGene = "ucsc_data/knownGene.txt";
 	fs::path transcripts = "ucsc_data/knownGeneTxMrna.txt";
