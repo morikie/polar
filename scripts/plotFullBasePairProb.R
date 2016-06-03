@@ -1,11 +1,11 @@
-tempPos = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/utr_foldings/fullBasePairProb.csv", header=FALSE)
+tempPos = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/utr_foldings/fullBasePairProb.csv", header=FALSE, col.names=c(1:20000))
 
-numPlots = 10
+numPlots = 6
 
-par(mfrow=c(5,2), oma=c(0,0,4,0))
-
+par(mfrow=c(3,2), oma=c(0,0,4,0))
+mtext("Bpp of random 3' UTR sequences", outer = TRUE, cex = 1.5)
 for (k in sample(length(tempPos[, 1]), numPlots, replace=F)) {
-  
+  print(toString(k))
   len = 0
   for (i in (length(tempPos[k,] - 1)):1) {
     if (! is.na(tempPos[k, i])) {
@@ -23,9 +23,9 @@ for (k in sample(length(tempPos[, 1]), numPlots, replace=F)) {
   }
   for (i in 6:(len + 1)) {
     if (! is.na(tempPos[k, i])) {
-      yPos[i] = tempPos[k, i]
+      yPos[i-5] = tempPos[k, i]
     } else {
-      yPos[i] = 0.0 
+      yPos[i-5] = 0.0 
     }
     
   }
@@ -38,4 +38,3 @@ for (k in sample(length(tempPos[, 1]), numPlots, replace=F)) {
     }
   }
 }
-mtext("Bpp of random 3' UTR sequences", outer = TRUE, cex = 1.5)
