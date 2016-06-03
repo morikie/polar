@@ -78,10 +78,31 @@ def createCsvOutput(fileObj, bppDict, pos, length):
 	
 	fileObj.write(str(outputList)[1:-1] + "\n")
 
+
+def createFullCsvOutput(fileObj, bppDict, polyAPosList, offset):
+	outputList = []
+	#print(str(pos) + ", " + str(start))
+	pasListLength = len(polyAPosList)
+	difference = 5 - pasListLength
+	for i in range(0, pasListLength):
+		outputList.append(polyAPosList[i] - offset)
+	if difference > 0:
+		for i in range(abs(difference - 5), 5):
+			outputList.append(-1)
+
+	for i in range(1, len(bppDict)):
+		if i in bppDict:
+			outputList.append(max(bppDict[i].probList))
+		else:
+			outputList.append(0.0)
+	
+	fileObj.write(str(outputList)[1:-1] + "\n")
+
 if __name__ == "__main__":
 	polyaF = open("../knownPolya.txt", "r")
 	polyAPosDict = readPolyaPosPerId(polyaF)
 	outputCsv = open("basePairProbAtPAS.csv", "w")
+	fullOutputCsv = open("fullBasePairProb.csv", "w")
 
 	for psFile in os.listdir("."):
 		if psFile.endswith(".ps"):
@@ -97,8 +118,11 @@ if __name__ == "__main__":
 			offset = headerSplit[2]
 			offset = int(offset[6:-6])
 		if seqId in polyAPosDict:	
+			if len(polyAPosDict[seqId]) > 1:
+				createFullCsvOutput(fullOutputCsv, basePairProbDict, polyAPosDict[seqId], offset)
+			
 			for pasPos in polyAPosDict[seqId]:
 				#sys.stdout.write(seqId + ", " + str(offset) + ", ")
 				
 				createCsvOutput(outputCsv, basePairProbDict, pasPos - offset, 100)	
-
+			
