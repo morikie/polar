@@ -12,6 +12,14 @@ class ijProbability:
 		self.jList.append(j)
 		self.probList.append(prob)
 
+#position; 1st/2nd/3rd PAS; PAS sequence
+class PasProperties:
+	def __init__(self):
+		self.pasPos = []
+	def addPasPos(self, pP):
+		self.pasPos.append(pP)
+		
+
 #extracting the base pair probabilities from the postscript files that Vienna created
 def readBasePairProb(fileIter):
 	bppDict = OrderedDict()
@@ -48,17 +56,20 @@ def readPolyaPosPerId(fileObj):
 			continue
 		elif lineCount == 1: 
 			temp = line[12:-2].split(",")
-			polyaPosList = []
-			for pos in temp:
-				try:
-					polyaPosList.append(int(pos))
-				except ValueError:
-					print("ValueError: polyaPosList")
 			lineCount += 1
 			continue
 		elif lineCount == 2:
-			ppDict[seqId] = polyaPosList
+			polyaPosList = PasProperties()
+			for pos in temp:
+				try:
+					pPos = int(pos)
+					posMotifTuple = (pPos, line[pPos:pPos + 6].lower())
+					polyaPosList.addPasPos(posMotifTuple)
+					print(posMotifTuple)
+				except ValueError:
+					print("ValueError: polyaPosList")
 			lineCount = 0
+			ppDict[seqId] = polyaPosList
 			continue
 	return ppDict
 
@@ -77,7 +88,7 @@ def createCsvOutput(fileObj, bppDict, pos, length):
 			outputList.append(0.0)
 	
 	fileObj.write(str(outputList)[1:-1] + "\n")
-
+	return outputList
 
 def createFullCsvOutput(fileObj, bppDict, polyAPosList, offset):
 	outputList = []
@@ -95,11 +106,19 @@ def createFullCsvOutput(fileObj, bppDict, polyAPosList, offset):
 			outputList.append(max(bppDict[i].probList))
 		else:
 			outputList.append(0.0)
-	
+
 	fileObj.write(str(outputList)[1:-1] + "\n")
+
+def createMotifBpp(output, ident, pasCount, pasPosTuple, bppList, totalNumPas):
+	sep = ", "
+	meanBpp = sum(bppList[75:81])/float(6)
+	output.write(ident + sep + str(pasCount) + sep + str(pasPosTuple[0]) + sep +  pasPosTuple[1] + sep + str(meanBpp) + sep + str(totalNumPas))
+	
+	
 
 if __name__ == "__main__":
 	polyaF = open("../knownPolya.txt", "r")
+	classBpp = open("classificationBpp.csv", "w")
 	polyAPosDict = readPolyaPosPerId(polyaF)
 	outputCsv = open("basePairProbAtPAS.csv", "w")
 	fullOutputCsv = open("fullBasePairProb.csv", "w")
@@ -113,16 +132,14 @@ if __name__ == "__main__":
 				if "%start of base pair probability data" in line:
 					next(psF)
 					basePairProbDict = readBasePairProb(psF)
-			headerSplit = psFile.split("|")
-			seqId = headerSplit[0] 
-			offset = headerSplit[2]
-			offset = int(offset[6:-6])
+			headerSplit = psFile.split("_")
+			seqId = headerSplit[0] + "_" + headerSplit[1] 
+			offset = int(headerSplit[4])
 		if seqId in polyAPosDict:	
-			if len(polyAPosDict[seqId]) > 1:
-				createFullCsvOutput(fullOutputCsv, basePairProbDict, polyAPosDict[seqId], offset)
-			
-			for pasPos in polyAPosDict[seqId]:
+			#if len(polyAPosDict[seqId]) > 1:
+			#	createFullCsvOutput(fullOutputCsv, basePairProbDict, polyAPosDict[seqId], offset)
+			numPos = len(polyAPosDict[seqId].pasPos)
+			for i, pasPos in enumerate(polyAPosDict[seqId].pasPos):
 				#sys.stdout.write(seqId + ", " + str(offset) + ", ")
-				
-				createCsvOutput(outputCsv, basePairProbDict, pasPos - offset, 100)	
-			
+				bppList = createCsvOutput(outputCsv, basePairProbDict, pasPos[0] - offset, 100)	
+				createMotifBpp(classBpp, seqId, i + 1, pasPos, bppList, numPos)

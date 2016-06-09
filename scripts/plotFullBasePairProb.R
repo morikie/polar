@@ -3,7 +3,6 @@ tempPos = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/script
 numPlots = 6
 
 par(mfrow=c(3,2), oma=c(0,0,4,0))
-mtext("Bpp of random 3' UTR sequences", outer = TRUE, cex = 1.5)
 for (k in sample(length(tempPos[, 1]), numPlots, replace=F)) {
   print(toString(k))
   len = 0
@@ -38,3 +37,4 @@ for (k in sample(length(tempPos[, 1]), numPlots, replace=F)) {
     }
   }
 }
+mtext("Bpp of random 3' UTR sequences", outer = TRUE, cex = 1.5)
