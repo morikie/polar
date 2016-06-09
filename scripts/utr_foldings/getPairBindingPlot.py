@@ -65,7 +65,6 @@ def readPolyaPosPerId(fileObj):
 					pPos = int(pos)
 					posMotifTuple = (pPos, line[pPos:pPos + 6].lower())
 					polyaPosList.addPasPos(posMotifTuple)
-					print(posMotifTuple)
 				except ValueError:
 					print("ValueError: polyaPosList")
 			lineCount = 0
@@ -112,13 +111,14 @@ def createFullCsvOutput(fileObj, bppDict, polyAPosList, offset):
 def createMotifBpp(output, ident, pasCount, pasPosTuple, bppList, totalNumPas):
 	sep = ", "
 	meanBpp = sum(bppList[75:81])/float(6)
-	output.write(ident + sep + str(pasCount) + sep + str(pasPosTuple[0]) + sep +  pasPosTuple[1] + sep + str(meanBpp) + sep + str(totalNumPas))
+	output.write(ident + sep + str(pasCount) + sep + str(pasPosTuple[0]) + sep +  pasPosTuple[1] + sep + str(meanBpp) + sep + str(totalNumPas) + "\n")
 	
 	
 
 if __name__ == "__main__":
 	polyaF = open("../knownPolya.txt", "r")
 	classBpp = open("classificationBpp.csv", "w")
+	classBpp.write("ID, countedPosition, UTR position, motif, avg bpp, total PAS in UTR\n")
 	polyAPosDict = readPolyaPosPerId(polyaF)
 	outputCsv = open("basePairProbAtPAS.csv", "w")
 	fullOutputCsv = open("fullBasePairProb.csv", "w")
@@ -141,5 +141,6 @@ if __name__ == "__main__":
 			numPos = len(polyAPosDict[seqId].pasPos)
 			for i, pasPos in enumerate(polyAPosDict[seqId].pasPos):
 				#sys.stdout.write(seqId + ", " + str(offset) + ", ")
-				bppList = createCsvOutput(outputCsv, basePairProbDict, pasPos[0] - offset, 100)	
-				createMotifBpp(classBpp, seqId, i + 1, pasPos, bppList, numPos)
+				bppList = createCsvOutput(outputCsv, basePairProbDict, pasPos[0] - offset, 100)
+				if bppList is not None:
+					createMotifBpp(classBpp, seqId, i + 1, pasPos, bppList, numPos)
