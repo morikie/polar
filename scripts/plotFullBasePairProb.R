@@ -1,4 +1,5 @@
-tempPos = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/utr_foldings/fullBasePairProb.csv", header=FALSE, col.names=c(1:20000))
+dataFolder = "/home/alphons/Uni/polar/scripts/"
+tempPos = read.csv(paste0(dataFolder, "/utr_foldings/fullBasePairProb.csv"), header=FALSE, col.names=c(1:20000))
 
 numPlots = 6
 

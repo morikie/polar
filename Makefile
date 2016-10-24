@@ -1,9 +1,9 @@
 CC 		= g++
-CFLAGS		= -c -Wall -Wextra -pedantic -std=c++11 -O2 -fopenmp -g
+CFLAGS		= -c -Wall -Wextra -pedantic -std=c++14 -g
 LFLAGS		= -Wall -fopenmp
-BOOST		= -I $(HOME)/boost_1_58_0 
-SEQAN		= -I $(HOME)/seqan-library-2.0.0/include
-VIENNA		= -I $(HOME)/ViennaRNA/include
+BOOST		= -I $(HOME)/boost_1_62_0 
+SEQAN		= -I $(HOME)/seqan/include
+VIENNA		= -I $(HOME)/Vienna/include
 LIBPATH		= -Llib/
 CXX		= /usr/bin/gcc
 LIBS		= -lboost_regex -lboost_filesystem -lboost_system -lboost_iostreams -lRNA
@@ -157,5 +157,5 @@ $(TPATH)refGeneParser.o : src/refGeneParser.hpp src/refGeneParser.cpp
 .PHONY : clean
 clean :
 	@echo "[Delete] object and binary files"
-	@rm $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test $(TPATH)*.o 
+	@rm $(TPATH)polar $(TPATH)perf_fuzzy $(TPATH)uTests $(TPATH)acc_test $(TPATH)*.o 
  

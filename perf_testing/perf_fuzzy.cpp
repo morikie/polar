@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <omp.h>
+//#include <omp.h>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
@@ -24,6 +24,7 @@ namespace qi = boost::spirit::qi;
 
 //structure needed for parsing the data sets
 struct PasPosition {
+	std::string seqId;
 	std::string chr;
 	size_t pos;
 	std::string strand;
@@ -32,12 +33,14 @@ struct PasPosition {
 		this->chr = std::string();
 		this->pos = 0;
 		this->strand = std::string();
+		this->seqId = std::string();
 	}
 };
 
 //used by boost::spirit to parse into a PasPosition object
 BOOST_FUSION_ADAPT_STRUCT (
 	PasPosition,
+	(std::string, seqId)
 	(std::string, chr)
 	(size_t, pos)
 	(std::string, strand)
@@ -121,13 +124,14 @@ int main (int argc, char * argv[]) {
 	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
 		std::cerr << "could not open index file for " << referenceGenome << std::endl;
 	}
+	//creating TP data set if not available
 	if (! fs::exists(positiveFasta)) {
 		createTPset(positiveFasta, faiIndex);
 	} 
+	//creating TN data set if not available
 	if (! fs::exists(negativeFasta)) {
 		createTNset(negativeFasta, faiIndex);
 	}
-	
 	//data structures used to store the TP/TN data sets; stores chromosome, position, strand (PasPosition) and 
 	//a 2x 250nt long sequence around the position (500 in total)
 	std::vector<std::pair<PasPosition, SeqStruct> > pasPosAndSeqTP;
@@ -141,7 +145,7 @@ int main (int argc, char * argv[]) {
 		case 0:
 		{	
 			qi::parse(line.begin(), line.end(), 
-				">" >> +~qi::char_('|') >> "|" >> qi::uint_ >> "|" >> +qi::char_, 
+				">" >> +~qi::char_('|') >> "|" >> +~qi::char_('|') >> "|" >> qi::uint_ >> "|" >> +qi::char_, 
 				pasPos);
 			lineCount++;
 			break;
@@ -188,7 +192,7 @@ int main (int argc, char * argv[]) {
 	}
 	inTP.close();
 	
-	//reading in the TN data set
+	//reading-in the TN data set
 	std::ifstream inTN(negativeFasta.string());
 	lineCount = 0;
 	line.clear();
@@ -198,7 +202,7 @@ int main (int argc, char * argv[]) {
 		case 0: 
 		{
 			qi::parse(line.begin(), line.end(), 
-				">" >> +~qi::char_('|') >> "|" >> qi::uint_ >> "|" >> +qi::char_, 
+				">" >> +~qi::char_('|') >> "|" >> +~qi::char_('|') >> "|" >> qi::uint_ >> "|" >> +qi::char_, 
 				pasPos);
 			lineCount++;
 			break;
@@ -217,7 +221,6 @@ int main (int argc, char * argv[]) {
 			};
 			//storing position, chromosome and strand of the TN and the sequence around the TN
 			pasPosAndSeqTN.push_back(std::make_pair(pasPos, ss));	
-			
 			std::string pas;
 			if (pasPos.strand == "-") {
 				std::transform(line.rbegin() + 249, line.rbegin() + 255, 
@@ -230,7 +233,7 @@ int main (int argc, char * argv[]) {
 			if (pasDistributionTN.find(pas) != pasDistributionTN.end()) {
 				pasDistributionTN[pas]++;
 			} else {
-				std::cerr << pas << " was not found in TN set!" << std::endl;		
+				std::cerr << pas << " was not found in TN set!  "  << pasPos.strand << std::endl;		
 			}
 
 			totalTrueNegatives++;
@@ -255,7 +258,7 @@ int main (int argc, char * argv[]) {
 	std::ofstream outFN(fnFasta.string(), std::ofstream::out);
 	std::ofstream outTN(tnFasta.string(), std::ofstream::out);
 	std::ofstream outFP(fpFasta.string(), std::ofstream::out);
-	//running the prediction 33 times with different thresholds (0 to 1.6 in 0.05 steps and one more for the default thresholds)
+	//running the prediction multiple times with different thresholds (increased by step) 
 	double step = 0.03;
 	for (size_t i = 0; i < 1; i++) {
 		size_t numTruePositives = 0; //found true positives/negatives

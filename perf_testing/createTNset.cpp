@@ -21,13 +21,16 @@
 namespace fs = boost::filesystem;
 namespace qi = boost::spirit::qi;
 
+struct transcriptProperties {
+	std::string seqId;
+	std::string strand;
+	size_t pasPosition;
+};
+
 //writes the sequence around a putative PAS to a file (FASTA like)
 bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) {
-	typedef std::string key;
-	typedef std::string strand;
-	typedef size_t position;
+	typedef std::string chr;
 	typedef std::pair<size_t, size_t> range;
-	typedef std::pair<position, strand> posStrandPair;
 	
 	fs::path refGeneFile = "ucsc_data/refGene.txt";
 	fs::path ucscMappedTx = "ucsc_data/ucsc_txRefSeq.txt";
@@ -41,10 +44,10 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 	}
 
 	RefGeneParser refGene(refGeneFile);	
-	std::map<key, std::vector<range> > utrRangeVec;
+	std::map<chr, std::vector<range> > utrRangeVec;
 	std::vector<std::string> transcriptVector = refGene.getKeys();
 	//map that stores position and strand of a match sorted by chromosome (key)
-	std::map<key, std::vector<posStrandPair> > trueNegatives;
+	std::map<chr, std::vector<transcriptProperties> > trueNegatives;
 	std::unordered_map<std::string, size_t> ucscTxRefSeq = polar::utility::getTxRefSeqAccessions(ucscMappedTx);
 	std::unordered_map<std::string, double> thresholdMap = {
 		{std::string("aataaa"), 0.0},
@@ -142,7 +145,7 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 					for (auto it = trueNegatives[refGeneProp.chr].begin(); 
 						it != trueNegatives[refGeneProp.chr].end(); 
 						it++) {
-						if (it->first == geneticPos) {
+						if (it->pasPosition == geneticPos) {
 							duplicate = true;
 							break;
 						}
@@ -178,7 +181,10 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 					//nor already found in another transcript (duplicate) 
 					if (! inUtr && ! duplicate) {
 						trueNegatives[refGeneProp.chr].push_back(
-							std::make_pair(geneticPos, refGeneProp.strand)
+							transcriptProperties{*txIter,
+								refGeneProp.strand,
+								geneticPos
+							}
 						);
 						hitCounter++;
 						pasCountMap[stdMotifAtPos]++;
@@ -197,8 +203,9 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 		for (auto it = trueNegatives.begin(); it != trueNegatives.end(); it++) {
 			//iterating over every putative PAS
 			for (auto vecIt = it->second.begin(); vecIt != it->second.end(); vecIt++) {
-				size_t & pos = vecIt->first;
-				std::string & strand = vecIt->second;
+				size_t & pos = vecIt->pasPosition;
+				std::string & strand = vecIt->strand;
+				std::string & seqId = vecIt->seqId;
 				seqan::CharString temp;
 				//mapping chromosome to id number for use in the fasta index
 				unsigned idx = polar::utility::getFastaIndex(it->first);
@@ -224,7 +231,7 @@ bool createTNset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 				if (strand == "+") seq.insert(250, motifSequence);
 				else seq.insert(245, motifSequence);
 
-				output << ">" << it->first << "|" << pos << "|" << strand << std::endl
+				output << ">" << seqId << "|" << it->first << "|" << pos << "|" << strand << std::endl
 					<< seq << std::endl;
 			}
 		}

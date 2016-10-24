@@ -20,14 +20,17 @@
 namespace fs = boost::filesystem;
 namespace qi = boost::spirit::qi;
 
+struct transcriptProperties {
+	std::string seqId;
+	std::string strand;
+	size_t pasPosition;
+};
+
 
 bool createTPset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) {
-	typedef std::string key;
-	typedef std::string strand;
-	typedef size_t position;
-	typedef std::pair<position, strand> posStrandPair;
+	typedef std::string chr;
 	//map that stores position and strand of a match sorted by chromosome (key)
-	std::map<key, std::vector<posStrandPair> > truePositives;
+	std::map<chr, std::vector<transcriptProperties> > truePositives;
 	fs::path refGeneFile = "ucsc_data/refGene.txt";
 	fs::path knownPolyA = "../perf_testing/knownPolyAtranscript.txt";
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
@@ -106,22 +109,28 @@ bool createTPset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 			bool isDuplicate = false;
 			auto mapVecIter = truePositives[refGeneProp.chr].begin();
 			for(; mapVecIter != truePositives[refGeneProp.chr].end(); mapVecIter++) {
-				if (mapVecIter->first == geneticPos) {
+				if (mapVecIter->pasPosition == geneticPos) {
 					isDuplicate = true;
 					break;
 				}
 			}
 			if (! isDuplicate) {
-				truePositives[refGeneProp.chr].push_back(std::make_pair(geneticPos, refGeneProp.strand));
+				truePositives[refGeneProp.chr].push_back(
+					transcriptProperties{txAndPatchPair.first + std::to_string(txAndPatchPair.second), 
+						refGeneProp.strand, 
+						geneticPos}
+				);
 			}
 		}
 	}
+	std::cerr << __FUNCTION__ << " line 126" << std::endl;
 	std::ofstream output(out.string());
 	if (output.is_open()) {
 		for (auto it = truePositives.begin(); it != truePositives.end(); it++) {
 			for (auto vecIt = it->second.begin(); vecIt != it->second.end(); vecIt++) {
-				size_t & pos = vecIt->first;
-				std::string & strand = vecIt->second;
+				size_t & pos = vecIt->pasPosition;
+				std::string & strand = vecIt->strand;
+				std::string & seqId = vecIt->seqId;
 				seqan::CharString temp;
 				size_t idx = polar::utility::getFastaIndex(it->first);
 				//copy the genomic sequence 100 bases around the genomic position of the PAS (200nt long)
@@ -132,7 +141,7 @@ bool createTPset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 				}
 				std::string seq(seqan::toCString(temp));
 				
-				output << ">" << it->first << "|" << pos << "|" << strand << std::endl;
+				output << ">" << seqId << "|" <<it->first << "|" << pos << "|" << strand << std::endl;
 				output << seq << std::endl;
 				
 			}

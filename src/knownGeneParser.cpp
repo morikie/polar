@@ -90,7 +90,8 @@ void KnownGeneParser::parse() {
 		std::cerr << "Could not find " << this->file.string() << std::endl;
 		return;
 	}
-	boost::iostreams::mapped_file_source in(this->file.string());
+	std::string f = this->file.string();
+	boost::iostreams::mapped_file_source in(f);
 
 	typedef char const* base_iterator_type;
 	base_iterator_type first(in.data());
@@ -101,7 +102,7 @@ void KnownGeneParser::parse() {
 	
 	knownGeneGrammar<base_iterator_type> grammar;
 
-	bool result = qi::parse(first, last, grammar, this->data);
+	qi::parse(first, last, grammar, this->data);
 
 }
 

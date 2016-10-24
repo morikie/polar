@@ -1,4 +1,5 @@
-tempPos = read.csv("/home/morikie/Documents/Forschungspraktikum/C++/polar/scripts/utr_foldings/basePairProbAtPAS.csv", header=FALSE)
+dataFolder = "/home/alphons/Uni/polar/scripts/"
+tempPos = read.csv(paste0(dataFolder, "utr_foldings/basePairProbAtPAS.csv"), header=FALSE)
 
 xPos = seq(0, 99)
 yPos = rep(0, 100)

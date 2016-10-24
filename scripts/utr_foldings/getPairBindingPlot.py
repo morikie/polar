@@ -122,6 +122,7 @@ if __name__ == "__main__":
 	polyAPosDict = readPolyaPosPerId(polyaF)
 	outputCsv = open("basePairProbAtPAS.csv", "w")
 	fullOutputCsv = open("fullBasePairProb.csv", "w")
+        consideredLength = 100
 
 	for psFile in os.listdir("."):
 		if psFile.endswith(".ps"):
@@ -141,6 +142,6 @@ if __name__ == "__main__":
 			numPos = len(polyAPosDict[seqId].pasPos)
 			for i, pasPos in enumerate(polyAPosDict[seqId].pasPos):
 				#sys.stdout.write(seqId + ", " + str(offset) + ", ")
-				bppList = createCsvOutput(outputCsv, basePairProbDict, pasPos[0] - offset, 100)
+				bppList = createCsvOutput(outputCsv, basePairProbDict, pasPos[0] - offset, consideredLength)
 				if bppList is not None:
 					createMotifBpp(classBpp, seqId, i + 1, pasPos, bppList, numPos)

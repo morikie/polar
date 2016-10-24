@@ -83,7 +83,8 @@ void ReadTranscripts::parse() {
 		std::cerr << "Could not find " << this->file.string() << std::endl;
 		return;
 	}
-	boost::iostreams::mapped_file_source in(this->file.string());
+	std::string f = this->file.string();
+	boost::iostreams::mapped_file_source in(f);
 
 	typedef char const* base_iterator_type;
 	base_iterator_type first(in.data());
@@ -95,7 +96,7 @@ void ReadTranscripts::parse() {
 	knownGeneMrnaGrammar<base_iterator_type> grammar;
 
 	
-	bool result = qi::parse(first, last, grammar, this->transcripts);
+	qi::parse(first, last, grammar, this->transcripts);
 
 }
 

@@ -1,3 +1,4 @@
+#define BOOST_TEST_MODULE polar_test
 #define BOOST_TEST_MAIN polar 
 
 #include <cmath>
@@ -5,7 +6,7 @@
 #include <limits>
 #include <unordered_map>
 #include <boost/optional/optional_io.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #include "../src/fastaReader.hpp"
 #include "../src/jannovarVcfParser.hpp"
 #include "../src/knownGeneParser.hpp"
@@ -506,6 +507,7 @@ BOOST_AUTO_TEST_CASE ( utr3FinderFuzzy ) {
 	double interceptLeft1 = - 2.0 / 3;
 	double slopeRight1 = - 1.0 / 20;
 	double interceptRight1 = 11.0 / 4;
+	std::cerr << pairLeft1.first << ", " << slopeLeft1 << std::endl;
 	BOOST_CHECK(almost_equal(pairLeft1.first, slopeLeft1, 2));
 	BOOST_CHECK(almost_equal(pairLeft1.second, interceptLeft1, 2));
 	BOOST_CHECK(almost_equal(pairRight1.first, slopeRight1, 2));
