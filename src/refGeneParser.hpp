@@ -48,7 +48,7 @@ public:
 	typedef std::string transcriptName;
 	typedef std::unordered_map<transcriptName, RefGeneProperties> txPropMap;
 
-	/* empty RefGeneProperies struct for return values */
+	/* empty RefGeneProperties struct for return values */
 	RefGeneProperties emptyRefGeneProperties = RefGeneProperties { 
 		std::string(),
 		std::string(),

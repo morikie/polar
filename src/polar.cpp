@@ -57,6 +57,7 @@ int main (int args, char * argv[]) {
 	JannovarVcfParser variants(vcfFile);
 	std::vector<std::shared_ptr<Utr3Finder> > utr3FinderVector;	
 	std::vector<SeqStruct> seqStructVector;
+	bool searchBackward = true;
 	
 	
 	if (args > 1) {
@@ -111,7 +112,7 @@ int main (int args, char * argv[]) {
 		
 		try {
 			for (auto it = seqStructVector.begin(); it != seqStructVector.end(); ++it) {
-				utr3FinderVector.push_back(std::shared_ptr<Utr3Finder>(new Utr3FinderFuzzy(*it)));
+				utr3FinderVector.push_back(std::shared_ptr<Utr3Finder>(new Utr3FinderFuzzy(*it, searchBackward)));
 			}
 		} catch (...) {
 			std::cerr << "error occured creating Utr3Finder object" << std::endl;

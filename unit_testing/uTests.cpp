@@ -500,7 +500,7 @@ BOOST_AUTO_TEST_CASE ( utr3FinderFuzzy ) {
 		boost::none
 	};
 	size_t utr3MotifPos = 26;
-	Utr3FinderFuzzy utr3FinderFuz_test1 (txTest1);
+	Utr3FinderFuzzy utr3FinderFuz_test1 (txTest1, true);
 	auto pairLeft1 = Utr3FinderFuzzy::dseLocMap.find(std::string("aataaa"))->second.getLeftStraight();
 	auto pairRight1 = Utr3FinderFuzzy::dseLocMap.find(std::string("aataaa"))->second.getRightStraight();
 	double slopeLeft1 = 1.0 / 15;

@@ -223,11 +223,14 @@ std::unordered_map<Utr3FinderFuzzy::motifSequence, double> Utr3FinderFuzzy::thre
 /**
  * Constructor.
  */
-Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt):
+Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt, const bool & searchBackward):
 	Utr3Finder(sSt)
-{	
+{
+	this->searchBackward = searchBackward;	
 	const std::string & seq = this->seqStruct.seq;
-	std::transform(seq.rbegin(), seq.rend(), std::back_inserter(this->reversedSeq), polar::utility::complement);
+	if (this->searchBackward) {
+		std::transform(seq.rbegin(), seq.rend(), std::back_inserter(this->reversedSeq), polar::utility::complement);
+	}
 	this->findPolyaMotif();
 
 }
@@ -255,15 +258,17 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 			posIt++;
 		}
 	}
+	
 	//searching backward strand
-	BOOST_FOREACH (const Utr3FinderFuzzy::pasToDseLocMap::value_type & v, Utr3FinderFuzzy::dseLocMap) {
-		auto posIt = revSeq.begin();
-		while ((posIt = std::search(posIt, revSeq.end(), v.first.begin(), v.first.end())) != revSeq.end()) {
-			revCandidatePositions.push_back(std::distance(revSeq.begin(), posIt));
-			posIt++;
+	if (this->searchBackward) {
+		BOOST_FOREACH (const Utr3FinderFuzzy::pasToDseLocMap::value_type & v, Utr3FinderFuzzy::dseLocMap) {
+			auto posIt = revSeq.begin();
+			while ((posIt = std::search(posIt, revSeq.end(), v.first.begin(), v.first.end())) != revSeq.end()) {
+				revCandidatePositions.push_back(std::distance(revSeq.begin(), posIt));
+				posIt++;
+			}
 		}
 	}
-
 	//verifying forward candidates
 	BOOST_FOREACH(const size_t & candPos, candidatePositions) {
 		std::string motif(seq.begin() + candPos, seq.begin() + candPos + 6);
@@ -271,6 +276,7 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 		double dseShortTValue;
 		double useTvalue;
 		double combDseDinucleoTValue;
+
 		combDseTValue = calcCombinedDseTvalue(candPos, seq);
 		dseShortTValue = calcDseShortTvalue(candPos, seq);
 		useTvalue = calcUseTvalue(candPos, seq);
@@ -280,28 +286,31 @@ void Utr3FinderFuzzy::findPolyaMotif() {
 			polyaPosVector.push_back(Utr3FinderResult{
 				candPos, 
 				finalTvalue,
-				"+"
+				(this->searchBackward) ? "+" : "0"
 				});
 		}
 	}
 	//verifying backward candidates
-	BOOST_FOREACH(const size_t & candPos, revCandidatePositions) {
-		std::string motif(revSeq.begin() + candPos, revSeq.begin() + candPos + 6);
-		double combDseTValue;
-		double dseShortTValue;
-		double useTvalue;
-		double combDseDinucleoTValue;
-		combDseTValue = calcCombinedDseTvalue(candPos, revSeq);
-		dseShortTValue = calcDseShortTvalue(candPos, revSeq);
-		useTvalue = calcUseTvalue(candPos, revSeq);
-		combDseDinucleoTValue = calcCombinedDinucleoDseTvalue(candPos, revSeq);
-		double finalTvalue = combDseTValue + combDseDinucleoTValue + useTvalue + dseShortTValue;
-		if (finalTvalue >= thresholdMap.find(motif)->second) {
-			polyaPosVector.push_back(Utr3FinderResult{
-				seq.size() - 1 - candPos,
-				finalTvalue,
-				"-"
-				});
+	if (this->searchBackward) {
+		BOOST_FOREACH(const size_t & candPos, revCandidatePositions) {
+			std::string motif(revSeq.begin() + candPos, revSeq.begin() + candPos + 6);
+			double combDseTValue;
+			double dseShortTValue;
+			double useTvalue;
+			double combDseDinucleoTValue;
+
+			combDseTValue = calcCombinedDseTvalue(candPos, revSeq);
+			dseShortTValue = calcDseShortTvalue(candPos, revSeq);
+			useTvalue = calcUseTvalue(candPos, revSeq);
+			combDseDinucleoTValue = calcCombinedDinucleoDseTvalue(candPos, revSeq);
+			double finalTvalue = combDseTValue + combDseDinucleoTValue + useTvalue + dseShortTValue;
+			if (finalTvalue >= thresholdMap.find(motif)->second) {
+				polyaPosVector.push_back(Utr3FinderResult{
+					seq.size() - 1 - candPos,
+					finalTvalue,
+					"-"
+					});
+			}
 		}
 	}
 }

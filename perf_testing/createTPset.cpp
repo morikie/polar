@@ -123,7 +123,6 @@ bool createTPset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 			}
 		}
 	}
-	std::cerr << __FUNCTION__ << " line 126" << std::endl;
 	std::ofstream output(out.string());
 	if (output.is_open()) {
 		for (auto it = truePositives.begin(); it != truePositives.end(); it++) {

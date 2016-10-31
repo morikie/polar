@@ -15,6 +15,10 @@ namespace utility {
 namespace qi = boost::spirit::qi;
 namespace fs = boost::filesystem;
 
+
+/**
+ * Maps PAS motives to integers.
+ */
 size_t motifToIndex(std::string & motif) {
 	if (motif == "aataaa") return 0;
 	else if (motif == "attaaa") return 1;
@@ -32,6 +36,9 @@ size_t motifToIndex(std::string & motif) {
 }
 
 
+/**
+ * Returns the complementary DNA base.
+ */
 char complement(const char c) {
 	switch(c) {
 	case 'a':
@@ -53,6 +60,9 @@ char complement(const char c) {
 }
 
 
+/**
+ * Maps the words "chr1", "chr2" etc. to integers for use as identifiers in the FastaIndex read functions.
+ */
 size_t getFastaIndex(const std::string & chr) {
 	size_t idx = UINT_MAX;
 	if (chr == "chrX" || chr == "X" || chr == "x") {
@@ -69,6 +79,10 @@ size_t getFastaIndex(const std::string & chr) {
 	return idx; 
 }
 
+
+/**
+ * Crude function to obtain the patch version of RefSeq transcripts from file ucsc_txRefSeq.txt (not offical file).
+ */
 std::unordered_map<std::string, size_t> getTxRefSeqAccessions(const fs::path & f) {
 	typedef std::string accession;
 	typedef size_t patch;

@@ -90,10 +90,11 @@ public:
 
 protected:
 	std::string reversedSeq;
-	size_t windowSize = 10;
+	const size_t windowSize = 10;
+	bool searchBackward;
 
 public: 
-	Utr3FinderFuzzy(const SeqStruct & sSt);
+	Utr3FinderFuzzy(const SeqStruct & sSt, const bool & searchBackward);
 	virtual ~Utr3FinderFuzzy();
 
 	virtual bool isMutationInMotif() const override;
@@ -114,7 +115,6 @@ protected:
 	double calcCombinedDinucleoDseTvalue( const size_t & pos, const std::string & seq);
 	double calcDseShortTvalue(const size_t & pos, const std::string & seq);
 	double calcUseTvalue(const size_t & pos, const std::string & seq);
-
 };      
 
 

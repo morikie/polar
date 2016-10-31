@@ -116,6 +116,7 @@ int main (int argc, char * argv[]) {
 		{std::string("actaaa"), new std::ofstream("actaaa.fa")},
 		{std::string("aataga"), new std::ofstream("aataga.fa")}
 	};
+	const bool searchBackward = true;
 	std::vector<double> sensitivityVec;
 	std::vector<double> specificityVec;
 	size_t totalTrueNegatives = 0; //total number of true negatives
@@ -270,7 +271,7 @@ int main (int argc, char * argv[]) {
 
 		//evaluating every true positive
 		for (auto vecIt = pasPosAndSeqTP.begin(); vecIt != pasPosAndSeqTP.end(); vecIt++) { 
-			Utr3FinderFuzzy u3Fuzzy(vecIt->second);		
+			Utr3FinderFuzzy u3Fuzzy(vecIt->second, searchBackward);	
 			std::vector<Utr3Finder::Utr3FinderResult> u3FuzzyResVector = u3Fuzzy.getPolyaMotifPos();
 			std::string & strand = vecIt->first.strand;
 			bool foundMatch = false;
@@ -306,7 +307,7 @@ int main (int argc, char * argv[]) {
 		sensitivityVec.push_back(sensitivity);
 		//evaluating every true negative
 		for (auto vecIt = pasPosAndSeqTN.begin(); vecIt != pasPosAndSeqTN.end(); vecIt++) {
-			Utr3FinderFuzzy u3Fuzzy(vecIt->second);
+			Utr3FinderFuzzy u3Fuzzy(vecIt->second, searchBackward);
 			std::vector<Utr3Finder::Utr3FinderResult> u3FuzzyResVector = u3Fuzzy.getPolyaMotifPos();
 			std::string & strand = vecIt->first.strand;
 			bool foundMatch = false;
@@ -353,7 +354,9 @@ int main (int argc, char * argv[]) {
 			boost::none,
 			boost::none,
 			boost::none
-		});
+			}, 
+			searchBackward
+		);
 		tempObj.setThresholdMap(thresholdMap);
 		if (i != 0) {
 			for (auto mapIter = thresholdMap.begin(); mapIter != thresholdMap.end(); mapIter++) {

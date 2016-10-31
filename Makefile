@@ -21,11 +21,10 @@ OBJS		= $(TPATH)buildIndexFile.o \
 	$(TPATH)seqStruct.o \
 	$(TPATH)utr3Finder.o \
 	$(TPATH)utr3FinderFuzzy.o \
-	$(TPATH)utr3FinderNaive.o 
-
+	$(TPATH)utr3FinderNaive.o \
 
 .PHONY : all
-all : $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test $(TPATH)perf_fuzzy
+all : $(TPATH)polar $(TPATH)uTests $(TPATH)acc_test $(TPATH)perf_fuzzy $(TPATH)perf_bppFuzzy
 
 lib/polarUtility.o : src/polarUtility.hpp src/polarUtility.cpp 
 	@echo "[Compile] polar utility functions"
@@ -102,6 +101,10 @@ $(TPATH)utr3FinderFuzzy.o : src/utr3FinderFuzzy.hpp src/utr3FinderFuzzy.cpp src/
 	@echo "[Compile] UTR3FinderFuzzy"
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) src/utr3FinderFuzzy.cpp -o $(TPATH)utr3FinderFuzzy.o
 
+$(TPATH)bppPredictFuzzy.o : src/bppPredictFuzzy.hpp src/bppPredictFuzzy.cpp src/utr3FinderFuzzy.hpp src/utr3Finder.hpp
+	@echo "[Compile] BPPPredictFuzzy"
+	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $(LIBPATH) $(CFLAGS) $(LIBS) src/bppPredictFuzzy.cpp -o $(TPATH)bppPredictFuzzy.o
+
 #targets for the performance tests
 $(TPATH)acc_test : $(TPATH)acc_test.o \
 	$(TPATH)hgvsParser.o \
@@ -152,7 +155,24 @@ $(TPATH)refGeneParser.o : src/refGeneParser.hpp src/refGeneParser.cpp
 	@echo "[Compile] RefGeneParser"
 	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) src/refGeneParser.cpp -o $(TPATH)refGeneParser.o
 
+$(TPATH)perf_bppFuzzy : $(TPATH)perf_bppFuzzy.o \
+	$(TPATH)createTPset.o \
+	$(TPATH)createTNset.o \
+	$(TPATH)hgvsParser.o \
+	lib/polarUtility.o \
+	$(TPATH)readKnownPolyA.o \
+	$(TPATH)refGeneParser.o \
+	$(TPATH)utr3Finder.o \
+	$(TPATH)utr3FinderFuzzy.o \
+	$(TPATH)utr3FinderNaive.o \
+	$(TPATH)seqStruct.o \
+	$(TPATH)bppPredictFuzzy.o
+	@echo "[Link] perf_bppFuzzy"
+	@$(CC) $(BOOST) $(SEQAN) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)perf_bppFuzzy
 
+$(TPATH)perf_bppFuzzy.o : perf_testing/perf_bppFuzzy.hpp perf_testing/perf_bppFuzzy.cpp
+	@echo "[Compile] perf_bppFuzzy"
+	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/perf_bppFuzzy.cpp -o $(TPATH)perf_bppFuzzy.o
 
 .PHONY : clean
 clean :
