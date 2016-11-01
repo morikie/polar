@@ -3,6 +3,7 @@
 
 #include <boost/filesystem/path.hpp>
 #include "../src/refGeneParser.hpp"
+#include "utr3Finder.hpp"
 #include "utr3FinderFuzzy.hpp"
 
 extern "C" {
@@ -19,7 +20,9 @@ private:
 	std::string utrSeq;
 	std::string txId;
 	static RefGeneParser refGen;
+	//length of the considered bases after transcript end
 	const size_t txOffset = 200;
+	std::vector<Utr3Finder::Utr3FinderResult> utr3FinderRes;
 
 public:
 	BppPredictFuzzy(const std::string & txId, const std::string & seq);

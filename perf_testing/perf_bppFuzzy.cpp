@@ -6,7 +6,7 @@
 
 int main (int argc, char * argv[]) {
 	std::string test = "gattaca";
-	std::string txTestId = "NM_000123151";
+	std::string txTestId = "NM_080679";
 	BppPredictFuzzy bppFuzzyTest = BppPredictFuzzy(txTestId, test);
 }
 
