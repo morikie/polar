@@ -2,6 +2,7 @@ import os
 import sys
 from collections import OrderedDict
 
+#stores for each position 'i' a list of positions 'j' and their respective probabilities
 class ijProbability:
 	def __init__(self, i):
 		self.i = i
@@ -21,6 +22,7 @@ class PasProperties:
 		
 
 #extracting the base pair probabilities from the postscript files that Vienna created
+#and storing them in a dictionary (key: position i, value: ijProbability object)
 def readBasePairProb(fileIter):
 	bppDict = OrderedDict()
 	for line in fileIter:
@@ -117,9 +119,9 @@ def createMotifBpp(output, ident, pasCount, pasPosTuple, bppList, totalNumPas):
 
 if __name__ == "__main__":
 	polyaF = open("../knownPolya.txt", "r")
+	polyAPosDict = readPolyaPosPerId(polyaF)
 	classBpp = open("classificationBpp.csv", "w")
 	classBpp.write("ID, countedPosition, UTR position, motif, avg bpp, total PAS in UTR\n")
-	polyAPosDict = readPolyaPosPerId(polyaF)
 	outputCsv = open("basePairProbAtPAS.csv", "w")
 	fullOutputCsv = open("fullBasePairProb.csv", "w")
         consideredLength = 100
@@ -142,6 +144,8 @@ if __name__ == "__main__":
 			numPos = len(polyAPosDict[seqId].pasPos)
 			for i, pasPos in enumerate(polyAPosDict[seqId].pasPos):
 				#sys.stdout.write(seqId + ", " + str(offset) + ", ")
+                                #print(seqId + ": ")
+                                #print(str(pasPos) + " pasPos: " + str(pasPos[0]) + " offset: " + str(offset) + " difference: " + str(pasPos[0] - offset))
 				bppList = createCsvOutput(outputCsv, basePairProbDict, pasPos[0] - offset, consideredLength)
 				if bppList is not None:
 					createMotifBpp(classBpp, seqId, i + 1, pasPos, bppList, numPos)

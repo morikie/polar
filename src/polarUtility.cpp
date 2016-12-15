@@ -6,6 +6,8 @@
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/filesystem.hpp>
+#include <seqan/seq_io.h>
+#include "refGeneParser.hpp"
 #include "polarUtility.hpp"
 
 
@@ -98,6 +100,109 @@ std::unordered_map<std::string, size_t> getTxRefSeqAccessions(const fs::path & f
 	}
 	return txRefSeq;
 }
+
+
+/**
+ * Return the length of a 3' UTR.
+ */
+size_t getUtrLength(const RefGeneProperties & txProp) {
+	size_t utr3Length = 0;
+	if (txProp.strand == "+") {
+
+		for (int i = txProp.exonStarts.size() - 1; i >= 0; i--) {
+			if (txProp.cdsEnd >= txProp.exonStarts[i]) {
+				utr3Length = txProp.exonEnds[i] - txProp.cdsEnd;
+				for (size_t j = static_cast<size_t>(i) + 1; j < txProp.exonStarts.size(); j++) { 
+					utr3Length += txProp.exonEnds[j] - txProp.exonStarts[j];
+				}
+				break;
+			}
+		}
+	} else {
+		for (size_t i = 0; i < txProp.exonEnds.size(); i++) {
+			if (txProp.cdsStart <= txProp.exonEnds[i]) {
+				utr3Length = txProp.cdsStart - txProp.exonStarts[i];
+				for (int j = static_cast<int>(i) - 1; j >= 0; j--) { 
+					utr3Length += txProp.exonEnds[j] - txProp.exonStarts[j];
+				}
+				break;
+			}
+		}
+	}
+	return utr3Length;
+}
+
+
+/**
+ * Return the 3' UTR sequence.
+ */
+std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & fai) {
+	std::string returnString = std::string();
+	size_t chr = polar::utility::getFastaIndex(txProp.chr);
+	const std::string & strand = txProp.strand;
+	if (strand == "-") {
+		for (size_t i = 0; i < txProp.exonEnds.size(); i++) {
+			if (txProp.cdsStart <= txProp.exonEnds[i]) {
+				seqan::CharString finalString;
+				seqan::CharString temp;
+				for (size_t j = 0; j <= i; j++) {
+					if (j == i) {
+						seqan::readRegion(temp, fai, chr, txProp.exonStarts[j], txProp.cdsStart);
+						seqan::append(finalString, temp);
+						seqan::clear(temp);
+					} else {
+						seqan::readRegion(temp, fai, chr, txProp.exonStarts[j], txProp.exonEnds[j]);
+						seqan::append(finalString, temp);
+						seqan::clear(temp);
+					}
+				}
+				seqan::reverseComplement(finalString);
+				seqan::toLower(finalString);
+				returnString = std::string(seqan::toCString(finalString));
+				break;
+			}
+		}
+	} else {
+		for (int i = txProp.exonStarts.size() - 1; i >= 0; i--) {
+			if (txProp.cdsEnd >= txProp.exonStarts[i]) {
+				seqan::CharString finalString;
+				seqan::CharString temp;
+				seqan::readRegion(finalString, fai, chr, txProp.cdsEnd, txProp.exonEnds[i]);
+				for (size_t j = i + 1; j < txProp.exonStarts.size(); j++) {
+					seqan::readRegion(temp, fai, chr, txProp.exonStarts[j], txProp.exonEnds[j]);
+					seqan::append(finalString, temp);
+					seqan::clear(temp);
+				}
+				returnString = std::string(seqan::toCString(finalString));
+				break;
+			}
+			
+		}
+	}
+	return returnString;
+}
+
+
+size_t mapGenomePosToTxPos(const RefGeneProperties & txProp, const size_t genomePos) {
+	const std::string & strand = txProp.strand;
+	size_t txLength = 0;
+	for (size_t i = 0; i < txProp.exonStarts.size(); i++) txLength += txProp.exonEnds[i] - txProp.exonStarts[i];
+	size_t txPos = 0;
+	for (size_t i = 0; i < txProp.exonEnds.size(); i++) {
+		if (txProp.exonEnds[i] <= genomePos) {
+			txPos += txProp.exonEnds[i] - txProp.exonStarts[i];
+		} else {
+			txPos += genomePos - txProp.exonStarts[i];
+			break;
+		}
+	}
+	if (strand == "-") {
+		return  txLength - txPos;
+	} else {
+		return txPos;
+	}	
+}
+
 
 } /* namespace utility */
 } /* namespace polar */

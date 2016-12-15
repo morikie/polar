@@ -116,7 +116,7 @@ bool createTPset (const fs::path & out, const seqan::FaiIndex & refGenomeIndex) 
 			}
 			if (! isDuplicate) {
 				truePositives[refGeneProp.chr].push_back(
-					transcriptProperties{txAndPatchPair.first + std::to_string(txAndPatchPair.second), 
+					transcriptProperties{txAndPatchPair.first + "." + std::to_string(txAndPatchPair.second), 
 						refGeneProp.strand, 
 						geneticPos}
 				);

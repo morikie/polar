@@ -1,5 +1,5 @@
 CC 		= g++
-CFLAGS		= -c -Wall -Wextra -pedantic -std=c++14 -g
+CFLAGS		= -c -Wall -Wextra -pedantic -O2 -std=c++14 -g
 LFLAGS		= -Wall -fopenmp
 BOOST		= -I $(HOME)/boost_1_62_0 
 SEQAN		= -I $(HOME)/seqan/include
@@ -170,7 +170,7 @@ $(TPATH)perf_bppFuzzy : $(TPATH)perf_bppFuzzy.o \
 	@echo "[Link] perf_bppFuzzy"
 	@$(CC) $(BOOST) $(SEQAN) $^ $(LIBPATH) $(LFLAGS) $(LIBS) -o $(TPATH)perf_bppFuzzy
 
-$(TPATH)perf_bppFuzzy.o : perf_testing/perf_bppFuzzy.hpp perf_testing/perf_bppFuzzy.cpp
+$(TPATH)perf_bppFuzzy.o : perf_testing/perf_bppFuzzy.hpp perf_testing/perf_bppFuzzy.cpp src/polarUtility.hpp
 	@echo "[Compile] perf_bppFuzzy"
 	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/perf_bppFuzzy.cpp -o $(TPATH)perf_bppFuzzy.o
 

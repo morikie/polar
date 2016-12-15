@@ -223,12 +223,12 @@ std::unordered_map<Utr3FinderFuzzy::motifSequence, double> Utr3FinderFuzzy::thre
 /**
  * Constructor.
  */
-Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt, const bool & searchBackward):
-	Utr3Finder(sSt)
+Utr3FinderFuzzy::Utr3FinderFuzzy(const SeqStruct & sSt, const bool & seaBack):
+	Utr3Finder(sSt),
+	searchBackward(seaBack)	
 {
-	this->searchBackward = searchBackward;	
-	const std::string & seq = this->seqStruct.seq;
 	if (this->searchBackward) {
+		const std::string & seq = this->seqStruct.seq;
 		std::transform(seq.rbegin(), seq.rend(), std::back_inserter(this->reversedSeq), polar::utility::complement);
 	}
 	this->findPolyaMotif();
@@ -438,6 +438,9 @@ double Utr3FinderFuzzy::calcUseTvalue(const size_t & pos, const std::string & se
 }
 
 
+/**
+ * Calculates and returns the maximum dinucleotide concentration in a certain window.
+ */
 double Utr3FinderFuzzy::calcCombinedDinucleoDseTvalue(const size_t & pos, const std::string & seq) {
 	size_t windowSize = 10;
 	std::string dinucleotide("tg");
