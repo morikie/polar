@@ -6,7 +6,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <omp.h>
 #include <boost/foreach.hpp>
 #include "polarUtility.hpp"
 #include "seqStruct.hpp"
@@ -500,7 +499,7 @@ double Utr3FinderFuzzy::calcCombinedDinucleoDseTvalue(const size_t & pos, const 
  * Set the threshold map to determine a correct prediction.
  */
 void Utr3FinderFuzzy::setThresholdMap(std::unordered_map<std::string, double> & map) {
-	this->thresholdMap = map;
+	Utr3FinderFuzzy::thresholdMap = map;
 }
 
 

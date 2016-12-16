@@ -182,18 +182,25 @@ std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & f
 	return returnString;
 }
 
-
+/**
+ * Mapping the genomic position to the transcript position. Integrity is checked.
+ */
 size_t mapGenomePosToTxPos(const RefGeneProperties & txProp, const size_t genomePos) {
+	if (genomePos < txProp.exonStarts.front() || genomePos > txProp.exonEnds.back()) return UINT_MAX;
 	const std::string & strand = txProp.strand;
-	size_t txLength = 0;
-	for (size_t i = 0; i < txProp.exonStarts.size(); i++) txLength += txProp.exonEnds[i] - txProp.exonStarts[i];
+	size_t txLength = polar::utility::getTxLength(txProp);
 	size_t txPos = 0;
 	for (size_t i = 0; i < txProp.exonEnds.size(); i++) {
+		//inside another exon
 		if (txProp.exonEnds[i] <= genomePos) {
 			txPos += txProp.exonEnds[i] - txProp.exonStarts[i];
-		} else {
+		//inside this exon
+		} else if (txProp.exonEnds[i] > genomePos && txProp.exonStarts[i] <= genomePos) {
 			txPos += genomePos - txProp.exonStarts[i];
 			break;
+		//genomePos is part of an intron; returning error code
+		} else {
+			return UINT_MAX;
 		}
 	}
 	if (strand == "-") {
@@ -201,6 +208,16 @@ size_t mapGenomePosToTxPos(const RefGeneProperties & txProp, const size_t genome
 	} else {
 		return txPos;
 	}	
+}
+
+
+/** 
+ * Calculate transcript length by summing over the exon lengths.
+ */
+size_t getTxLength(const RefGeneProperties & txProp) {
+	size_t txLength = 0;
+	for (size_t i = 0; i < txProp.exonStarts.size(); i++) txLength += txProp.exonEnds[i] - txProp.exonStarts[i];
+	return txLength;
 }
 
 

@@ -102,8 +102,9 @@ public:
 	std::string getRevComplementSeq() const;
 	virtual std::string getMotifSequence(const Utr3FinderResult & result) const override;
 	virtual std::vector<Utr3FinderResult> getPolyaMotifPos() const override;
-	void setThresholdMap(std::unordered_map<std::string, double> & map);
 	virtual void writeInfo() const override;
+
+	static void setThresholdMap(std::unordered_map<std::string, double> & map);
 
 protected:
 	virtual void findPolyaMotif() override;

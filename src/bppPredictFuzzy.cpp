@@ -156,7 +156,15 @@ void BppPredictFuzzy::startPrediction() {
 	if (this->maxBpp == nullptr) {
 		this->foldUtr();
 	}
+	for (auto & res : this->utr3FinderRes) {
+		std::cerr << res.truthValue << " ";
+	}
+	std::cerr << std::endl;
 	this->calcBppTruthValue();
+	for (auto & res : this->utr3FinderRes) {
+		std::cerr << res.truthValue << " ";
+	}
+	std::cerr << std::endl;
 }
 
 

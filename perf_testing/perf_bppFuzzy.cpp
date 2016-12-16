@@ -6,6 +6,7 @@
 #include "../src/bppPredictFuzzy.hpp"
 #include "../src/polarUtility.hpp"
 #include "../src/refGeneParser.hpp"
+#include "../src/utr3FinderFuzzy.hpp"
 #include "perf_bppFuzzy.hpp"
 
 
@@ -121,7 +122,7 @@ bool testCase(RefGeneParser & parser) {
 	std::string extractedUtr = polar::utility::getUtrSequence(txPro, faiIndex);
 	
 	size_t testLengthFromGenome = polar::utility::getUtrLength(txPro);
-	std::cerr << "utrLenFromGenome: " << testLengthFromGenome << " | utrLen NM_004081: " << testUtr.size() << std::endl;
+	//std::cerr << "utrLenFromGenome: " << testLengthFromGenome << " | utrLen NM_004081: " << testUtr.size() << std::endl;
 	if (extractedUtr != testUtr) {
 		std::cerr << "extractedUtr:" << std::endl << extractedUtr << std::endl << testId << std::endl << testUtr << std::endl;
 		return false;
@@ -154,7 +155,7 @@ bool testCase(RefGeneParser & parser) {
 	}
 	 
 	testLengthFromGenome = polar::utility::getUtrLength(txPro);
-	std::cerr << "utrLenFromGenome: " << testLengthFromGenome << " | utrLen " << testId2 << ": " << testUtr2.size() << std::endl;
+	//std::cerr << "utrLenFromGenome: " << testLengthFromGenome << " | utrLen " << testId2 << ": " << testUtr2.size() << std::endl;
 	if (extractedUtr != testUtr2) {
 		std::cerr << "extractedUtr:" << std::endl << extractedUtr << std::endl << testId2 << std::endl << testUtr2 << std::endl;
 		return false;
@@ -182,9 +183,26 @@ int main (int argc, char * argv[]) {
 	typedef size_t truePos;
 	std::vector<std::pair<BppPredictFuzzy, truePos> > resVector;
 	RefGeneParser refGen = RefGeneParser(refGenPath);		
-	
+
 	if (! testCase(refGen)) return 1;		
-	size_t ignoredPas = 0;
+	
+	
+	std::unordered_map<Utr3FinderFuzzy::motifSequence, double> thresholdMap = {
+		{std::string("aataaa"), 0.0},
+		{std::string("attaaa"), 0.0},
+		{std::string("tataaa"), 0.0},
+		{std::string("agtaaa"), 0.0},
+		{std::string("aagaaa"), 0.0},
+		{std::string("aatata"), 0.0},
+		{std::string("aataca"), 0.0},
+		{std::string("cataaa"), 0.0},
+		{std::string("gataaa"), 0.0},
+		{std::string("aatgaa"), 0.0},
+		{std::string("actaaa"), 0.0},
+		{std::string("aataga"), 0.0}
+	};
+	Utr3FinderFuzzy::setThresholdMap(thresholdMap);
+	size_t ignoredPas = 0;	
 	size_t loopCounter = 0;
 	size_t evaluatedPas = 0;
 	std::set<std::string> uniques;
@@ -192,25 +210,23 @@ int main (int argc, char * argv[]) {
 	for (auto & pas : pasVector) {
 		auto txProp = refGen.getValueByKey(pas.seqId);
 		size_t utrLength = polar::utility::getUtrLength(txProp);
-		/*
-		if (txProp.strand == "-") {
-			utrStart = txProp.txStart;
-			utrEnd = txProp.cdsStart;
+		size_t txPos = polar::utility::mapGenomePosToTxPos(txProp, pas.pos);
+		size_t txLen = polar::utility::getTxLength(txProp);
+		if (txPos == UINT_MAX) {
+			std::cerr << "warning: couldn't map positions for " << pas.seqId << std::endl;
 		}
-		size_t utrLength = polar::utility::getUtrLength(txProp);
-		if (utrLength != utrEnd - utrStart) {
-			std::cerr << pas.seqId << " | " << pas.strand << std::endl;
-			++loopCounter;
-			continue;
-		}
-		*/
+		if (static_cast<int>(txPos) - (static_cast<int>(txLen) - static_cast<int>(utrLength)) < 0 ) {
+			std::cerr << "uint overflow: " << pas.seqId << " | txPos: " << txPos
+				<< " | txLen: " << txLen 
+				<< " | utrLength: " << utrLength << std::endl;
+		}	
 		if (argc > 1 &&std::string(argv[1]) == "verbose") {
 			std::cerr << pas.seqId << " | " << "utrLength: " << utrLength  << " | ";
 		}
-		if (utrLength < 5000) {
-			size_t txPos = polar::utility::mapGenomePosToTxPos(txProp, pas.pos);
+		
+		if (utrLength < 5000 && txPos != UINT_MAX) {
 			BppPredictFuzzy tempObj = BppPredictFuzzy(pas.seqId);
-			resVector.push_back(std::make_pair(tempObj, txPos - utrLength));
+			resVector.push_back(std::make_pair(tempObj, txPos - (txLen - utrLength)));
 			evaluatedPas++;
 			if (uniques.insert(tempObj.getTxId()).second) {
 				std::vector<double> bppVector = tempObj.getMaxBppVector();
@@ -235,24 +251,32 @@ int main (int argc, char * argv[]) {
 	std::cout << std::endl << "evaluatedPas: " << evaluatedPas << std::endl;
 	
 	size_t notFound = 0;
+	size_t total = resVector.size();
+	double threshold = 1.23;
 	//sensitivity/specificity evaluation
-	std::ofstream sensitivityOut("sensitivityOut.txt");
+	std::ofstream sensitivityOut("sensitivityOut.csv");
 	for (auto & resObject : resVector) {
-		auto posObjVector = resObject.first.getResults(0.0);
+		auto posObjVector = resObject.first.getResults(threshold);
 		bool found = false;
 		for (auto & posObj : posObjVector) {
-			std::cerr << "posObj.pos: " << posObj.pos << " true position: " << resObject.second << std::endl;
 			if (posObj.pos == resObject.second) {
-				sensitivityOut << ">" << resObject.first.getTxId() << "|" << posObj.pos << std::endl
+				sensitivityOut << resObject.first.getTxId() << "|" 
+					<< posObj.pos << ", "
 					<< posObj.truthValue << std::endl;
 				found = true;
 				break;
 			}
 		}
 		if (! found) {
+			//std::cerr << resObject.first.getTxId() <<  
+			//	" true position: " << resObject.second << std::endl;
 			notFound++;
 		}
-	}
+	}	
+	sensitivityOut.close();
+	double sensitivity = (static_cast<double>(total) - notFound) / total;
+	std::cerr << "Sensitivity at threshold: " << threshold << " | " << std::fixed << std::setprecision(2) << sensitivity << std::endl;
+	std::cerr << "total: " << total << std::endl;
 	std::cerr << "not found: " << notFound << std::endl;
 	return EXIT_SUCCESS;
 }
