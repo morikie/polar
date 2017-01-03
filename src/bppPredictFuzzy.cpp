@@ -29,12 +29,12 @@ namespace qi = boost::spirit::qi;
  * Using the vector index as position reference for the motif (hence we got 6 items in this vector).
  */
 std::vector<BppPredictFuzzy::tvFunction> BppPredictFuzzy::motifPositionToTruthValue  = {
-	{BppPredictFuzzy::tvFunction(0.10, 0.30, 1.0)},
-	{BppPredictFuzzy::tvFunction(0.10, 0.30, 1.0)},
-	{BppPredictFuzzy::tvFunction(0.10, 0.30, 1.0)},
-	{BppPredictFuzzy::tvFunction(0.10, 0.30, 1.0)},
-	{BppPredictFuzzy::tvFunction(0.10, 0.30, 1.0)},
-	{BppPredictFuzzy::tvFunction(0.10, 0.30, 1.0)}
+	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
+	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
+	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
+	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
+	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
+	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)}
 };
 
 
@@ -156,15 +156,19 @@ void BppPredictFuzzy::startPrediction() {
 	if (this->maxBpp == nullptr) {
 		this->foldUtr();
 	}
+	/*
 	for (auto & res : this->utr3FinderRes) {
 		std::cerr << res.truthValue << " ";
 	}
 	std::cerr << std::endl;
+	*/
 	this->calcBppTruthValue();
+	/*
 	for (auto & res : this->utr3FinderRes) {
 		std::cerr << res.truthValue << " ";
 	}
 	std::cerr << std::endl;
+	*/
 }
 
 
@@ -178,15 +182,6 @@ void BppPredictFuzzy::foldUtr() {
 	vrna_fold_compound_t * foldStruct = vrna_fold_compound (cStringUtr, NULL, VRNA_OPTION_PF | VRNA_OPTION_MFE);
 	double mfe = (double)vrna_mfe(foldStruct, mfe_structure);
 	vrna_exp_params_rescale(foldStruct, &mfe);
-	//usually need higher scale value (than default) to avoid program aborts
-	/*
-	if (this->utrSeq.size() > 1000) {
-		vrna_exp_param_s * params = vrna_exp_params(NULL);
-		params->pf_scale = 1.7;
-		vrna_exp_params_subst(foldStruct, params);
-		free(params);
-	}
-	*/
 	vrna_mfe(foldStruct, mfe_structure);
 	//std::cerr << test << std::endl << mfe_structure << std::endl;
 	vrna_pf(foldStruct, NULL);
@@ -240,9 +235,9 @@ void BppPredictFuzzy::evaluatePotentialPas() {
 	//So Utr3FinderFuzzy is able to analyze the PAS close to the transcript end.
 	seqan::CharString seq;
 	if (strand == "+") {
-		seqan::readRegion(seq, BppPredictFuzzy::faiIndex, idx, utrEnd, this->txOffset);
+		seqan::readRegion(seq, BppPredictFuzzy::faiIndex, idx, utrEnd, utrEnd + this->txOffset + 1);
 	} else {
-		seqan::readRegion(seq, BppPredictFuzzy::faiIndex, idx, utrStart - (this->txOffset - 1), utrStart+ 1);
+		seqan::readRegion(seq, BppPredictFuzzy::faiIndex, idx, utrStart - (this->txOffset + 1), utrStart);
 		seqan::reverseComplement(seq);
 	}
 	seqan::toLower(seq);
@@ -282,6 +277,7 @@ void BppPredictFuzzy::calcBppTruthValue() {
 			truthValue = this->getTruthValue((*(this->maxBpp))[pos + i], i);
 			sumTv += truthValue;
 		}
+		//std::cerr << "sumTv: " << sumTv << " sumTv/6: " << sumTv / 6 << std::endl;
 		candidate.truthValue += sumTv / 6;
 	}
 }

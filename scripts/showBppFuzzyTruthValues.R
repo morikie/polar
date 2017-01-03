@@ -1,4 +1,5 @@
 dataFolder = "/home/alphons/Uni/polar/"
-truthValues = read.csv(paste0(dataFolder, "bin/sensitivityOut_noThreshold.csv"), header=FALSE)
+truthValues = read.csv(paste0(dataFolder, "bin/sensitivityOut.csv"), header=FALSE)
 
 hist(truthValues[,2])
+

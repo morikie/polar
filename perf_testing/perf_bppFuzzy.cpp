@@ -118,6 +118,7 @@ bool testCase(RefGeneParser & parser) {
 	}
 	std::string testId = "NM_004081";
 	std::string testUtr = "taaattccgttgttactcaagatgactgcttcaagggtaaaagagtgcatcgctttagaagaagtttggcagtatttaaatctgttggatcctctcagctatctagtttcatgggaagttgctggttttgaatattaagctaaaagttttccactattacagaaattctgaattttggtaaatcacactgaaactttctgtataacttgtattattagactctctagttttatcttaacactgaaactgttcttcattagatgtttatttagaacctggttctgtgtttaatatatagtttaaagtaacaaataatcgagactgaaagaatgttaagatttatctgcaaggatttttaaaaaattgaaacttgcattttaagtgtttaaaagcaaatactgactttcaaaaaagtttttaaaacctgatttgaaagctaacaattttgatagtctgaacacaagcatttcacttctccaagaagtacctgtgaacagtacaatatttcagtattgagctttgcatttatgatttatctagaaatttacctcaaaagcagaatttttaaaactgcatttttaatcagtggaactcaatgtatagttagctttattgaagtcttatccaaacccagtaaaacagattctaagcaaacagtccaatcagtgagtcataatgtttattcaaagtattttatcttttatctagaatccacatatgtatgtccaatttgattgggatagtagttaggataactaaaattctgggcctaattttttaaagaatccaagacaaactaaactttactgggtatataaccttctcaatgagttaccattcttttttataaaaaaaattgttccttgaaatgctaaacttaatggctgtatgtgaaatttgcaaaatactggtattaaagaacgctgcagcttttttatgtcactcaaaggttaatcggagtatctgaaaggaattgtttttataaaaacattgaagtattagttacttgctataaatagatttttatttttgttttttagcctgttatatttccttctgtaaaataaaatatgtccagaagaggcatgttgtttctagattaggtagtgtcctcattttatattgtgaccacacagctagagcaccagagcccttttgctatactcacagtcttgttttcccagcctcttttactagtctttcaggaggtttgctcttagaactggtgatgtaaagaatggaagtagctgtatgagcagttcaaaggccaagccgtggaatggtagcaatgggatataatacctttctaagggaaacatttgtatcagtatcatttgatctgccatggacatgtgtttaaagtggctttctggcccttctttcaatggcttcttccctaaaacgtggagactctaagttaatgtcgttactatgggccatattactaatgcccactggggtctatgatttctcaaaattttcattcggaatccgaaggatacagtctttaaactttagaattcccaagaaggctttattacacctcagaaattgaaagcaccatgactttgtccattaaaaaattatccatagtttttttagtgcttttaacattccgacatacatcattctgtgattaaatctccagatttctgtaaatgatacctacattctaaagagttaattctaattattccgatatgaccttaaggaaaagtaaaggaataaatttttgtctttgttgaagtatttaatagagtaaggtaaagaagatattaagtccctttcaaaatggaaaattaattctaaactgagaaaaatgttcctactacctattgctgatactgtctttgcataaatgaataaaaataaactttttttcttcaaatgtg";
+	std::string testOffset = "tttttggctttccgatgtaataatgtaaaatggtggggagttgcgtgggaactgtgtaacaaggtttaaattcgtataacaagctttagattcttaaaatgcagaagtataaagttcagtatactaatctgtctgagttagcccataaaagcaaatgtaggtacaaagataagtttaagaggtgcatcaacagcagtgcag";
 	auto txPro = parser.getValueByKey(testId);
 	std::string extractedUtr = polar::utility::getUtrSequence(txPro, faiIndex);
 	
@@ -131,15 +132,23 @@ bool testCase(RefGeneParser & parser) {
 	size_t two = 25345237;
 	size_t shouldBeZero = polar::utility::mapGenomePosToTxPos(txPro, zero);
 	size_t shouldBeTwo = polar::utility::mapGenomePosToTxPos(txPro, two);
-
 	if (shouldBeZero != 0 || shouldBeTwo != 2) {
 		std::cerr << "shouldBeZero: " << shouldBeZero << std::endl;
 		std::cerr << "shouldBeTwo: " << shouldBeTwo << std::endl;
 		//return false;
 	}
+	BppPredictFuzzy tempObj = BppPredictFuzzy(testId);
+	std::string tempObjUtr = tempObj.getUtrSeq();
+	std::string tempObjOffsetSeq = tempObj.getOffsetSeq();
+	if (testUtr != tempObjUtr) return false;
+	if (tempObjOffsetSeq != testOffset) {
+		std::cerr << testOffset << std::endl 
+			<< tempObjOffsetSeq << std::endl;
+		return false;
+	}
 	std::string testId2 = "NM_018836";
 	std::string testUtr2 = "ctggccgaagtcttttttacctcctgggggcagggcagacgccgtgtgtctgtttcacggattccgttggtgaacctgtaaaaacaaaacaaacaaaacaaaacaaaaaagacaaaacctaaaactgagctatctaagggggagggtccccgcacctaccacttctgtttgccggtgggaaactcacagagcaggacgctctaggccaaatctatttttgtaaaaatgctcatgcctatgggtgactgccttctcccagagttttctttggagaacagaaagaagaaaggaaagaaaggaaccagaggcagagagacgaggatacccagcgaaagggacgggaggaagcatccgaaacctaggattcgtcctacgattctgaacctgtgccaataataccattatgtgccatgtactgacccgaaaggctcggccgcagagccggggcccagcgaatcacgcagagaaatcttacagaaaacaggggtgggaatctcttccgatagagtcgctatttctggttaatatacatatataaatatataaatacaaacacacacacacactttttttgtactgtagcaatttttgaagatcttaaatgttcctttttaaaaaaaagaattgtgttataggttacaaaatctgatttatttaacatgcttagtatgagcagaataaaccagtgttttctactttggcaactcacgtcacacacatattacacacatgtgcgcattacacacacacaatacacatacatgcatatagacgcatctattggaaatgcagttccacaggtgagcatgttctttctggtgacctggtattccatcaccattcaccccaggggacagcctcgaccgagacaaggaggcccttaaatgacagcctgcatttgctagacggttggtgagtggcatcaaatgtgtgacttactatcttgggccagaactaagaatgccaaggttttatatatgtgtgtgtatatatatatatatatatatatatatatatatatatatgtttgtgtgtgtatatatatatatatatatatatgtttgtgtgtgtatatatatgtttgtgtatatatatacacatatgcatacatatgatttttttttttcatttaagtgttggaagatgctacctaacagccacgttcacatttacgtagctggttgcttacaaacgggcctgagcccctggttgggtgggtggtggattcttggacgtgtgtgtcatacaagcatagactggattaaagaagttttccagttccaaaaattaaaggaatatatcctta";
-
+	std::string testOffset2 = "tgatgtgtgtgtgtaatatcagggcagaacttagacatacgtgaagggccccggttggtttgaaaacgaaaaatagtcattctgtgtgcaaaccacaaggctgccccagtcaggcagcgccctgacctggcctgtgctgcattgccttcccttgcgcaggtgggcaggtgtggcccgctttttctagggcccaagggtgac";
 	txPro = parser.getValueByKey(testId2);
 	extractedUtr = polar::utility::getUtrSequence(txPro, faiIndex);
 	
@@ -153,7 +162,21 @@ bool testCase(RefGeneParser & parser) {
 		std::cerr << "shouldBeTwo: " << shouldBeTwo << std::endl;
 		return false;
 	}
-	 
+	BppPredictFuzzy tempObj2 = BppPredictFuzzy(testId2);
+	std::string tempObj2Utr = tempObj2.getUtrSeq();
+	std::string tempObj2OffsetSeq = tempObj2.getOffsetSeq();
+
+	if (testUtr2 != tempObj2Utr) {
+		std::cerr << testUtr2 << std::endl 
+			<< tempObj2Utr << std::endl;
+		return false;
+	}
+	if (tempObj2OffsetSeq != testOffset2) {
+		std::cerr << testOffset2 << std::endl 
+			<< tempObj2OffsetSeq << std::endl;
+		return false;
+	}
+	
 	testLengthFromGenome = polar::utility::getUtrLength(txPro);
 	//std::cerr << "utrLenFromGenome: " << testLengthFromGenome << " | utrLen " << testId2 << ": " << testUtr2.size() << std::endl;
 	if (extractedUtr != testUtr2) {
@@ -248,36 +271,39 @@ int main (int argc, char * argv[]) {
 	}
 	
 	std::cout << std::endl << "ignoredPas: " << ignoredPas << std::endl;
-	std::cout << std::endl << "evaluatedPas: " << evaluatedPas << std::endl;
+	std::cout << "evaluatedPas: " << evaluatedPas << std::endl;
 	
-	size_t notFound = 0;
 	size_t total = resVector.size();
-	double threshold = 1.23;
+	double threshold = 1.0;
+	double stepSize = 0.05;
 	//sensitivity/specificity evaluation
-	std::ofstream sensitivityOut("sensitivityOut.csv");
-	for (auto & resObject : resVector) {
-		auto posObjVector = resObject.first.getResults(threshold);
-		bool found = false;
-		for (auto & posObj : posObjVector) {
-			if (posObj.pos == resObject.second) {
-				sensitivityOut << resObject.first.getTxId() << "|" 
-					<< posObj.pos << ", "
-					<< posObj.truthValue << std::endl;
-				found = true;
-				break;
+	for (;threshold <= 5.5; threshold += stepSize) {
+		size_t notFound = 0;
+		std::ofstream sensitivityOut("sensitivityOut.csv");
+		for (auto & resObject : resVector) {
+			auto posObjVector = resObject.first.getResults(threshold);
+			bool found = false;
+			for (auto & posObj : posObjVector) {
+				if (posObj.pos == resObject.second) {
+					sensitivityOut << resObject.first.getTxId() << "|" 
+						<< posObj.pos << ", "
+						<< posObj.truthValue << std::endl;
+					found = true;
+					break;
+				}
 			}
-		}
-		if (! found) {
-			//std::cerr << resObject.first.getTxId() <<  
-			//	" true position: " << resObject.second << std::endl;
-			notFound++;
-		}
-	}	
-	sensitivityOut.close();
-	double sensitivity = (static_cast<double>(total) - notFound) / total;
-	std::cerr << "Sensitivity at threshold: " << threshold << " | " << std::fixed << std::setprecision(2) << sensitivity << std::endl;
-	std::cerr << "total: " << total << std::endl;
-	std::cerr << "not found: " << notFound << std::endl;
+			if (! found) {
+				//std::cerr << resObject.first.getTxId() <<  
+				//	" true position: " << resObject.second << std::endl;
+				notFound++;
+			}
+		}	
+		sensitivityOut.close();
+		double sensitivity = (static_cast<double>(total) - notFound) / total;
+		std::cerr << "Sensitivity at threshold: " << threshold << " | " << std::fixed << std::setprecision(2) << sensitivity << std::endl;
+		//std::cerr << "total: " << total << std::endl;
+		//std::cerr << "not found: " << notFound << std::endl;
+	}
 	return EXIT_SUCCESS;
 }
 
