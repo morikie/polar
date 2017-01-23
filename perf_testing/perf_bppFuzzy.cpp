@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 #include <string>
 #include <boost/filesystem/path.hpp>
 #include <boost/foreach.hpp>
@@ -28,6 +29,7 @@ struct PasPosition {
 	}
 };
 
+
 //used by boost::spirit to parse into a PasPosition object
 BOOST_FUSION_ADAPT_STRUCT (
 	PasPosition,
@@ -36,6 +38,55 @@ BOOST_FUSION_ADAPT_STRUCT (
 	(size_t, pos)
 	(std::string, strand)
 )
+
+BppPredictFuzzy::bppVectorPerTranscriptMap setNewBppDictionary(fs::path bppFile) {
+	std::cout << "Initializing BPP map...";
+	std::ifstream inFile(bppFile.string());
+	std::string line;
+	std::string transcriptId;
+	BppPredictFuzzy::utrBppVector tempVec;
+	BppPredictFuzzy::bppVectorPerTranscriptMap tempMap;
+	size_t lineCount = 0;
+	while (std::getline(inFile, line)) {
+		switch (lineCount) {
+		case 0:
+		{	
+
+			qi::parse(line.begin(), line.end(), 
+				">" >> +qi::char_, 
+				transcriptId);
+			//std::cerr << transcriptId << std::endl;
+			lineCount++;
+			break;
+		}
+		case 1: 
+		{	
+			qi::parse(line.begin(), line.end(),
+				 +(qi::double_ >> " "),
+				 tempVec);
+			if (tempMap.find(transcriptId) == tempMap.end()) {
+				tempMap[transcriptId] = tempVec;
+			}
+			transcriptId.clear();
+			tempVec.clear();
+			lineCount = 0;
+			break;
+		}
+		}
+	}
+	inFile.close();
+	std::cout << "DONE" << std::endl;
+	/*
+	for (auto & pair : tempMap) {
+		std::cerr << pair.first << ": ";
+		for (auto & item : pair.second) {
+			std::cerr << item << ", ";
+		}
+		std::cerr << std::endl;
+	}
+	*/
+	return tempMap;	
+}
 
 
 /**
@@ -184,7 +235,6 @@ bool testCase(RefGeneParser & parser) {
 		return false;
 	}
 	return true;
-
 }
 
 
@@ -192,6 +242,7 @@ int main (int argc, char * argv[]) {
 	//TODO: scripts/positiveSet.fa und scripts/negativeSet.fa einlesen, dann bearbeiten mit BppPredictFuzzy und Sens/Spec berechnen
 	//am besten lange Sequenzen rausfiltern
 	fs::path bppOut = "../perf_testing/bppOutput.txt";
+	fs::path bppOutTn = "../perf_testing/bppOutputTn.txt";
 	fs::path positiveDataset = "../perf_testing/positiveSet.fa";
 	fs::path utrSequences = "../scripts/rna_UTRs_copy.fa";
 	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
@@ -201,8 +252,6 @@ int main (int argc, char * argv[]) {
 	std::unordered_map<std::string, std::string> utrSeq;	
 	getPositiveDataSet(pasVector, positiveDataset);
 	getUtrByTranscript(utrSeq, utrSequences);
-	size_t utrSeqLength = utrSeq.size();
-	double tvThreshold = 1.0;
 	typedef size_t truePos;
 	std::vector<std::pair<BppPredictFuzzy, truePos> > resVector;
 	RefGeneParser refGen = RefGeneParser(refGenPath);		
@@ -225,9 +274,11 @@ int main (int argc, char * argv[]) {
 		{std::string("aataga"), 0.0}
 	};
 	Utr3FinderFuzzy::setThresholdMap(thresholdMap);
+	
 	size_t ignoredPas = 0;	
 	size_t loopCounter = 0;
 	size_t evaluatedPas = 0;
+	size_t maxUtrLength = 5000;
 	std::set<std::string> uniques;
 	std::ofstream bppOutStream(bppOut.string());
 	for (auto & pas : pasVector) {
@@ -235,6 +286,7 @@ int main (int argc, char * argv[]) {
 		size_t utrLength = polar::utility::getUtrLength(txProp);
 		size_t txPos = polar::utility::mapGenomePosToTxPos(txProp, pas.pos);
 		size_t txLen = polar::utility::getTxLength(txProp);
+		size_t pasUtrPos = txPos - (txLen - utrLength);
 		if (txPos == UINT_MAX) {
 			std::cerr << "warning: couldn't map positions for " << pas.seqId << std::endl;
 		}
@@ -249,7 +301,7 @@ int main (int argc, char * argv[]) {
 		
 		if (utrLength < 5000 && txPos != UINT_MAX) {
 			BppPredictFuzzy tempObj = BppPredictFuzzy(pas.seqId);
-			resVector.push_back(std::make_pair(tempObj, txPos - (txLen - utrLength)));
+			resVector.push_back(std::make_pair(tempObj, pasUtrPos));
 			evaluatedPas++;
 			if (uniques.insert(tempObj.getTxId()).second) {
 				std::vector<double> bppVector = tempObj.getMaxBppVector();
@@ -269,14 +321,15 @@ int main (int argc, char * argv[]) {
 		}
 		++loopCounter;
 	}
-	
+	bppOutStream.close();
+
 	std::cout << std::endl << "ignoredPas: " << ignoredPas << std::endl;
 	std::cout << "evaluatedPas: " << evaluatedPas << std::endl;
 	
 	size_t total = resVector.size();
 	double threshold = 1.0;
 	double stepSize = 0.05;
-	//sensitivity/specificity evaluation
+	//sensitivity evaluation
 	for (;threshold <= 5.5; threshold += stepSize) {
 		size_t notFound = 0;
 		std::ofstream sensitivityOut("sensitivityOut.csv");
@@ -293,16 +346,96 @@ int main (int argc, char * argv[]) {
 				}
 			}
 			if (! found) {
-				//std::cerr << resObject.first.getTxId() <<  
-				//	" true position: " << resObject.second << std::endl;
 				notFound++;
 			}
 		}	
 		sensitivityOut.close();
 		double sensitivity = (static_cast<double>(total) - notFound) / total;
 		std::cerr << "Sensitivity at threshold: " << threshold << " | " << std::fixed << std::setprecision(2) << sensitivity << std::endl;
-		//std::cerr << "total: " << total << std::endl;
-		//std::cerr << "not found: " << notFound << std::endl;
+	}
+	
+	//specificity calculations
+	resVector.clear();	
+	fs::path bppDictTn = "../perf_testing/utrBppPerTranscriptTn.txt";	
+	BppPredictFuzzy::utrBppMap.clear();
+	BppPredictFuzzy::utrBppMap = setNewBppDictionary(bppDictTn);
+	seqan::FaiIndex faiIndex;
+	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
+		std::cerr << "could not open index file for " << referenceGenome << std::endl;
+	}
+	std::ofstream bppOutputTn(bppOutTn.string());
+	loopCounter = 0;
+	for (auto & pas : pasVector) {
+		auto txProp = refGen.getValueByKey(pas.seqId);
+		size_t utrLength = polar::utility::getUtrLength(txProp);
+		size_t txPos = polar::utility::mapGenomePosToTxPos(txProp, pas.pos);
+		size_t txLen = polar::utility::getTxLength(txProp);
+		size_t pasUtrPos = txPos - (txLen - utrLength);
+		if (txPos == UINT_MAX) {
+			std::cerr << "warning: couldn't map positions for " << pas.seqId << std::endl;
+		}
+		if (static_cast<int>(txPos) - (static_cast<int>(txLen) - static_cast<int>(utrLength)) < 0 ) {
+			std::cerr << "uint overflow: " << pas.seqId << " | txPos: " << txPos
+				<< " | txLen: " << txLen 
+				<< " | utrLength: " << utrLength << std::endl;
+		}	
+		if (argc > 1 &&std::string(argv[1]) == "verbose") {
+			std::cerr << pas.seqId + "_" + std::to_string(pasUtrPos) << " | " << "utrLength: " << utrLength << " | ";  
+		}
+		
+		if (utrLength < maxUtrLength && txPos != UINT_MAX) {
+			std::string utr = polar::utility::getUtrSequence(txProp, faiIndex);
+			std::string motif = std::string(utr.begin() + pasUtrPos, utr.begin() + pasUtrPos + 6);
+			std::string utrOffset = polar::utility::getSeqAfterUtr(txProp, faiIndex, 200);
+			std::random_shuffle(utrOffset.begin(), utrOffset.end());
+			utr.erase(utr.begin() + pasUtrPos, utr.begin() + pasUtrPos + 6);
+			std::random_shuffle(utr.begin(), utr.end());
+			utr.insert(pasUtrPos, motif);
+			
+			BppPredictFuzzy tempObj = BppPredictFuzzy(pas.seqId + "_" + std::to_string(pasUtrPos), utr, utrOffset);
+			resVector.push_back(std::make_pair(tempObj, pasUtrPos));
+			evaluatedPas++;
+			std::vector<double> bppVector = tempObj.getMaxBppVector();
+			bppOutputTn << ">" << tempObj.getTxId() << "\n";
+			for(double & d : bppVector) {
+				bppOutputTn << d << " ";
+			}
+			bppOutputTn << "\n";
+		} else {
+			++ignoredPas;
+		}
+		if (argc > 1 && std::string(argv[1]) == "verbose") {
+			double process = static_cast<double>(loopCounter) / pasVector.size() * 100;
+			std::cout << "Process: " <<  std::setprecision(2) << std::setw(6) << std::fixed << process << "%" << std::endl;
+				//<< "\r" << std::flush;
+		}
+		++loopCounter;
+	}
+	total = resVector.size();
+	threshold = 1.0;
+	//sensitivity evaluation
+	for (;threshold <= 5.5; threshold += stepSize) {
+		size_t notFound = 0;
+		std::ofstream specificityOut("specificityOut.csv");
+		for (auto & resObject : resVector) {
+			auto posObjVector = resObject.first.getResults(threshold);
+			bool found = false;
+			for (auto & posObj : posObjVector) {
+				if (posObj.pos == resObject.second) {
+					specificityOut << resObject.first.getTxId() << "|" 
+						<< posObj.pos << ", "
+						<< posObj.truthValue << std::endl;
+					found = true;
+					break;
+				}
+			}
+			if (! found) {
+				notFound++;
+			}
+		}	
+		specificityOut.close();
+		double specificity = static_cast<double>(notFound) / total;
+		std::cerr << "Specificity at threshold: " << threshold << " | " << std::fixed << std::setprecision(2) << specificity << std::endl;
 	}
 	return EXIT_SUCCESS;
 }

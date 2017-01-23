@@ -20,6 +20,7 @@ size_t getUtrLength(const RefGeneProperties & txProp);
 std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & fai);
 size_t mapGenomePosToTxPos(const RefGeneProperties & txProp, size_t genomePos);
 size_t getTxLength(const RefGeneProperties & txProp);
+std::string getSeqAfterUtr(const RefGeneProperties & txProp, seqan::FaiIndex & faiIndex, size_t offset); 
 
 } /* namespace utility */
 } /* namespace polar */

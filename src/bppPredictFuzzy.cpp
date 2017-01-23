@@ -29,12 +29,12 @@ namespace qi = boost::spirit::qi;
  * Using the vector index as position reference for the motif (hence we got 6 items in this vector).
  */
 std::vector<BppPredictFuzzy::tvFunction> BppPredictFuzzy::motifPositionToTruthValue  = {
-	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
-	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
-	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
-	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
-	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)},
-	{BppPredictFuzzy::tvFunction(0.0, 0.25, 2.00)}
+	{BppPredictFuzzy::tvFunction(0.10, 0.25, 1.00)},
+	{BppPredictFuzzy::tvFunction(0.10, 0.25, 1.00)},
+	{BppPredictFuzzy::tvFunction(0.10, 0.25, 1.00)},
+	{BppPredictFuzzy::tvFunction(0.10, 0.25, 1.00)},
+	{BppPredictFuzzy::tvFunction(0.10, 0.25, 1.00)},
+	{BppPredictFuzzy::tvFunction(0.10, 0.25, 1.00)}
 };
 
 
@@ -138,9 +138,12 @@ BppPredictFuzzy::BppPredictFuzzy(const std::string & id,
 	offsetSeq(offSeq),
 	txId(id)
 {
-	//TODO: Provide randomized utr and offsetSeq and have it folded
+	if (utrBppMap.find(this->txId) != utrBppMap.end()) {
+		this->maxBpp = &utrBppMap.find(this->txId)->second;
+	}
 	this->startPrediction();
 }
+
 
 /*
  * Destructor.
@@ -156,19 +159,7 @@ void BppPredictFuzzy::startPrediction() {
 	if (this->maxBpp == nullptr) {
 		this->foldUtr();
 	}
-	/*
-	for (auto & res : this->utr3FinderRes) {
-		std::cerr << res.truthValue << " ";
-	}
-	std::cerr << std::endl;
-	*/
 	this->calcBppTruthValue();
-	/*
-	for (auto & res : this->utr3FinderRes) {
-		std::cerr << res.truthValue << " ";
-	}
-	std::cerr << std::endl;
-	*/
 }
 
 
@@ -219,34 +210,14 @@ void BppPredictFuzzy::evaluatePotentialPas() {
 	//Give me a map with all the transcripts and their properties
 	const RefGeneProperties & txProps = this->refGen.getValueByKey(this->txId);
         //Was the user-specified transcript ID found?
-	if (txProps == this->refGen.emptyRefGeneProperties) {
-		std::cerr << "Could not find " << this->txId << std::endl;
-		return;
+	if (! (txProps == this->refGen.emptyRefGeneProperties)) {
+		this->utrSeq = polar::utility::getUtrSequence(txProps, this->faiIndex);
+		this->offsetSeq = polar::utility::getSeqAfterUtr(txProps, this->faiIndex, this->txOffset);
 	}
-	const std::string & strand = txProps.strand;
-	size_t utrStart = txProps.cdsEnd;
-	size_t utrEnd = txProps.txEnd;
-	if (strand == "-") {
-		utrStart = txProps.txStart;
-		utrEnd = txProps.cdsStart;
-	}
-	size_t idx = polar::utility::getFastaIndex(txProps.chr);
-	//Retrieving the sequence after the transcript end and concatenating it with the UTR sequence
-	//So Utr3FinderFuzzy is able to analyze the PAS close to the transcript end.
-	seqan::CharString seq;
-	if (strand == "+") {
-		seqan::readRegion(seq, BppPredictFuzzy::faiIndex, idx, utrEnd, utrEnd + this->txOffset + 1);
-	} else {
-		seqan::readRegion(seq, BppPredictFuzzy::faiIndex, idx, utrStart - (this->txOffset + 1), utrStart);
-		seqan::reverseComplement(seq);
-	}
-	seqan::toLower(seq);
-	this->utrSeq = polar::utility::getUtrSequence(txProps, this->faiIndex);
-	this->offsetSeq = std::string(seqan::toCString(seq));
 	//std::cerr << "txEnd: " << txEnd << ", chr: " << txProps.chr << ", txStart: " << txStart << std::endl;
 	//std::cerr << utrSeq << sequence << std::endl;	
 	SeqStruct sStruct = {
-		utrSeq + offsetSeq,
+		this->utrSeq + this->offsetSeq,
 		boost::none,
 		boost::none,
 		boost::none,
@@ -264,20 +235,16 @@ void BppPredictFuzzy::evaluatePotentialPas() {
  * Calculating truth value.
  */
 void BppPredictFuzzy::calcBppTruthValue() {
-	//TODO: evaluate BPPs and calculate TV, then incorporate them with the TV from Utr3FinderFuzzy
 	BOOST_FOREACH(resultStruct & candidate, this->utr3FinderRes) {
 		size_t & pos = candidate.pos;
 		if (pos + 6 > this->maxBpp->size()) continue;
 		double truthValue = 0.0;
 		double sumTv = 0.0;
-		//std::cerr << "maxBpp.size(): " << this->maxBpp->size();
-		//std::cerr << " position: " << pos << ", maxBpp[pos]: " << this->maxBpp->operator[](pos) << std::endl;
 		
 		for (size_t i = 0; i < 6; i++) {
 			truthValue = this->getTruthValue((*(this->maxBpp))[pos + i], i);
 			sumTv += truthValue;
 		}
-		//std::cerr << "sumTv: " << sumTv << " sumTv/6: " << sumTv / 6 << std::endl;
 		candidate.truthValue += sumTv / 6;
 	}
 }
@@ -292,7 +259,7 @@ double BppPredictFuzzy::getTruthValue(const double & bpp, const size_t pos) cons
 	double uB = bppTv.getUpperBound();
 	double lB = bppTv.getLowerBound();
 	double maxTv = bppTv.getMaxTruthValue();
-	
+	std::cerr << "bpp: " << bpp << ", if intermediate: " << maxTv - (interStraight.first * bpp + interStraight.second) << std::endl;
 	if (bpp >= uB) {
 		return 0.0;
 	} else if (bpp <= lB) {

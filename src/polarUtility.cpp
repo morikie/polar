@@ -221,6 +221,32 @@ size_t getTxLength(const RefGeneProperties & txProp) {
 }
 
 
+/**
+ * Returns a std::string that contains the bases after the 3' UTR until a certain offset
+ */
+std::string getSeqAfterUtr(const RefGeneProperties & txProp, seqan::FaiIndex & faiIndex, size_t offset) {
+	const std::string & strand = txProp.strand;
+	size_t utrStart = txProp.cdsEnd;
+	size_t utrEnd = txProp.txEnd;
+	if (strand == "-") {
+		utrStart = txProp.txStart;
+		utrEnd = txProp.cdsStart;
+	}
+	size_t idx = polar::utility::getFastaIndex(txProp.chr);
+	//Retrieving the sequence after the transcript end and concatenating it with the UTR sequence
+	//So Utr3FinderFuzzy is able to analyze the PAS close to the transcript end.
+	seqan::CharString seq;
+	if (strand == "+") {
+		seqan::readRegion(seq, faiIndex, idx, utrEnd, utrEnd + offset + 1);
+	} else {
+		seqan::readRegion(seq, faiIndex, idx, utrStart - (offset + 1), utrStart);
+		seqan::reverseComplement(seq);
+	}
+	seqan::toLower(seq);
+	return std::string(seqan::toCString(seq));	
+}
+
+
 } /* namespace utility */
 } /* namespace polar */
 
