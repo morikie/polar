@@ -118,7 +118,7 @@ this usually means, that we need to predict the molecule structure given only it
 %am besten einfach nussinov -> zuker übergang erzählen und auf die probleme mit nussinov hinweisen
 \citeauthor{pmid6163133} were one of the first to introduce a dynamic programming algorithm to solve the RNA folding problem. The Nussinov algorithm tries to maximize the number of base pairs, however this approach often led to inaccurate predictions.   
 
-A year later, \citeauthor{pmid6163133} published an algorithm that incorporates ideas from chemical thermodynamics to predict the most stable structure: the conformation of a mature molecule is most stable when its in the state of thermal equilibrium, i.e. in the state of minimum free energy (MFE). For RNA secondary structures the MFE is mainly determined by the sum of their hydrogen bonds and base stacks. The free energy values of base pair interactions\todo{picture maybe?} and loops have been measured experimentially and are used in a nearest neighbor model by most implementations of the Zuker algorithm.  
+A year later, \citeauthor{pmid6163133} published an algorithm that incorporates ideas from chemical thermodynamics to predict the most stable structure: the conformation of a mature molecule is most stable when its in the state of thermal equilibrium, i.e. in the state of minimum free energy (MFE). For RNA secondary structures the MFE is mainly determined by the sum of their hydrogen bonds and base stacks. The free energy values of base pair interactions \todo{picture maybe?} and loops have been measured experimentially and are used in a nearest neighbor model by most implementations of the Zuker algorithm.  
 
 Zuker's algorithm uses two matrices $W(i,j)$ and $V(i,j)$. $W(i,j)$ denotes the minimum free energy of all structures that are formed by the subsequence $i$ to $j$, while $V(i,j)$ denotes the minimum free energy of all structures that are formed by the subsequence $i$ to $j$, if $i$ and $j$ are paired. The recursions for $W(i,j)$ are defined as follows:
 
@@ -164,6 +164,28 @@ The basic idea behind comparative structure analysis is that important structura
 
 
 \subsubsection{McCaskill algorithm - calculating BPPs}
+In 1990 \citeauthor{pmid1695107} introduced an algorithm to compute the partition function of a single stranded nucleic acid sequence. The partition function is a method orginating from  mechanical statistics to calculate the likelihood of observing a certain state in a thermodynamic system. The states a system can adopt is called the ensemble. The partition function $Q$ for the ensemble of all possible secondary structures $S$ is defined as follows\citep{pmid1695107}:  
+
+\begin{equation*}
+	Q = \sum_{S} e^{-\dfrac{\Delta G(S)}{RT}}
+\end{equation*} \\
+where
+\begin{equation*}
+  \begin{aligned}
+	T &= \text{temperature in Kelvin} \\
+	\Delta G &= \text{change in the Gibbs free energy} \\
+	R &= \text{ideal gas constant}
+  \end{aligned}
+\end{equation*}
+
+With the help of the partition function we can calculate the probability of a base pair $(k,l)$ forming in the ensemble. Analogous to the Zuker algorithm, McCaskill differentiates between several cases:
+
+\begin{enumerate}
+	\item $(k,l)$ is a non-enclosed base pair, i.e. there is no base pair $(i,j)$ where $k<i<j<l$;
+	\item $(k,l)$ is a bulge, interior loop or part of a stack with $(i,j)$;
+	\item $(k,l)$ is an inner base pair of a multiloop closed by $(i,j)$
+\end{enumerate}
+
 
 
 \subsubsection{ViennaRNA}
