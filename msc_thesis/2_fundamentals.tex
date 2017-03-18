@@ -1,0 +1,54 @@
+\section{Material and Methods}
+
+
+\subsection{Prediction of polyadenylation signals using fuzzy logic}
+As mentioned in the introduction there are many methods available to predict polyadenylation signals. \citeauthor{pmid19393560} introduced a method for detecting PASes using fuzzy logic. In contrast to boolean logic where a truth value can either be zero or one, truth values in fuzzy logic can be any real number in the range $[0,1]$. Fuzzy logic is rather new in the fields of bioinformatics but has been employed to predict peptides binding to the major histocompatiility complex\todo{reference needed}, data clustering\todo{reference needed}, prognostication of cancer\todo{reference needed} and prediction of genetic network \todo{reference needed}. 
+
+Kamasawa and Horiuchi presented two programs in their original paper, "PolyFd" and "PolyFud". The difference between both programs is, that "PolyFd" is only evaluating the DSE of a PAS while "PolyFud" is evaluating the DSE and the USE. The method we will describe and implemented is based on "PolyFud", as it has been shown to be more accurate.
+
+We will define two (membership) functions to determine the truth value of the DSE and the USE of a PAS:
+
+\begin{equation*}
+f_{DSE}=
+  \begin{cases}
+	1 & \text{, $25 \leq x \leq 35$} \\
+	\frac{1}{15}x - \frac{2}{3} & \text{, $10 \leq x < 25$} \\
+	-\frac{1}{20} + \frac{11}{4} & \text{, $35< x \leq 55$} \\
+	0 & \text{, $10 > x > 55$} \\
+  \end{cases}
+\end{equation*}
+
+
+
+\subsection{Adding base pair probabilities to the PAS prediction}
+
+
+\subsection{getting fucking annoyed with the bloody writing}
+
+
+\subsection{Dataset}
+To analyze the sensitivity of the program, known PASes were collected from mRNA data provided by the Reference Sequence (RefSeq) database\footnote{\url{ftp://ftp.ncbi.nih.gov/genomes/H_sapiens/RNA/rna.gbk.gz}. Version used from: 20.11.2016} to create a positive dataset. We only considered verified mRNA sequences (accession number prefix: NM\_) with PAS motives that were listed in \citeauthor{pmid19393560}. This way, we obtained 6341 PASes with the following motif distribution:
+
+\begin{table}[!h]
+\centering
+  \begin{tabular}{c|r}
+	motif & count \\
+	\hline
+	AATAAA & 4972 \\
+	ATTAAA & 1276 \\
+	TATAAA & 20 \\
+	AATATA & 16 \\
+	AGTAAA & 11 \\
+	AATGAA & 10 \\
+	AAGAAA & 10 \\
+	GATAAA & 7 \\
+	CATAAA & 7 \\
+	ACTAAA & 6 \\
+	AATACA & 3 \\
+	AATAGA & 3 \\
+  \end{tabular}
+\caption{Motif distribution}
+\label{motif_dist}
+\end{table}
+
+The next step was to create a negative dataset consisting of non-functional motives to determine the specificity. While it is possible to search the genome for true negative motives in any region that is not a 3' UTR, we instead decided to shuffle each sequence of the positive dataset maintaining the motif at its original position. The problem with the first approach is that we didn't know if the found matches were truly non-functional. They could have been part of a pseudogene or a not yet discovered transcript. 

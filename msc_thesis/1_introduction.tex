@@ -124,24 +124,24 @@ Zuker's algorithm uses two matrices $W(i,j)$ and $V(i,j)$. $W(i,j)$ denotes the 
 
 \begin{equation*}
 W(i,j) = min
-\begin{cases}
+  \begin{cases}
 	W(i+1,j) \\
 	W(i,j-1) \\
 	V(i,j) \\
 	min\{W(i,j)+W(k+1,j)\} \text{ where $i<k<j$}
-\end{cases}
+  \end{cases}
 \end{equation*}
 
 The equation differentiates between four cases (top to bottom): $i$ is unpaired, $j$ is unpaired, $i$ and $j$ form a base pair and $i$ and $j$ form base pairs but not with each other. When $i$ and $j$ form a base pair we differentiate again between four cases by using the following equation:
 
 \begin{equation*}
 V(i,j) = min
-\begin{cases}
+  \begin{cases}
 	eH(i,j) \\
 	eS(i,j) + v(i+1,j-1) \\
 	min[eL(i,j,i',j') + V(i',j')] & \text{ where $i<i'<j'<k$} \\
 	min[W(i+1,k)+W(k+1,j-1)] & \text{ where $i+1<k<j-1$}
-\end{cases}
+  \end{cases}
 \end{equation*}
 
 Here, $eH$ calculates the energy of a hairpin loop spanning from $i$ to $j$, $eS$ is the energy of $i$ and $j$ being part of a base stack, the third case calculates the energy of a bulge or interior loop and the last case calculates the energy used for the formation of a multiloop.
