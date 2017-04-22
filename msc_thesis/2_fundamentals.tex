@@ -9,16 +9,35 @@ Kamasawa and Horiuchi presented two programs in their original paper, "PolyFd" a
 We will define two (membership) functions to determine the truth value of the DSE and the USE of a PAS:
 
 \begin{equation*}
-f_{DSE}=
+	tv_{DSE}(c_{\text{uracil}}, d)=
   \begin{cases}
-	1 & \text{, $25 \leq x \leq 35$} \\
-	\frac{1}{15}x - \frac{2}{3} & \text{, $10 \leq x < 25$} \\
-	-\frac{1}{20} + \frac{11}{4} & \text{, $35< x \leq 55$} \\
-	0 & \text{, $10 > x > 55$} \\
+	  1 & \text{, $25 \leq d \leq 35$} \\
+	  m_{1}c_{\text{uracil}} + b_{1} & \text{, $10 \leq d < 25$} \\
+	  m_{2}c_{\text{uracil}} + b_{2} & \text{, $35< d \leq 55$} \\
+	  0 & \text{, $10 > d > 55$} \\
   \end{cases}
 \end{equation*}
 
 
+\begin{equation*}
+	tv_{USE}(c_{\text{uracil}})=
+  \begin{cases}
+	  1 & \text{, $c_{\text{uracil}} \geq 0.80$} \\
+	  mc_{\text{uracil}} + b & \text{, $ 0.80 > c_{\text{uracil}} \geq 0.33$} \\
+	  0 & \text{, $c_{\text{uracil}} < 0.33$} \\
+  \end{cases}
+\end{equation*}
+
+where
+
+\begin{equation*}
+  \begin{aligned}
+	  c_{\text{uracil}} &= \text{uracil content in a specific window} \\
+	  d &= \text{distance from the PAS} \\
+	  m &= \text{slope of the straight line equation} \\
+	  b &= \text{intercept of the straight line equation} 
+  \end{aligned}
+\end{equation*}
 
 \subsection{Adding base pair probabilities to the PAS prediction}
 
